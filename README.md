@@ -1,2 +1,11 @@
-# Evoke
-Evoke is a multi-platform game engine written in C++ with support for multiple rendering APIs
+# Evoke - Game Engine
+A small project with big ambitions.
+
+### Purpose
+- Learning
+
+### Goals
+- Good usability, focus on UX
+- Understandable API design
+- Multi-platform
+- Real-time raytracing
