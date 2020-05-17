@@ -6,6 +6,7 @@ A small project with big ambitions.
 
 ### Goals
 - Good usability, focus on UX
-- Understandable API design
+- Easy to understand API design
 - Multi-platform
+- Modern rendering techniques, high visual fidelity
 - Real-time raytracing
