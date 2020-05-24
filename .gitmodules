@@ -1,0 +1,3 @@
+[submodule "Evoke/ThirdParty/spdlog"]
+	path = Evoke/ThirdParty/spdlog
+	url = https://github.com/gabime/spdlog
