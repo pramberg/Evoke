@@ -1,25 +1,18 @@
 #include <Evoke.h>
 
-class Project : public Evoke::Application
+class Sandbox : public Evoke::Application
 {
 public:
-	Project()
+	Sandbox()
 	{
-
 	}
 
-	~Project()
+	~Sandbox()
 	{
-
-	}
-
-	void Run()
-	{
-		Evoke::Log::GetCoreLogger()->warn("Test");
 	}
 };
 
 Evoke::Application* Evoke::CreateApplication()
 {
-	return new Project();
+	return new Sandbox();
 }

@@ -5,7 +5,7 @@ extern Evoke::Application* Evoke::CreateApplication();
 
 #ifdef EV_PLATFORM_WINDOWS
 
-int main(int argc, char** argv)
+int main(i32 inArgCount, c8* inArgValues[])
 {
 	Evoke::Log::Init();
 

@@ -14,6 +14,6 @@ namespace Evoke
 		sCoreLogger->set_level(spdlog::level::trace);
 
 		sClientLogger = spdlog::stdout_color_mt("App");
-		sCoreLogger->set_level(spdlog::level::trace);
+		sClientLogger->set_level(spdlog::level::trace);
 	}
 }

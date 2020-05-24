@@ -19,14 +19,30 @@ namespace Evoke
 	};
 }
 
-#define EV_CORE_TRACE(...) SPDLOG_LOGGER_CALL(::Evoke::Log::GetCoreLogger(), spdlog::level::trace, __VA_ARGS__);
-#define EV_CORE_INFO(...) SPDLOG_LOGGER_CALL(::Evoke::Log::GetCoreLogger(), spdlog::level::info, __VA_ARGS__);
-#define EV_CORE_WARN(...) SPDLOG_LOGGER_CALL(::Evoke::Log::GetCoreLogger(), spdlog::level::warn, __VA_ARGS__);
-#define EV_CORE_ERROR(...) SPDLOG_LOGGER_CALL(::Evoke::Log::GetCoreLogger(), spdlog::level::err, __VA_ARGS__);
-#define EV_CORE_CRITICAL(...) SPDLOG_LOGGER_CALL(::Evoke::Log::GetCoreLogger(), spdlog::level::critical, __VA_ARGS__);
+// Logging macros
+// Using SPDLOG macros will ensure all patterns work correctly, like the ones using __LINE__ and __FILE__.
+#ifndef EV_RETAIL
+#define EV_CORE_TRACE(...) SPDLOG_LOGGER_TRACE(::Evoke::Log::GetCoreLogger(), __VA_ARGS__)
+#define EV_CORE_INFO(...) SPDLOG_LOGGER_INFO(::Evoke::Log::GetCoreLogger(), __VA_ARGS__)
+#define EV_CORE_WARN(...) SPDLOG_LOGGER_WARN(::Evoke::Log::GetCoreLogger(), __VA_ARGS__)
+#define EV_CORE_ERROR(...) SPDLOG_LOGGER_ERROR(::Evoke::Log::GetCoreLogger(), __VA_ARGS__)
+#define EV_CORE_CRITICAL(...) SPDLOG_LOGGER_CRITICAL(::Evoke::Log::GetCoreLogger(), __VA_ARGS__)
 
-#define EV_TRACE(...) SPDLOG_LOGGER_CALL(::Evoke::Log::GetClientLogger(), spdlog::level::trace, __VA_ARGS__);
-#define EV_INFO(...) SPDLOG_LOGGER_CALL(::Evoke::Log::GetClientLogger(), spdlog::level::info, __VA_ARGS__);
-#define EV_WARN(...) SPDLOG_LOGGER_CALL(::Evoke::Log::GetClientLogger(), spdlog::level::warn, __VA_ARGS__);
-#define EV_ERROR(...) SPDLOG_LOGGER_CALL(::Evoke::Log::GetClientLogger(), spdlog::level::err, __VA_ARGS__);
-#define EV_CRITICAL(...) SPDLOG_LOGGER_CALL(::Evoke::Log::GetClientLogger(), spdlog::level::critical, __VA_ARGS__);
+#define EV_TRACE(...) SPDLOG_LOGGER_TRACE(::Evoke::Log::GetClientLogger(), __VA_ARGS__)
+#define EV_INFO(...) SPDLOG_LOGGER_INFO(::Evoke::Log::GetClientLogger(), __VA_ARGS__)
+#define EV_WARN(...) SPDLOG_LOGGER_WARN(::Evoke::Log::GetClientLogger(), __VA_ARGS__)
+#define EV_ERROR(...) SPDLOG_LOGGER_ERROR(::Evoke::Log::GetClientLogger(), __VA_ARGS__)
+#define EV_CRITICAL(...) SPDLOG_LOGGER_CRITICAL(::Evoke::Log::GetClientLogger(), __VA_ARGS__)
+#else
+#define EV_CORE_TRACE(...)
+#define EV_CORE_INFO(...)
+#define EV_CORE_WARN(...)
+#define EV_CORE_ERROR(...)
+#define EV_CORE_CRITICAL(...)
+
+#define EV_TRACE(...)
+#define EV_INFO(...)
+#define EV_WARN(...)
+#define EV_ERROR(...)
+#define EV_CRITICAL(...)
+#endif

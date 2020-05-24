@@ -1,8 +1,5 @@
 #pragma once
-#include <stdint.h>
-#include <string>
-#include <type_traits>
-#include <memory>
+#include "PCH.h"
 
 using i8 = std::int8_t;
 using i16 = std::int16_t;
@@ -22,8 +19,6 @@ using c8 = char;
 using c16 = char16_t;
 using c32 = char32_t;
 
-//using string = std::string;
-using wstring = std::wstring;
-using cstring = const c8*;
+using string = std::string;
 
 using b8 = bool;
