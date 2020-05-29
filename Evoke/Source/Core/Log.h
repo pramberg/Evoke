@@ -1,5 +1,8 @@
 #pragma once
 #include "Core.h"
+
+// Set the SPDLOG active level to trace. We handle that ourselves using macros and set_level()
+#define SPDLOG_ACTIVE_LEVEL 0
 #include "spdlog/spdlog.h"
 #include "spdlog/sinks/basic_file_sink.h"
 
