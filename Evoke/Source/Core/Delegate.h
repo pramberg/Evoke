@@ -8,6 +8,8 @@ class Delegate
 {
 public:
 	using DelegateFn = std::function<ReturnType(Arguments...)>;
+
+	Delegate() : mDelegate(nullptr) {}
 	
 	void Bind(DelegateFn inCallback) { mDelegate = inCallback; }
 	b8 Unbind(DelegateFn inCallback) { mDelegate = nullptr; }
@@ -31,6 +33,8 @@ class MulticastDelegate
 public:
 	using DelegateFn = std::function<void(Arguments...)>;
 	
+	MulticastDelegate() : mCurrentId(0) {}
+
 	DelegateId Subscribe(const DelegateFn& inCallback)
 	{ 
 		mCallbacks.emplace(std::pair(mCurrentId, inCallback));
@@ -57,6 +61,6 @@ public:
 	}
 
 private:
-	std::unordered_map<DelegateId, DelegateFn> mCallbacks;
+	std::map<DelegateId, DelegateFn> mCallbacks;
 	DelegateId mCurrentId;
 };
