@@ -5,4 +5,12 @@ Intermediate/*
 Binaries/*
 
 # Temporary...
-*SDL*
+Evoke/ThirdParty/SDL/*
+!Evoke/ThirdParty/SDL/VisualC
+Evoke/ThirdParty/SDL/VisualC/*
+!Evoke/ThirdParty/SDL/VisualC/x64/
+Evoke/ThirdParty/SDL/VisualC/x64/*
+!Evoke/ThirdParty/SDL/VisualC/x64/Release/
+Evoke/ThirdParty/SDL/VisualC/x64/Release/*
+!Evoke/ThirdParty/SDL/VisualC/x64/Release/*.dll
+!Evoke/ThirdParty/SDL/VisualC/x64/Release/*.lib

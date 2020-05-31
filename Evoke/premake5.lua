@@ -18,3 +18,8 @@ project "Evoke"
         GetCommonIncludes()
     }
 
+    links
+    {
+        "SDL2"
+    }
+

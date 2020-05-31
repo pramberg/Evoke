@@ -5,6 +5,9 @@ outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
 projectroot = path.getabsolute(".")
 
+-- Temporary until I get a proper implementation of SDL2 working
+libdirs { "SDL2", projectroot .. "/Evoke/ThirdParty/SDL/VisualC/x64/Release/" }
+
 function GetDefaultConfig()
     language "C++"
     cppdialect "C++17"
@@ -44,7 +47,8 @@ end
 
 function GetCommonIncludes()
     return { 
-        projectroot .. "/Evoke/ThirdParty/spdlog/include"
+        projectroot .. "/Evoke/ThirdParty/spdlog/include",
+        projectroot .. "/Evoke/ThirdParty/SDL/include"
     }
 end
 

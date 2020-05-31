@@ -17,5 +17,6 @@ project "DefaultProject"
 
     links
     {
-        "Evoke"
+        "Evoke",
+        "SDL2"
     }
