@@ -62,7 +62,7 @@ namespace Evoke
 		 * @param 	inPositionX	The new x position relative to the window.
 		 * @param 	inPositionY	The new y position relative to the window.
 		 */
-		MulticastDelegate<i32, i32> OnMouseMoved;
+		MulticastDelegate<f32, f32> OnMouseMoved;
 
 		/**
 		 * Event that gets broadcast when a mouse button is pressed.
@@ -85,6 +85,6 @@ namespace Evoke
 		 * @param 	inScrollX	How much was scrolled horizontally.
 		 * @param 	inScrollY	How much was scrolled vertically.
 		 */
-		MulticastDelegate<i32, i32> OnMouseScrolled;
+		MulticastDelegate<f32, f32> OnMouseScrolled;
 	};
 }

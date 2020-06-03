@@ -8,9 +8,9 @@ namespace Evoke
 	{
 		mMainWindow->OnWindowClosed.Subscribe([this]() { mIsRunning = false; });
 		mMainWindow->OnWindowResized.Subscribe([](u32 inWidth, u32 inHeight) { EV_CORE_TRACE("Resize({}, {})", inWidth, inHeight); });
-		mMainWindow->OnMouseScrolled.Subscribe([](i32 inScrollX, i32 inScrollY) { EV_CORE_TRACE("Scroll({}, {})", inScrollX, inScrollY); });
+		mMainWindow->OnMouseScrolled.Subscribe([](f32 inScrollX, f32 inScrollY) { EV_CORE_TRACE("Scroll({}, {})", inScrollX, inScrollY); });
 		mMainWindow->OnKeyPressed.Subscribe([](i32 inKeyCode, i32 inRepeatCount) { EV_CORE_TRACE("KeyPressed({}, {})", inKeyCode, inRepeatCount); });
-		mMainWindow->OnMouseMoved.Subscribe([](i32 inPositionX, i32 inPositionY) { EV_CORE_TRACE("MouseMoved({}, {})", inPositionX, inPositionY); });
+		mMainWindow->OnMouseMoved.Subscribe([](f32 inPositionX, f32 inPositionY) { EV_CORE_TRACE("MouseMoved({}, {})", inPositionX, inPositionY); });
 	}
 
 	Application::~Application()

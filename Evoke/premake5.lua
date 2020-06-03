@@ -11,6 +11,11 @@ project "Evoke"
         "Source/**.h",
         "Source/**.cpp",
     }
+
+    removefiles
+    {
+        "Source/Platform/SDL/**"
+    }
     
     includedirs
     {
@@ -20,6 +25,7 @@ project "Evoke"
 
     links
     {
-        "SDL2"
+        "GLFW",
+        "opengl32.lib"
     }
 

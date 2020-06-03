@@ -3,14 +3,14 @@
 
 namespace Evoke
 {
-	static bool sSDLInitialized = false;
+	static bool sGLFWInitialized = false;
 
 	Window* Window::Create(const WindowProperties& inProperties /* = WindowProperties() */)
 	{
 		return new WindowsWindow(inProperties);
 	}
 
-	WindowsWindow::WindowsWindow(const WindowProperties& inProperties) : mWindow(nullptr), mRenderer(nullptr)
+	WindowsWindow::WindowsWindow(const WindowProperties& inProperties) : mWindow(nullptr)
 	{
 		Init(inProperties);
 	}
@@ -22,10 +22,8 @@ namespace Evoke
 
 	void WindowsWindow::Update()
 	{
-		SDL_PollEvent(nullptr);
-		SDL_SetRenderDrawColor(mRenderer, 255, 0, 0, 255);
-		SDL_RenderClear(mRenderer);
-		SDL_RenderPresent(mRenderer);
+		glfwPollEvents();
+		glfwSwapBuffers(mWindow);
 	}
 
 	void WindowsWindow::SetVSync(bool inEnabled)
@@ -33,10 +31,9 @@ namespace Evoke
 		if (inEnabled == GetVSyncEnabled())
 			return;
 
-		mData.VSyncEnabled = inEnabled;
-		SDL_DestroyRenderer(mRenderer);
+		glfwSwapInterval(static_cast<i32>(inEnabled));
 
-		mRenderer = SDL_CreateRenderer(mWindow, -1, SDL_RENDERER_ACCELERATED | (mData.VSyncEnabled ? SDL_RENDERER_PRESENTVSYNC : 0));
+		mData.VSyncEnabled = inEnabled;
 	}
 
 	void WindowsWindow::Init(const WindowProperties& inProperties)
@@ -45,99 +42,92 @@ namespace Evoke
 		mData.Width = inProperties.Width;
 		mData.Height = inProperties.Height;
 
-		if (!sSDLInitialized)
+		if (!sGLFWInitialized)
 		{
-			i32 success = SDL_Init(SDL_INIT_VIDEO);
-			EV_CORE_ASSERT(success == 0, "Failed to initialize SDL.");
+			i32 success = glfwInit();
+			EV_CORE_ASSERT(success, "Failed to initialize GLFW.");
 
-			sSDLInitialized = true;
+			glfwSetErrorCallback([](i32 inError, const c8* inDescription)
+			{
+				EV_CORE_ERROR("GLFW Error ({}): {}", inError, inDescription);
+			});
+
+			sGLFWInitialized = true;
 		}
 
-		mWindow = SDL_CreateWindow(
-			mData.Title.c_str(), 
-			SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 
-			static_cast<i32>(mData.Width), static_cast<i32>(mData.Height), 
-			SDL_WINDOW_RESIZABLE
-		);
+		mWindow = glfwCreateWindow(static_cast<i32>(mData.Width), static_cast<i32>(mData.Height), mData.Title.c_str(), nullptr, nullptr);
+		glfwMakeContextCurrent(mWindow);
+		glfwSetWindowUserPointer(mWindow, this);
+		SetVSync(true);
+		
+		// Setup callbacks
+		glfwSetWindowSizeCallback(mWindow, [](GLFWwindow* inWindow, i32 inWidth, i32 inHeight)
+		{
+			WindowsWindow* window = reinterpret_cast<WindowsWindow*>(glfwGetWindowUserPointer(inWindow));
 
-		mRenderer = SDL_CreateRenderer(mWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+			window->mData.Width = inWidth;
+			window->mData.Height = inHeight;
+			window->OnWindowResized.Broadcast(inWidth, inHeight);
+		});
 
-		SDL_RaiseWindow(mWindow);
-		SDL_AddEventWatch(reinterpret_cast<SDL_EventFilter>(&WindowsWindow::HandleEvents), this);
+		glfwSetWindowCloseCallback(mWindow, [](GLFWwindow* inWindow)
+		{
+			WindowsWindow* window = reinterpret_cast<WindowsWindow*>(glfwGetWindowUserPointer(inWindow));
+			window->OnWindowClosed.Broadcast();
+		});
+
+		glfwSetKeyCallback(mWindow, [](GLFWwindow* inWindow, i32 inKey, i32 inScanCode, i32 inAction, i32 inMods)
+		{
+			WindowsWindow* window = reinterpret_cast<WindowsWindow*>(glfwGetWindowUserPointer(inWindow));
+
+			switch (inAction)
+			{
+			case GLFW_PRESS:
+				window->OnKeyPressed.Broadcast(inKey, 0);
+				break;
+			case GLFW_RELEASE:
+				window->OnKeyReleased.Broadcast(inKey);
+				break;
+			case GLFW_REPEAT:
+				window->OnKeyPressed.Broadcast(inKey, 1);
+				break;
+			}
+		});
+
+		glfwSetMouseButtonCallback(mWindow, [](GLFWwindow* inWindow, i32 inKey, i32 inAction, i32 inMods)
+		{
+			WindowsWindow* window = reinterpret_cast<WindowsWindow*>(glfwGetWindowUserPointer(inWindow));
+
+			switch (inAction)
+			{
+			case GLFW_PRESS:
+				window->OnMouseButtonPressed.Broadcast(inKey, 0);
+				break;
+			case GLFW_RELEASE:
+				window->OnMouseButtonReleased.Broadcast(inKey);
+				break;
+			case GLFW_REPEAT:
+				window->OnKeyPressed.Broadcast(inKey, 1);
+				break;
+			}
+		});
+
+		glfwSetScrollCallback(mWindow, [](GLFWwindow* inWindow, f64 inXOffset, f64 inYOffset) 
+		{
+			WindowsWindow* window = reinterpret_cast<WindowsWindow*>(glfwGetWindowUserPointer(inWindow));
+			window->OnMouseScrolled.Broadcast(static_cast<f32>(inXOffset), static_cast<f32>(inYOffset));
+		});
+
+		glfwSetCursorPosCallback(mWindow, [](GLFWwindow* inWindow, f64 inXPosition, f64 inYPosition)
+		{
+			WindowsWindow* window = reinterpret_cast<WindowsWindow*>(glfwGetWindowUserPointer(inWindow));
+			window->OnMouseMoved.Broadcast(static_cast<f32>(inXPosition), static_cast<f32>(inYPosition));
+		});
 	}
 
 	void WindowsWindow::Close()
 	{
-		SDL_DestroyWindow(mWindow);
-		SDL_DestroyRenderer(mRenderer);
-	}
-
-	i32 WindowsWindow::HandleEvents(void* inUserData, const SDL_Event* inEvent)
-	{
-		auto window = reinterpret_cast<WindowsWindow*>(inUserData);
-
-		// Window events
-		if (inEvent->type == SDL_WINDOWEVENT)
-		{
-			switch (inEvent->window.event)
-			{
-			case SDL_WINDOWEVENT_RESIZED:
-				window->mData.Width = inEvent->window.data1;
-				window->mData.Height = inEvent->window.data2;
-				window->OnWindowResized.Broadcast(window->mData.Width, window->mData.Height);
-				SDL_SetRenderDrawColor(window->mRenderer, 255, 0, 0, 255);
-				SDL_RenderClear(window->mRenderer);
-				SDL_RenderPresent(window->mRenderer);
-				return 0;
-			case SDL_WINDOWEVENT_CLOSE:
-				window->OnWindowClosed.Broadcast();
-				return 0;
-			case SDL_WINDOWEVENT_HIDDEN:
-			case SDL_WINDOWEVENT_SHOWN:
-			default:
-				break;
-			}
-		}
-
-		// Key events
-		if (inEvent->type == SDL_KEYDOWN)
-		{
-			window->OnKeyPressed.Broadcast(inEvent->key.keysym.sym, inEvent->key.repeat);
-			return 0;
-		}
-
-		if (inEvent->type == SDL_KEYUP)
-		{
-			window->OnKeyReleased.Broadcast(inEvent->key.keysym.sym);
-			return 0;
-		}
-
-		// Mouse events
-		if (inEvent->type == SDL_MOUSEMOTION)
-		{
-			window->OnMouseMoved.Broadcast(inEvent->motion.x, inEvent->motion.y);
-			return 0;
-		}
-
-		if (inEvent->type == SDL_MOUSEBUTTONDOWN)
-		{
-			window->OnMouseButtonPressed.Broadcast(inEvent->button.button, inEvent->button.clicks);
-			return 0;
-		}
-
-		if (inEvent->type == SDL_MOUSEBUTTONUP)
-		{
-			window->OnMouseButtonReleased.Broadcast(inEvent->button.button);
-			return 0;
-		}
-
-		if (inEvent->type == SDL_MOUSEWHEEL)
-		{
-			window->OnMouseScrolled.Broadcast(inEvent->wheel.x, inEvent->wheel.y);
-			return 0;
-		}
-
-		return 1;
+		glfwDestroyWindow(mWindow);
 	}
 
 }

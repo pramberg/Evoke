@@ -1,6 +1,6 @@
 #pragma once
 #include "Core/Window.h"
-#include <SDL.h>
+#include <GLFW/glfw3.h>	
 
 namespace Evoke
 {
@@ -21,11 +21,9 @@ namespace Evoke
 	private:
 		virtual void Init(const WindowProperties& inProperties);
 		virtual void Close();
-		static i32 HandleEvents(void* inUserData, const SDL_Event* inEvent);
 
 	private:
-		SDL_Window* mWindow;
-		SDL_Renderer* mRenderer;
+		GLFWwindow* mWindow;
 
 		struct WindowData
 		{
