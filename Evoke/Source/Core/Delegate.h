@@ -3,6 +3,12 @@
 
 using DelegateId = size_t;
 
+/**
+ * A single cast delegate.
+ *
+ * @tparam	ReturnType	The return type of the delegate.
+ * @tparam	Parameters	The signature of the delegate.
+ */
 template<typename ReturnType, typename... Parameters>
 class Delegate
 {
@@ -26,6 +32,11 @@ private:
 	DelegateFn mDelegate;
 };
 
+/**
+ * A delegate with multiple functions.
+ *
+ * @tparam	Parameters	The signature of the delegate.
+ */
 template<typename... Parameters>
 class MulticastDelegate
 {
@@ -66,6 +77,74 @@ public:
 		for (const auto& callback : mCallbacks)
 		{
 			callback.Function(inArguments...);
+		}
+	}
+
+private:
+	std::vector<Handle> mCallbacks;
+	DelegateId mCurrentId = 0;
+};
+
+/**
+ * A delegate whose bound functions can be prioritized and stop further
+ * broadcasting based on the boolean value the function returns.
+ *
+ * @tparam	Parameters	The signature of the delegate.
+ */
+template<typename... Parameters>
+class OrderedDelegate
+{
+public:
+	using DelegateFn = std::function<bool(Parameters...)>;
+
+	OrderedDelegate() {}
+
+	struct Handle
+	{
+		Handle(DelegateId inId, const DelegateFn& inFunction, i32 inPriority) : Id(inId), Function(inFunction), Priority(inPriority){}
+		DelegateId Id;
+		DelegateFn Function;
+		i32 Priority;
+	};
+
+	DelegateId Subscribe(const DelegateFn& inCallback, i32 inPriority = 0)
+	{
+		b8 emplaced = false;
+		for (i32 i = 0; i < mCallbacks.size(); i++)
+		{
+			if (inPriority > mCallbacks[i].Priority)
+			{
+				mCallbacks.emplace(mCallbacks.begin() + i, mCurrentId, inCallback, inPriority);
+				emplaced = true;
+				break;
+			}
+		}
+		if (!emplaced)
+			mCallbacks.emplace_back(mCurrentId, inCallback, inPriority);
+
+		return mCurrentId++;
+	}
+
+	b8 Unsubscribe(DelegateId inId)
+	{
+		for (size_t i = 0; i < mCallbacks.size(); i++)
+		{
+			if (mCallbacks[i].Id == inId)
+			{
+				mCallbacks.erase(mCallbacks.begin() + i);
+				return true;
+			}
+		}
+		return false;
+	}
+
+	template<typename... Arguments>
+	void Broadcast(Arguments... inArguments)
+	{
+		for (const auto& callback : mCallbacks)
+		{
+			if (callback.Function(inArguments...))
+				break;
 		}
 	}
 
