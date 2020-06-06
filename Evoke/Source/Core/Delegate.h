@@ -1,13 +1,13 @@
 #pragma once
 #include "PCH.h"
 
-using DelegateId = i32;
+using DelegateId = size_t;
 
-template<typename ReturnType, typename... Arguments>
+template<typename ReturnType, typename... Parameters>
 class Delegate
 {
 public:
-	using DelegateFn = std::function<ReturnType(Arguments...)>;
+	using DelegateFn = std::function<ReturnType(Parameters...)>;
 
 	Delegate() : mDelegate(nullptr) {}
 	
@@ -26,27 +26,36 @@ private:
 	DelegateFn mDelegate;
 };
 
-
-template<typename... Arguments>
+template<typename... Parameters>
 class MulticastDelegate
 {
 public:
-	using DelegateFn = std::function<void(Arguments...)>;
-	
-	MulticastDelegate() : mCurrentId(0) {}
+	using DelegateFn = std::function<void(Parameters...)>;
+
+	MulticastDelegate() {}
+
+	struct Handle
+	{
+		Handle(DelegateId inId, const DelegateFn& inFunction) : Id(inId), Function(inFunction) {}
+		DelegateId Id;
+		DelegateFn Function;
+	};
 
 	DelegateId Subscribe(const DelegateFn& inCallback)
-	{ 
-		mCallbacks.emplace(std::pair(mCurrentId, inCallback));
+	{
+		mCallbacks.emplace_back(mCurrentId, inCallback);
 		return mCurrentId++;
 	}
 
-	b8 Unsubscribe(DelegateId inId) 
-	{ 
-		if (mCallbacks.count(inId))
+	b8 Unsubscribe(DelegateId inId)
+	{
+		for (size_t i = 0; i < mCallbacks.size(); i++)
 		{
-			mCallbacks.erase(inId);
-			return true;
+			if (mCallbacks[i].Id == inId)
+			{
+				mCallbacks.erase(mCallbacks.begin() + i);
+				return true;
+			}
 		}
 		return false;
 	}
@@ -54,13 +63,13 @@ public:
 	template<typename... Arguments>
 	void Broadcast(Arguments... inArguments)
 	{
-		for (const auto& callbackPair : mCallbacks)
+		for (const auto& callback : mCallbacks)
 		{
-			callbackPair.second(inArguments...);
+			callback.Function(inArguments...);
 		}
 	}
 
 private:
-	std::map<DelegateId, DelegateFn> mCallbacks;
-	DelegateId mCurrentId;
+	std::vector<Handle> mCallbacks;
+	DelegateId mCurrentId = 0;
 };
