@@ -1,5 +1,6 @@
 #include "PCH.h"
 #include "WindowsWindow.h"
+#include <glad\glad.h>
 
 namespace Evoke
 {
@@ -57,6 +58,10 @@ namespace Evoke
 
 		mWindow = glfwCreateWindow(static_cast<i32>(mData.Width), static_cast<i32>(mData.Height), mData.Title.c_str(), nullptr, nullptr);
 		glfwMakeContextCurrent(mWindow);
+
+		i32 status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
+		EV_CORE_ASSERT(status, "Failed to initialize Glad");
+
 		glfwSetWindowUserPointer(mWindow, this);
 		SetVSync(true);
 		

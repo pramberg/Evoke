@@ -44,8 +44,14 @@ end
 
 function GetCommonIncludes()
     return { 
-        projectroot .. "/Evoke/ThirdParty/spdlog/include",
-        projectroot .. "/Evoke/ThirdParty/GLFW/include"
+        projectroot .. "/Evoke/ThirdParty/spdlog/include"
+    }
+end
+
+function GetGraphicsIncludes()
+    return {
+        projectroot .. "/Evoke/ThirdParty/GLFW/include",
+        projectroot .. "/Evoke/ThirdParty/Glad/include"
     }
 end
 
@@ -70,6 +76,7 @@ workspace "Evoke"
 
 group "Dependencies"
 include "Evoke/ThirdParty/GLFW"
+include "Evoke/ThirdParty/Glad"
 
 group ""
 include "Evoke"
