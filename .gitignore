@@ -1,8 +1,11 @@
 .vs
 *.sln
 *.vcxproj*
-Intermediate/*
-Binaries/*
+Intermediate*
+Binaries*
+bin-int/*
+bin/*
+
 
 # Temporary...
 Evoke/ThirdParty/SDL/*
@@ -14,3 +17,5 @@ Evoke/ThirdParty/SDL/VisualC/x64/*
 Evoke/ThirdParty/SDL/VisualC/x64/Release/*
 !Evoke/ThirdParty/SDL/VisualC/x64/Release/*.dll
 !Evoke/ThirdParty/SDL/VisualC/x64/Release/*.lib
+
+*/imgui.ini

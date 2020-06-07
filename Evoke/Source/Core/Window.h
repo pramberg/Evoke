@@ -27,6 +27,8 @@ namespace Evoke
 		virtual void SetVSync(bool inEnabled) = 0;
 		virtual bool GetVSyncEnabled() const = 0;
 
+		virtual void* GetNativeWindow() const = 0;
+
 		static Window* Create(const WindowProperties& inProperties = WindowProperties());
 
 	public:

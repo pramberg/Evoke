@@ -12,6 +12,7 @@ namespace Evoke
 		virtual ~Application();
 
 		void Run();
+		void Close() { mIsRunning = false; }
 		
 		void PushLayer(Layer* inLayer);
 		void PushOverlay(Layer* inOverlay);

@@ -20,14 +20,17 @@ project "Evoke"
     includedirs
     {
         "Source",
-        GetCommonIncludes(),
-        GetGraphicsIncludes()
+        "ThirdParty/ImGui",
+        "ThirdParty/GLFW/include",
+        "ThirdParty/Glad/include",
+        GetCommonIncludes()
     }
 
     links
     {
         "GLFW",
         "Glad",
+        "ImGui",
         "opengl32.lib"
     }
 

@@ -48,13 +48,6 @@ function GetCommonIncludes()
     }
 end
 
-function GetGraphicsIncludes()
-    return {
-        projectroot .. "/Evoke/ThirdParty/GLFW/include",
-        projectroot .. "/Evoke/ThirdParty/Glad/include"
-    }
-end
-
 --------
 -- Setup
 --------
@@ -77,6 +70,7 @@ workspace "Evoke"
 group "Dependencies"
 include "Evoke/ThirdParty/GLFW"
 include "Evoke/ThirdParty/Glad"
+include "Evoke/ThirdParty/ImGui"
 
 group ""
 include "Evoke"

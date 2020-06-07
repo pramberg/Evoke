@@ -1,6 +1,8 @@
 #include "PCH.h"
 #include "Application.h"
 #include "Window.h"
+#include "Debug/ImGuiLayer.h"
+#include "glad/glad.h"
 
 namespace Evoke
 {
@@ -11,7 +13,8 @@ namespace Evoke
 		EV_CORE_ASSERT(!sApplication, "Application already exists");
 		sApplication = this;
 
-		mMainWindow->OnWindowClosed.Subscribe([this]() { mIsRunning = false; });
+		mMainWindow->OnWindowClosed.Subscribe([this]() { Close(); });
+		PushOverlay(new ImGuiLayer());
 	}
 
 	Application::~Application()
@@ -26,6 +29,9 @@ namespace Evoke
 				layer->Update();
 
 			mMainWindow->Update();
+
+			glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		}
 	}
 

@@ -17,6 +17,8 @@ namespace Evoke
 	
 		virtual void SetVSync(bool inEnabled) override;
 		virtual bool GetVSyncEnabled() const override { return mData.VSyncEnabled; }
+
+		virtual void* GetNativeWindow() const override { return mWindow; };
 	
 	private:
 		virtual void Init(const WindowProperties& inProperties);
