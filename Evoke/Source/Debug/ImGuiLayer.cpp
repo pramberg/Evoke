@@ -42,7 +42,7 @@ namespace Evoke
 		}
 
 		Application& app = Application::Get();
-		GLFWwindow* window = static_cast<GLFWwindow*>(app.MainWindow().GetNativeWindow());
+		GLFWwindow* window = static_cast<GLFWwindow*>(app.GetWindow().GetNativeWindow());
 
 		// Setup Platform/Renderer bindings
 		ImGui_ImplGlfw_InitForOpenGL(window, true);
@@ -133,7 +133,7 @@ namespace Evoke
 
 		ImGuiIO& io = ImGui::GetIO();
 		Application& app = Application::Get();
-		io.DisplaySize = ImVec2((f32)app.MainWindow().GetWidth(), (f32)app.MainWindow().GetHeight());
+		io.DisplaySize = ImVec2((f32)app.GetWindow().GetWidth(), (f32)app.GetWindow().GetHeight());
 
 		// Rendering
 		ImGui::Render();

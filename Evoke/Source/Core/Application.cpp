@@ -13,7 +13,8 @@ namespace Evoke
 		EV_CORE_ASSERT(!sApplication, "Application already exists");
 		sApplication = this;
 
-		mMainWindow->OnWindowClosed.Subscribe([this]() { Close(); });
+		mMainWindow->OnWindowClosed.Subscribe(EV_BIND_0(Application::OnWindowClose));
+		mMainWindow->OnWindowResized.Subscribe(EV_BIND_2(Application::OnWindowResized));
 		PushOverlay(new ImGuiLayer());
 	}
 
@@ -25,14 +26,29 @@ namespace Evoke
 	{
 		while (mIsRunning)
 		{
-			for (Layer* layer : mLayerStack)
-				layer->Update();
-
-			mMainWindow->Update();
-
-			glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			Update();
 		}
+	}
+
+	void Application::Update()
+	{
+		for (Layer* layer : mLayerStack)
+			layer->Update();
+
+		mMainWindow->Update();
+
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	}
+
+	void Application::OnWindowClose()
+	{
+		Close();
+	}
+
+	void Application::OnWindowResized(u32 inWidth, u32 inHeight)
+	{
+		Update();
 	}
 
 	void Application::PushLayer(Layer* inLayer)

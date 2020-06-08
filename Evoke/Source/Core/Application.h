@@ -15,11 +15,19 @@ namespace Evoke
 		void Close() { mIsRunning = false; }
 		
 		void PushLayer(Layer* inLayer);
-		void PushOverlay(Layer* inOverlay);
+		void PushOverlay(Layer* inLayer);
 
-		Window& MainWindow() { return *mMainWindow; }
-		const Window& MainWindow() const { return *mMainWindow; }
+		Window& GetWindow() { return *mMainWindow; }
+		const Window& GetWindow() const { return *mMainWindow; }
+
+	public:
 		static Application& Get() { return *sApplication; }
+
+	private:
+		void Update();
+		void OnWindowClose();
+		void OnWindowResized(u32 inWidth, u32 inHeight);
+
 	private:
 		std::unique_ptr<Window> mMainWindow;
 		b8 mIsRunning = true;
