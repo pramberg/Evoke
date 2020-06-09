@@ -44,7 +44,8 @@ end
 
 function GetCommonIncludes()
     return { 
-        projectroot .. "/Evoke/ThirdParty/spdlog/include"
+        projectroot .. "/Evoke/ThirdParty/spdlog/include",
+        projectroot .. "/Evoke/ThirdParty/GLM/"
     }
 end
 

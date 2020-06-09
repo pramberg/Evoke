@@ -5,7 +5,6 @@ namespace Evoke
 {
 	class WindowsInput : public Input
 	{
-		
 	protected:
 		virtual b8 IsKeyPressedImpl(i32 inKeycode) override;
 

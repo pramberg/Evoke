@@ -7,3 +7,6 @@
 [submodule "Evoke/ThirdParty/ImGui"]
 	path = Evoke/ThirdParty/ImGui
 	url = https://github.com/TheCherno/imgui
+[submodule "Evoke/ThirdParty/GLM"]
+	path = Evoke/ThirdParty/GLM
+	url = https://github.com/g-truc/glm

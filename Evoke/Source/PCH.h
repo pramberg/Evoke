@@ -19,6 +19,8 @@
 
 #include "Core/Log.h"
 
+#include <glm/glm.hpp>
+
 #ifdef EV_PLATFORM_WINDOWS
 	#include <Windows.h>
 #endif

@@ -51,3 +51,27 @@ namespace Evoke
 #define EV_ERROR(...)
 #define EV_CRITICAL(...)
 #endif
+
+// Make GLM types printable with fmt. I couldn't find a generic way to do this, but if there is a way I'd like to do that instead
+// of this...
+#include <spdlog/fmt/bundled/format.h>
+#include <glm/gtx/string_cast.hpp>
+
+#define GLM_FORMAT_TYPE(inGLMType) \
+template <>\
+struct fmt::formatter<inGLMType> : formatter<string_view>\
+{\
+	template <typename FormatContext> \
+	auto format(inGLMType inType, FormatContext& inContext) {\
+		return formatter<string_view>::format(glm::to_string(inType), inContext);\
+	}\
+};\
+
+GLM_FORMAT_TYPE(glm::vec1);
+GLM_FORMAT_TYPE(glm::vec2);
+GLM_FORMAT_TYPE(glm::vec3);
+GLM_FORMAT_TYPE(glm::vec4);
+GLM_FORMAT_TYPE(glm::mat2);
+GLM_FORMAT_TYPE(glm::mat3);
+GLM_FORMAT_TYPE(glm::mat4);
+GLM_FORMAT_TYPE(glm::quat);
