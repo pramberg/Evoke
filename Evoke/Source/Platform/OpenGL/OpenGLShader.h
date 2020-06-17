@@ -7,6 +7,7 @@ namespace Evoke
 	{
 	public:
 		OpenGLShader(const string& inFilepath, const ShaderCompilerConfig& inConfig);
+		~OpenGLShader();
 
 		virtual void Bind() override;
 		virtual void Unbind() override;

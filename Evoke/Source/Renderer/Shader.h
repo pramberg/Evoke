@@ -3,7 +3,7 @@
 
 namespace Evoke
 {
-	enum class ShaderType : c8
+	enum class EShaderStage : c8
 	{
 		Vertex,
 		Hull,
@@ -11,13 +11,12 @@ namespace Evoke
 		Geometry,
 		Pixel,
 		Compute,
-		Count,
-		None
+		Count
 	};
 
 	class ShaderUtilities
 	{
-		static string GetNiceShaderTypeName(ShaderType inShaderType);
+		static string GetNiceShaderTypeName(EShaderStage inShaderType);
 	};
 
 	struct ShaderCompilerConfig
@@ -25,15 +24,15 @@ namespace Evoke
 		static const ShaderCompilerConfig& GetStandard()
 		{
 			static ShaderCompilerConfig config;
-			config.EntryPoints["VSMain"] = ShaderType::Vertex;
-			config.EntryPoints["PSMain"] = ShaderType::Pixel;
+			config.EntryPoints["VSMain"] = EShaderStage::Vertex;
+			config.EntryPoints["PSMain"] = EShaderStage::Pixel;
 			return config;
 		}
 
-		void AddVertexShader(const string& inEntryPoint) { EntryPoints[inEntryPoint] = ShaderType::Vertex; }
-		void AddPixelShader(const string& inEntryPoint) { EntryPoints[inEntryPoint] = ShaderType::Pixel; }
+		void AddVertexShader(const string& inEntryPoint) { EntryPoints[inEntryPoint] = EShaderStage::Vertex; }
+		void AddPixelShader(const string& inEntryPoint) { EntryPoints[inEntryPoint] = EShaderStage::Pixel; }
 
-		std::unordered_map<string, ShaderType> EntryPoints;
+		std::unordered_map<string, EShaderStage> EntryPoints;
 	};
 
 	class Shader

@@ -3,7 +3,7 @@
 
 namespace Evoke
 {
-	enum class RenderAPI : c8
+	enum class ERenderAPI : c8
 	{
 		OpenGL,
 		Vulkan,
@@ -14,6 +14,6 @@ namespace Evoke
 	class Renderer
 	{
 	public:
-		static RenderAPI GetAPI() { return RenderAPI::OpenGL; }
+		static ERenderAPI GetAPI() { return ERenderAPI::OpenGL; }
 	};
 }
