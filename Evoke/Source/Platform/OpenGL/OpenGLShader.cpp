@@ -1,149 +1,124 @@
 #include "PCH.h"
 #include "OpenGLShader.h"
-#include <atlbase.h>
-#include "dxc/dxcapi.h"
 #include "glad/glad.h"
-
-#include <locale>
-#include <codecvt>
+#include "ShaderConductor/ShaderConductor.hpp"
+#include <fstream>
+#include <filesystem>
 
 // #TODO: Error handling
-// #TODO: Figure out how to handle strings
-#include "dxc/Support/dxcapi.use.h"
 namespace Evoke
 {
-	static GLenum GetGLSLShaderType(const ShaderType& inShaderType)
+	static GLenum GetGLSLShaderStage(const EShaderStage& inShaderType)
 	{
 		switch (inShaderType)
 		{
-		case ShaderType::Vertex:
+		case EShaderStage::Vertex:
 			return GL_VERTEX_SHADER;
-		case ShaderType::Hull:
+		case EShaderStage::Hull:
 			return GL_TESS_CONTROL_SHADER;
-		case ShaderType::Domain:
+		case EShaderStage::Domain:
 			return GL_TESS_EVALUATION_SHADER;
-		case ShaderType::Geometry:
+		case EShaderStage::Geometry:
 			return GL_GEOMETRY_SHADER;
-		case ShaderType::Pixel:
+		case EShaderStage::Pixel:
 			return GL_FRAGMENT_SHADER;
-		case ShaderType::Compute:
+		case EShaderStage::Compute:
 			return GL_COMPUTE_SHADER;
-		case ShaderType::Count:
-		case ShaderType::None:
 		default:
-			EV_CORE_ASSERT(false, "Unknown shader type");
+			EV_CORE_ASSERT(false, "Unknown shader stage");
 			return GL_NONE;
 		}
 	}
 
-	static std::wstring GetTargetProfile(const ShaderType& inShaderType)
+	static ShaderConductor::ShaderStage GetShaderConductorShaderStage(const EShaderStage& inShaderType)
 	{
 		switch (inShaderType)
 		{
-		case ShaderType::Vertex:
-			return L"vs_6_0";
-		case ShaderType::Hull:
-			return L"hs_6_0";
-		case ShaderType::Domain:
-			return L"ds_6_0";
-		case ShaderType::Geometry:
-			return L"gs_6_0";
-		case ShaderType::Pixel:
-			return L"ps_6_0";
-		case ShaderType::Compute:
-			return L"cs_6_0";
-		case ShaderType::Count:
-		case ShaderType::None:
+		case EShaderStage::Vertex:
+			return ShaderConductor::ShaderStage::VertexShader;
+		case EShaderStage::Hull:
+			return ShaderConductor::ShaderStage::HullShader;
+		case EShaderStage::Domain:
+			return ShaderConductor::ShaderStage::DomainShader;
+		case EShaderStage::Geometry:
+			return ShaderConductor::ShaderStage::GeometryShader;
+		case EShaderStage::Pixel:
+			return ShaderConductor::ShaderStage::PixelShader;
+		case EShaderStage::Compute:
+			return ShaderConductor::ShaderStage::ComputeShader;
 		default:
-			EV_CORE_ASSERT(false, "Unknown shader type");
-			return L"";
+			EV_CORE_ASSERT(false, "Unknown shader stage");
+			return ShaderConductor::ShaderStage::NumShaderStages;
 		}
 	}
 
-	std::wstring ConvertToWString(const std::string& str)
+	string LoadFile(const string& inFilepath)
 	{
-		using convert_typeX = std::codecvt_utf8<wchar_t>;
-		std::wstring_convert<convert_typeX, wchar_t> converterX;
-
-		return converterX.from_bytes(str);
+		std::ifstream filestream(inFilepath);
+		std::stringstream buffer;
+		buffer << filestream.rdbuf();
+		return buffer.str();
 	}
 
-	static dxc::DxcDllSupport gSupport;
+	string GetFilename(const string& inFilepath)
+	{
+		std::filesystem::path path(inFilepath);
+		return path.filename().string();
+	}
 
 	OpenGLShader::OpenGLShader(const string& inFilepath, const ShaderCompilerConfig& inConfig)
 	{
-		// Is this right? Want to avoid Windows specific code...
-		/*gSupport.Initialize();
+		// #TODO: Handle the case where the filepath is invalid.
+		const string sourceData = LoadFile(inFilepath);
+		const string fileName = GetFilename(inFilepath);
 
-		IDxcUtils* x;
-		gSupport.CreateInstance(CLSID_DxcUtils, &x);*/
-
-		// Create all DxCompiler objects that are needed to compile the shader.
-		CComPtr<IDxcUtils> dxcUtils;
-		CComPtr<IDxcCompiler3> dxcCompiler;
-		DxcCreateInstance(CLSID_DxcUtils, IID_PPV_ARGS(&dxcUtils));
-		DxcCreateInstance(CLSID_DxcCompiler, IID_PPV_ARGS(&dxcCompiler));
-
-		CComPtr<IDxcIncludeHandler> dxcIncludeHandler;
-		dxcUtils->CreateDefaultIncludeHandler(&dxcIncludeHandler);
-
-		u32 program = glCreateProgram();
-		std::vector<u32> shaders;
 		b8 isValid = true;
 		i32 success;
+		std::vector<u32> createdShaders;
 
-		const std::wstring fileName = ConvertToWString(inFilepath);
+		const u32 program = glCreateProgram();
 
-		CComPtr<IDxcBlobEncoding> shaderSourceBlob = nullptr;
-		dxcUtils->LoadFile(fileName.c_str(), nullptr, &shaderSourceBlob);
-
-		DxcBuffer sourceBuffer;
-		sourceBuffer.Ptr = shaderSourceBlob->GetBufferPointer();
-		sourceBuffer.Size = shaderSourceBlob->GetBufferSize();
-		sourceBuffer.Encoding = DXC_CP_ACP;
-
-		for (auto& entryPoint : inConfig.EntryPoints)
+		for (auto& entryPointPair : inConfig.EntryPoints)
 		{
-			const std::wstring entryPointName = ConvertToWString(entryPoint.first);
-			const std::wstring targetProfile = GetTargetProfile(entryPoint.second);
+			const string& entryPoint = entryPointPair.first;
+			const EShaderStage shaderStage = entryPointPair.second;
 
-			LPCWSTR arguments[]
+			ShaderConductor::Compiler::SourceDesc sourceDesc;
+			sourceDesc.entryPoint = entryPoint.c_str();
+			sourceDesc.fileName = fileName.c_str();
+			sourceDesc.source = sourceData.c_str();
+			sourceDesc.stage = GetShaderConductorShaderStage(shaderStage);
+			sourceDesc.defines = nullptr;
+			sourceDesc.numDefines = 0;
+
+			ShaderConductor::Compiler::TargetDesc targetDesc;
+			targetDesc.asModule = false;
+			targetDesc.language = ShaderConductor::ShadingLanguage::SpirV;
+
+			ShaderConductor::Compiler::Options options;
+
+			auto results = ShaderConductor::Compiler::Compile(sourceDesc, options, targetDesc);
+
+			if (results.hasError && results.errorWarningMsg)
 			{
-				L"-E", entryPointName.c_str(), // Entry point.
-				L"-spirv",                     // Output SPIR-V
-				fileName.c_str(),              // Optional shader source file name for error reporting and for PIX shader source view. 
-				L"-T", targetProfile.c_str()   // Target.
-			};
-
-			CComPtr<IDxcResult> compilationResults;
-			dxcCompiler->Compile(&sourceBuffer, arguments, _countof(arguments), dxcIncludeHandler, IID_PPV_ARGS(&compilationResults));
-
-			CComPtr<IDxcBlobUtf8> compilationErrors = nullptr;
-			compilationResults->GetOutput(DXC_OUT_ERRORS, IID_PPV_ARGS(&compilationErrors), nullptr);
-
-			if (compilationErrors != nullptr && compilationErrors->GetStringLength() != 0)
-			{
-				EV_CORE_ERROR("{}", compilationErrors->GetStringPointer());
+				EV_CORE_ERROR("{}", (c8*)results.errorWarningMsg->Data());
 				isValid = false;
+				break;
 			}
 
-			CComPtr<IDxcBlob> spirvShaderBlob = nullptr;
-			compilationResults->GetOutput(DXC_OUT_OBJECT, IID_PPV_ARGS(&spirvShaderBlob), nullptr);
-
-			u32 shader = glCreateShader(GetGLSLShaderType(entryPoint.second));
-			glShaderBinary(1, &shader, GL_SHADER_BINARY_FORMAT_SPIR_V_ARB, spirvShaderBlob->GetBufferPointer(), spirvShaderBlob->GetBufferSize());
-			glSpecializeShaderARB(shader, entryPoint.first.c_str(), 0, nullptr, nullptr); // Required
+			const u32 shader = glCreateShader(GetGLSLShaderStage(shaderStage));
+			glShaderBinary(1, &shader, GL_SHADER_BINARY_FORMAT_SPIR_V_ARB, results.target->Data(), results.target->Size());
+			glSpecializeShaderARB(shader, entryPoint.c_str(), 0, nullptr, nullptr); // Required
 			glAttachShader(program, shader);
 
 			// Push back before potentially breaking, because shader needs to be cleaned up regardless.
-			shaders.push_back(shader);
+			createdShaders.push_back(shader);
 
 			glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
 			if (!success)
 			{
 				break;
 			}
-
 		}
 		
 		glLinkProgram(program);
@@ -152,8 +127,8 @@ namespace Evoke
 		if (!success && isValid)
 		{
 			c8 infoLog[512];
-			glGetProgramInfoLog(program, 512, NULL, infoLog);
-			EV_CORE_ERROR("Shader linking failure: {}", infoLog);
+			glGetProgramInfoLog(program, sizeof(infoLog) / sizeof(infoLog[0]), NULL, infoLog);
+			EV_CORE_ERROR("Failed to link shader: {}", infoLog);
 			isValid = false;
 		}
 
@@ -165,11 +140,16 @@ namespace Evoke
 		mRendererID = program;
 		mIsValid = isValid;
 
-		for (i32 shader : shaders)
+		for (i32 shader : createdShaders)
 		{
 			glDetachShader(mRendererID, shader);
 			glDeleteShader(shader);
 		}
+	}
+
+	OpenGLShader::~OpenGLShader()
+	{
+		glDeleteProgram(mRendererID);
 	}
 
 	void OpenGLShader::Bind()
