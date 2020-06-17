@@ -23,6 +23,7 @@ project "Evoke"
         "ThirdParty/ImGui",
         "ThirdParty/GLFW/include",
         "ThirdParty/Glad/include",
+        "ThirdParty/DXC/include",
         GetCommonIncludes()
     }
 
@@ -31,7 +32,13 @@ project "Evoke"
         "GLFW",
         "Glad",
         "ImGui",
-        "opengl32.lib"
+        "opengl32.lib",
+        "dxcompiler.lib"
+    }
+
+    libdirs
+    {
+        "ThirdParty/DXC/lib"
     }
 
     filter "system:windows"

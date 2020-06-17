@@ -19,3 +19,14 @@ project "DefaultProject"
     {
         "Evoke"
     }
+
+    libdirs
+    {
+        "ThirdParty/DXC/lib"
+    }
+
+    postbuildcommands
+    {
+        "{COPY} %{wks.location}Evoke/ThirdParty/DXC/lib/dxcompiler.dll %{cfg.buildtarget.directory}",
+        "{COPY} %{wks.location}Evoke/ThirdParty/DXC/lib/dxil.dll %{cfg.buildtarget.directory}"
+	}
