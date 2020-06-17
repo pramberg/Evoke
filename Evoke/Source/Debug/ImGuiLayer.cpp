@@ -58,12 +58,12 @@ namespace Evoke
 
 	void ImGuiLayer::Update()
 	{
-		Begin();
+		/*Begin();
 
 		static bool showDemoWindow = true;
 		ImGui::ShowDemoWindow(&showDemoWindow);
 
-		End();
+		End();*/
 	}
 
 	void ImGuiLayer::Begin()

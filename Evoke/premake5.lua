@@ -23,6 +23,7 @@ project "Evoke"
         "ThirdParty/ImGui",
         "ThirdParty/GLFW/include",
         "ThirdParty/Glad/include",
+        "ThirdParty/ShaderConductor/include",
         GetCommonIncludes()
     }
 
@@ -30,9 +31,19 @@ project "Evoke"
     {
         "GLFW",
         "Glad",
-        "ImGui",
-        "opengl32.lib"
+        "ImGui"
+    }
+
+    libdirs
+    {
+        "ThirdParty/ShaderConductor/lib"
     }
 
     filter "system:windows"
+        links
+        {
+            --"opengl32.lib", -- This doesn't seem to be necessary?
+            "ShaderConductor.lib"
+        }
+
         defines "GLFW_INCLUDE_NONE"

@@ -19,3 +19,15 @@ project "DefaultProject"
     {
         "Evoke"
     }
+
+    libdirs
+    {
+        "ThirdParty/ShaderConductor/lib"
+    }
+
+    filter "system:windows"
+        postbuildcommands
+        {
+            "{COPY} %{wks.location}Evoke/ThirdParty/ShaderConductor/bin/dxcompiler.dll %{cfg.buildtarget.directory}",
+            "{COPY} %{wks.location}Evoke/ThirdParty/ShaderConductor/bin/ShaderConductor.dll %{cfg.buildtarget.directory}"
+        }

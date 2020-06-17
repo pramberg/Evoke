@@ -3,6 +3,7 @@
 #include "Window.h"
 #include "Debug/ImGuiLayer.h"
 #include "glad/glad.h"
+#include "Renderer/Shader.h"
 
 namespace Evoke
 {
@@ -24,9 +25,32 @@ namespace Evoke
 
 	void Application::Run()
 	{
+		glDebugMessageCallback([](GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam) { EV_INFO("{}", message); }, nullptr);
+		u32 vao;
+		glGenVertexArrays(1, &vao);
+		glBindVertexArray(vao);
+		f32 vertices[]{
+			-0.5f, -0.5f, 0.0f,
+			0.5f, -0.5f, 0.0f,
+			0.0f, 0.5f, 0.0f
+		};
+
+		u32 vbo;
+		glGenBuffers(1, &vbo);
+		glBindBuffer(GL_ARRAY_BUFFER, vbo);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+		glEnableVertexAttribArray(0);
+
+		auto testShader = Shader::Create("../Shaders/TestShader.hlsl");
+		testShader->Bind();
+
 		while (mIsRunning)
 		{
 			Update();
+			glBindVertexArray(vao);
+			glDrawArrays(GL_TRIANGLES, 0, 3);
 		}
 	}
 
@@ -37,7 +61,7 @@ namespace Evoke
 
 		mMainWindow->Update();
 
-		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		glClearColor(0.0f, 0.1f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
 

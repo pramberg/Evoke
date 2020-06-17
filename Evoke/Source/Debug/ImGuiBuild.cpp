@@ -1,7 +1,7 @@
 #include "PCH.h"
 
 #define IMGUI_IMPL_OPENGL_LOADER_GLAD
-#define _CRT_SECURE_NO_WARNINGS
+#define _CRT_SECURE_NO_WARNINGS 1
 #pragma warning(disable:4996)
 #include <examples/imgui_impl_opengl3.cpp>
 #include <examples/imgui_impl_glfw.cpp>
