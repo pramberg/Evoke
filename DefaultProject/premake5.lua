@@ -22,11 +22,12 @@ project "DefaultProject"
 
     libdirs
     {
-        "ThirdParty/DXC/lib"
+        "ThirdParty/ShaderConductor/lib"
     }
 
-    postbuildcommands
-    {
-        "{COPY} %{wks.location}Evoke/ThirdParty/DXC/lib/dxcompiler.dll %{cfg.buildtarget.directory}",
-        "{COPY} %{wks.location}Evoke/ThirdParty/DXC/lib/dxil.dll %{cfg.buildtarget.directory}"
-	}
+    filter "system:windows"
+        postbuildcommands
+        {
+            "{COPY} %{wks.location}Evoke/ThirdParty/ShaderConductor/bin/dxcompiler.dll %{cfg.buildtarget.directory}",
+            "{COPY} %{wks.location}Evoke/ThirdParty/ShaderConductor/bin/ShaderConductor.dll %{cfg.buildtarget.directory}"
+        }
