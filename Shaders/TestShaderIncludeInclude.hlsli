@@ -1,0 +1,1 @@
+#define TestDefine2 -0.2

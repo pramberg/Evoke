@@ -5,9 +5,11 @@
 #include <algorithm>
 #include <memory>
 #include <functional>
+#include <filesystem>
 
 #include <string>
 #include <sstream>
+#include <fstream>
 #include <vector>
 #include <array>
 #include <map>

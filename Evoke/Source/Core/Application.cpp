@@ -2,8 +2,9 @@
 #include "Application.h"
 #include "Window.h"
 #include "Debug/ImGuiLayer.h"
-#include "glad/glad.h"
 #include "Renderer/Shader.h"
+
+#include "glad/glad.h"
 
 namespace Evoke
 {
@@ -61,7 +62,7 @@ namespace Evoke
 
 		mMainWindow->Update();
 
-		glClearColor(0.0f, 0.1f, 0.0f, 1.0f);
+		glClearColor(0.0f, 0.0f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
 

@@ -152,10 +152,3 @@ private:
 	std::vector<Handle> mCallbacks;
 	DelegateId mCurrentId = 0;
 };
-
-
-#define EV_BIND_0(inFn) std::bind(&inFn, this)
-#define EV_BIND_1(inFn) std::bind(&inFn, this, std::placeholders::_1)
-#define EV_BIND_2(inFn) std::bind(&inFn, this, std::placeholders::_1, std::placeholders::_2)
-#define EV_BIND_3(inFn) std::bind(&inFn, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3)
-#define EV_BIND_4(inFn) std::bind(&inFn, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)

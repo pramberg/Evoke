@@ -1,9 +1,12 @@
 #include "PCH.h"
 #include "OpenGLShader.h"
+#include "Platform/Generic/Filesystem.h"
+#include "Platform/Generic/ShaderConductorUtilities.h"
+
 #include "glad/glad.h"
 #include "ShaderConductor/ShaderConductor.hpp"
-#include <fstream>
-#include <filesystem>
+
+namespace fs = std::filesystem;
 
 // #TODO: Error handling
 namespace Evoke
@@ -30,47 +33,28 @@ namespace Evoke
 		}
 	}
 
-	static ShaderConductor::ShaderStage GetShaderConductorShaderStage(const EShaderStage& inShaderType)
+	ShaderConductor::Blob* OpenGLShader::OnFileIncluded(const c8* inFilepath)
 	{
-		switch (inShaderType)
+		auto path = mFilepath;
+		path.replace_filename(inFilepath);
+		if (!fs::exists(path))
 		{
-		case EShaderStage::Vertex:
-			return ShaderConductor::ShaderStage::VertexShader;
-		case EShaderStage::Hull:
-			return ShaderConductor::ShaderStage::HullShader;
-		case EShaderStage::Domain:
-			return ShaderConductor::ShaderStage::DomainShader;
-		case EShaderStage::Geometry:
-			return ShaderConductor::ShaderStage::GeometryShader;
-		case EShaderStage::Pixel:
-			return ShaderConductor::ShaderStage::PixelShader;
-		case EShaderStage::Compute:
-			return ShaderConductor::ShaderStage::ComputeShader;
-		default:
-			EV_CORE_ASSERT(false, "Unknown shader stage");
-			return ShaderConductor::ShaderStage::NumShaderStages;
+			// #TODO: The "included in" part isn't necessarily helpful, what if it's a sub-include?
+			EV_CORE_ERROR("Can't find file \"{}\", included in \"{}\"", inFilepath, mFilepath.filename().string());
+
+			// ShaderConductor crashes if we return nullptr here, so create an empty blob.
+			return ShaderConductor::CreateBlob(nullptr, 0);
 		}
+
+		string fileSource = Filesystem::ReadFile(path.string());
+		return ShaderConductor::CreateBlob(fileSource.c_str(), (u32)fileSource.size());
 	}
 
-	string LoadFile(const string& inFilepath)
-	{
-		std::ifstream filestream(inFilepath);
-		std::stringstream buffer;
-		buffer << filestream.rdbuf();
-		return buffer.str();
-	}
-
-	string GetFilename(const string& inFilepath)
-	{
-		std::filesystem::path path(inFilepath);
-		return path.filename().string();
-	}
-
-	OpenGLShader::OpenGLShader(const string& inFilepath, const ShaderCompilerConfig& inConfig)
+	OpenGLShader::OpenGLShader(const string& inFilepath, const ShaderCompilerConfig& inConfig) : mFilepath(fs::absolute(inFilepath)), mRendererID(0), mIsValid(false)
 	{
 		// #TODO: Handle the case where the filepath is invalid.
-		const string sourceData = LoadFile(inFilepath);
-		const string fileName = GetFilename(inFilepath);
+		const string sourceData = Filesystem::ReadFile(inFilepath);
+		const string fileName = Filesystem::GetFilename(inFilepath);
 
 		b8 isValid = true;
 		i32 success;
@@ -78,18 +62,16 @@ namespace Evoke
 
 		const u32 program = glCreateProgram();
 
-		for (auto& entryPointPair : inConfig.EntryPoints)
+		for (auto[entryPoint, shaderStage] : inConfig.EntryPoints)
 		{
-			const string& entryPoint = entryPointPair.first;
-			const EShaderStage shaderStage = entryPointPair.second;
-
 			ShaderConductor::Compiler::SourceDesc sourceDesc;
 			sourceDesc.entryPoint = entryPoint.c_str();
 			sourceDesc.fileName = fileName.c_str();
 			sourceDesc.source = sourceData.c_str();
-			sourceDesc.stage = GetShaderConductorShaderStage(shaderStage);
-			sourceDesc.defines = nullptr;
-			sourceDesc.numDefines = 0;
+			sourceDesc.stage = ShaderConductorUtilities::GetShaderStage(shaderStage);
+			sourceDesc.defines = ShaderConductorUtilities::GetDefines(inConfig.Defines);
+			sourceDesc.numDefines = (u32)inConfig.Defines.size();
+			sourceDesc.loadIncludeCallback = EV_BIND_1(OpenGLShader::OnFileIncluded);
 
 			ShaderConductor::Compiler::TargetDesc targetDesc;
 			targetDesc.asModule = false;
@@ -161,6 +143,4 @@ namespace Evoke
 	{
 		glUseProgram(0);
 	}
-
-
 }

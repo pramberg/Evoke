@@ -14,25 +14,36 @@ namespace Evoke
 		Count
 	};
 
-	class ShaderUtilities
-	{
-		static string GetNiceShaderTypeName(EShaderStage inShaderType);
-	};
-
 	struct ShaderCompilerConfig
 	{
+		struct EntryPoint
+		{
+			EntryPoint(const string& inName, EShaderStage inStage) : Name(inName), Stage(inStage) {}
+			const string Name;
+			const EShaderStage Stage;
+		};
+
+		struct Define
+		{
+			Define(const string& inName, const string& inValue) : Name(inName), Value(inValue) {}
+			const string Name;
+			const string Value;
+		};
+
 		static const ShaderCompilerConfig& GetStandard()
 		{
 			static ShaderCompilerConfig config;
-			config.EntryPoints["VSMain"] = EShaderStage::Vertex;
-			config.EntryPoints["PSMain"] = EShaderStage::Pixel;
+			config.EntryPoints.emplace_back("VSMain", EShaderStage::Vertex);
+			config.EntryPoints.emplace_back("PSMain", EShaderStage::Pixel);
 			return config;
 		}
 
-		void AddVertexShader(const string& inEntryPoint) { EntryPoints[inEntryPoint] = EShaderStage::Vertex; }
-		void AddPixelShader(const string& inEntryPoint) { EntryPoints[inEntryPoint] = EShaderStage::Pixel; }
+		void AddVertexShader(const string& inEntryPoint) { EntryPoints.emplace_back(inEntryPoint, EShaderStage::Vertex); }
+		void AddPixelShader(const string& inEntryPoint) { EntryPoints.emplace_back(inEntryPoint, EShaderStage::Pixel); }
+		void AddDefine(const string& inName, const string& inValue) { Defines.emplace_back(inName, inValue); }
 
-		std::unordered_map<string, EShaderStage> EntryPoints;
+		std::vector<EntryPoint> EntryPoints;
+		std::vector<Define> Defines;
 	};
 
 	class Shader

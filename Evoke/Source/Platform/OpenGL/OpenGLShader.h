@@ -1,6 +1,13 @@
 #pragma once
 #include "Renderer\Shader.h"
 
+#include <filesystem>
+
+namespace ShaderConductor
+{
+	class Blob;
+}
+
 namespace Evoke
 {
 	class OpenGLShader : public Shader
@@ -13,9 +20,10 @@ namespace Evoke
 		virtual void Unbind() override;
 
 	private:
-		//b8 Compile(const ShaderCompilerConfig& inConfig);
+		ShaderConductor::Blob* OnFileIncluded(const c8* inFilepath);
 
 	private:
+		std::filesystem::path mFilepath;
 		u32 mRendererID;
 		b8 mIsValid;
 	};
