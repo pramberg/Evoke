@@ -18,12 +18,14 @@ namespace Evoke
 
 		virtual void Bind() override;
 		virtual void Unbind() override;
+		virtual void Recompile() override;
 
 	private:
 		ShaderConductor::Blob* OnFileIncluded(const c8* inFilepath);
 
 	private:
 		std::filesystem::path mFilepath;
+		ShaderCompilerConfig mConfig;
 		u32 mRendererID;
 		b8 mIsValid;
 	};

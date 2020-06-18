@@ -53,6 +53,7 @@ namespace Evoke
 
 		virtual void Bind() = 0;
 		virtual void Unbind() = 0;
+		virtual void Recompile() = 0;
 	
 		static std::shared_ptr<Shader> Create(const string& inFilepath, const ShaderCompilerConfig& inConfig = ShaderCompilerConfig::GetStandard());
 

@@ -47,14 +47,35 @@ namespace Evoke
 		}
 
 		string fileSource = Filesystem::ReadFile(path.string());
+		return ShaderConductor::CreateBlob(nullptr, 0);
 		return ShaderConductor::CreateBlob(fileSource.c_str(), (u32)fileSource.size());
 	}
 
-	OpenGLShader::OpenGLShader(const string& inFilepath, const ShaderCompilerConfig& inConfig) : mFilepath(fs::absolute(inFilepath)), mRendererID(0), mIsValid(false)
+	OpenGLShader::OpenGLShader(const string& inFilepath, const ShaderCompilerConfig& inConfig) : mFilepath(fs::absolute(inFilepath)), mConfig(inConfig), mRendererID(0), mIsValid(false)
+	{
+		Recompile();
+	}
+
+	OpenGLShader::~OpenGLShader()
+	{
+		glDeleteProgram(mRendererID);
+	}
+
+	void OpenGLShader::Bind()
+	{
+		glUseProgram(mRendererID);
+	}
+
+	void OpenGLShader::Unbind()
+	{
+		glUseProgram(0);
+	}
+
+	void OpenGLShader::Recompile()
 	{
 		// #TODO: Handle the case where the filepath is invalid.
-		const string sourceData = Filesystem::ReadFile(inFilepath);
-		const string fileName = Filesystem::GetFilename(inFilepath);
+		const string sourceData = Filesystem::ReadFile(mFilepath.string());
+		const string fileName = mFilepath.filename().string();
 
 		b8 isValid = true;
 		i32 success;
@@ -62,15 +83,15 @@ namespace Evoke
 
 		const u32 program = glCreateProgram();
 
-		for (auto[entryPoint, shaderStage] : inConfig.EntryPoints)
+		for (auto [entryPoint, shaderStage] : mConfig.EntryPoints)
 		{
 			ShaderConductor::Compiler::SourceDesc sourceDesc;
 			sourceDesc.entryPoint = entryPoint.c_str();
 			sourceDesc.fileName = fileName.c_str();
 			sourceDesc.source = sourceData.c_str();
 			sourceDesc.stage = ShaderConductorUtilities::GetShaderStage(shaderStage);
-			sourceDesc.defines = ShaderConductorUtilities::GetDefines(inConfig.Defines);
-			sourceDesc.numDefines = (u32)inConfig.Defines.size();
+			sourceDesc.defines = ShaderConductorUtilities::GetDefines(mConfig.Defines);
+			sourceDesc.numDefines = (u32)mConfig.Defines.size();
 			sourceDesc.loadIncludeCallback = EV_BIND_1(OpenGLShader::OnFileIncluded);
 
 			ShaderConductor::Compiler::TargetDesc targetDesc;
@@ -85,6 +106,8 @@ namespace Evoke
 			{
 				EV_CORE_ERROR("{}", (c8*)results.errorWarningMsg->Data());
 				isValid = false;
+				ShaderConductor::DestroyBlob(results.errorWarningMsg);
+				ShaderConductor::DestroyBlob(results.target);
 				break;
 			}
 
@@ -96,15 +119,19 @@ namespace Evoke
 			// Push back before potentially breaking, because shader needs to be cleaned up regardless.
 			createdShaders.push_back(shader);
 
+			ShaderConductor::DestroyBlob(results.errorWarningMsg);
+			ShaderConductor::DestroyBlob(results.target);
+
 			glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
 			if (!success)
 			{
 				break;
 			}
 		}
-		
+
 		glLinkProgram(program);
 		glGetProgramiv(program, GL_LINK_STATUS, &success);
+
 		// We don't really care about linking if compilation failed, since that's likely the issue
 		if (!success && isValid)
 		{
@@ -129,18 +156,4 @@ namespace Evoke
 		}
 	}
 
-	OpenGLShader::~OpenGLShader()
-	{
-		glDeleteProgram(mRendererID);
-	}
-
-	void OpenGLShader::Bind()
-	{
-		glUseProgram(mRendererID);
-	}
-
-	void OpenGLShader::Unbind()
-	{
-		glUseProgram(0);
-	}
 }
