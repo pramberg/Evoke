@@ -1,12 +1,4 @@
 # Evoke - Game Engine
-A small project with big ambitions.
-
-### Purpose
-- Learning
-
-### Goals
-- Good usability, focus on UX
-- Easy to understand API design
-- Multi-platform
-- Modern rendering techniques, high visual fidelity
-- Real-time raytracing
+### Building
+Currently Windows only, technically it should be possible to build on other platforms too, but the build process isn't entirely set up yet.
+- To generate solution, run `Build/WindowsGenerateProject.bat`
