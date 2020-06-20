@@ -50,7 +50,7 @@ namespace Evoke
 
 			glfwSetErrorCallback([](i32 inError, const c8* inDescription)
 			{
-				EV_CORE_ERROR("GLFW Error ({}): {}", inError, inDescription);
+				EV_LOG(LogEngine, EV_ERROR, "GLFW Error ({}): {}", inError, inDescription);
 			});
 
 			sGLFWInitialized = true;

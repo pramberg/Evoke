@@ -26,8 +26,8 @@ using b8 = bool;
 #define EV_ENABLE_ASSERTS
 #ifdef EV_ENABLE_ASSERTS
 #include <Debug/DebugBreak.h>
-#define EV_ASSERT(x, ...) { if(!(x)) { EV_ERROR("Assertion failed: {}", __VA_ARGS__); psnip_trap(); } }
-#define EV_CORE_ASSERT(x, ...) { if(!(x)) { EV_CORE_ERROR("Assertion failed: {}", __VA_ARGS__); psnip_trap(); } }
+#define EV_ASSERT(x, ...) { if(!(x)) { EV_LOG(LogApp, EV_ERROR, "Assertion failed: {}", __VA_ARGS__); psnip_trap(); } }
+#define EV_CORE_ASSERT(x, ...) { if(!(x)) { EV_LOG(LogEngine, EV_ERROR, "Assertion failed: {}", __VA_ARGS__); psnip_trap(); } }
 #else
 #define EV_ASSERT(x, ...)
 #define EV_CORE_ASSERT(x, ...)

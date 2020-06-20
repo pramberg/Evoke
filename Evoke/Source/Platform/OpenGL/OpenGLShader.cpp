@@ -40,7 +40,7 @@ namespace Evoke
 		if (!fs::exists(path))
 		{
 			// #TODO: The "included in" part isn't necessarily helpful, what if it's a sub-include?
-			EV_CORE_ERROR("Can't find file \"{}\", included in \"{}\"", inFilepath, mFilepath.filename().string());
+			EV_LOG(LogEngine, EV_ERROR, "Can't find file \"{}\", included in \"{}\"", inFilepath, mFilepath.filename().string());
 
 			// ShaderConductor crashes if we return nullptr here, so create an empty blob.
 			return ShaderConductor::CreateBlob(nullptr, 0);
@@ -70,12 +70,13 @@ namespace Evoke
 	{
 		glUseProgram(0);
 	}
-
+	
 	void OpenGLShader::Recompile()
 	{
 		// #TODO: Handle the case where the filepath is invalid.
 		const string sourceData = Filesystem::ReadFile(mFilepath.string());
 		const string fileName = mFilepath.filename().string();
+		const auto defines = ShaderConductorUtilities::GetDefines(mConfig.Defines);
 
 		b8 isValid = true;
 		i32 success;
@@ -83,28 +84,36 @@ namespace Evoke
 
 		const u32 program = glCreateProgram();
 
+		// Setup ShaderConductor data
+		ShaderConductor::Compiler::SourceDesc sourceDesc;
+		sourceDesc.fileName = fileName.c_str();
+		sourceDesc.source = sourceData.c_str();
+		sourceDesc.defines = defines.data();
+		sourceDesc.numDefines = (u32)defines.size();
+		sourceDesc.loadIncludeCallback = EV_BIND_1(OpenGLShader::OnFileIncluded);
+
+		ShaderConductor::Compiler::TargetDesc targetDesc;
+		targetDesc.asModule = false;
+		targetDesc.language = ShaderConductor::ShadingLanguage::SpirV;
+
+		ShaderConductor::Compiler::Options options;
+
 		for (auto [entryPoint, shaderStage] : mConfig.EntryPoints)
 		{
-			ShaderConductor::Compiler::SourceDesc sourceDesc;
 			sourceDesc.entryPoint = entryPoint.c_str();
-			sourceDesc.fileName = fileName.c_str();
-			sourceDesc.source = sourceData.c_str();
 			sourceDesc.stage = ShaderConductorUtilities::GetShaderStage(shaderStage);
-			sourceDesc.defines = ShaderConductorUtilities::GetDefines(mConfig.Defines);
-			sourceDesc.numDefines = (u32)mConfig.Defines.size();
-			sourceDesc.loadIncludeCallback = EV_BIND_1(OpenGLShader::OnFileIncluded);
 
-			ShaderConductor::Compiler::TargetDesc targetDesc;
-			targetDesc.asModule = false;
-			targetDesc.language = ShaderConductor::ShadingLanguage::SpirV;
-
-			ShaderConductor::Compiler::Options options;
-
-			auto results = ShaderConductor::Compiler::Compile(sourceDesc, options, targetDesc);
+			ShaderConductor::Compiler::ResultDesc results = ShaderConductor::Compiler::Compile(sourceDesc, options, targetDesc);
 
 			if (results.hasError && results.errorWarningMsg)
 			{
-				EV_CORE_ERROR("{}", (c8*)results.errorWarningMsg->Data());
+				const auto errorData = ShaderConductorUtilities::ParseErrorBlob(results.errorWarningMsg);
+				for (auto[line, description] : errorData.Errors)
+					EV_LOG_CUSTOM_LOCATION(LogShader, ELogLevel::Error, fileName.c_str(), line, "{}", description);
+
+				for (auto [line, description] : errorData.Warnings)
+					EV_LOG_CUSTOM_LOCATION(LogShader, ELogLevel::Warning, fileName.c_str(), line, "{}", description);
+
 				isValid = false;
 				ShaderConductor::DestroyBlob(results.errorWarningMsg);
 				ShaderConductor::DestroyBlob(results.target);
@@ -135,18 +144,23 @@ namespace Evoke
 		// We don't really care about linking if compilation failed, since that's likely the issue
 		if (!success && isValid)
 		{
-			c8 infoLog[512];
-			glGetProgramInfoLog(program, sizeof(infoLog) / sizeof(infoLog[0]), NULL, infoLog);
-			EV_CORE_ERROR("Failed to link shader: {}", infoLog);
+			std::array<c8, 512> infoLog;
+			glGetProgramInfoLog(program, (i32)infoLog.size(), NULL, infoLog.data());
+			EV_LOG(LogEngine, EV_ERROR, "Failed to link shader: {}", infoLog.data());
 			isValid = false;
 		}
 
-		if (mIsValid)
+		if (isValid)
 		{
 			glDeleteProgram(mRendererID);
+			mRendererID = program;
+			EV_LOG(LogShader, ELogLevel::Trace, "Successfully compiled {}", fileName);
+		}
+		else
+		{
+			glDeleteProgram(program);
 		}
 
-		mRendererID = program;
 		mIsValid = isValid;
 
 		for (i32 shader : createdShaders)
@@ -156,4 +170,5 @@ namespace Evoke
 		}
 	}
 
+	
 }
