@@ -60,7 +60,7 @@ namespace Evoke
  * @param 	inLoggerName	Name of the logger.
  * @param 	inLevel			The log level. Use either EV_*LEVEL* or ELogLevel::*Level*.
  * @param 	...				First parameter determines the formatting, followed by any number of
- * 							values that should replace any {} or {N} in the format string.
+ * 							values that should replace {} or {N} in the format string.
  */
 #define EV_LOG(inLoggerName, inLevel, ...) SPDLOG_LOGGER_CALL(EV_GET_LOGGER(inLoggerName), (spdlog::level::level_enum)inLevel, __VA_ARGS__)
 

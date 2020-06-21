@@ -119,7 +119,7 @@ namespace Evoke
 				ShaderConductor::DestroyBlob(results.target);
 				break;
 			}
-
+			
 			const u32 shader = glCreateShader(GetGLSLShaderStage(shaderStage));
 			glShaderBinary(1, &shader, GL_SHADER_BINARY_FORMAT_SPIR_V_ARB, results.target->Data(), results.target->Size());
 			glSpecializeShaderARB(shader, entryPoint.c_str(), 0, nullptr, nullptr); // Required
@@ -127,6 +127,8 @@ namespace Evoke
 
 			// Push back before potentially breaking, because shader needs to be cleaned up regardless.
 			createdShaders.push_back(shader);
+
+			//ShaderConductorUtilities::LogDisassembly(results);
 
 			ShaderConductor::DestroyBlob(results.errorWarningMsg);
 			ShaderConductor::DestroyBlob(results.target);
@@ -146,7 +148,7 @@ namespace Evoke
 		{
 			std::array<c8, 512> infoLog;
 			glGetProgramInfoLog(program, (i32)infoLog.size(), NULL, infoLog.data());
-			EV_LOG(LogEngine, EV_ERROR, "Failed to link shader: {}", infoLog.data());
+			EV_LOG(LogShader, EV_ERROR, "Linking failed: {}", infoLog.data());
 			isValid = false;
 		}
 

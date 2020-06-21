@@ -42,7 +42,6 @@ namespace Evoke
 	{
 		glm::vec4 SomethingElse;
 		glm::vec4 SomethingElseAgain;
-		float TestArray[4];
 	};
 
 	void Application::Run()
@@ -138,6 +137,21 @@ namespace Evoke
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 		glEnableVertexAttribArray(0);
 
+		u32 redBuffer;
+		u32 greenBlueBuffer;
+		TestBuffer redBufferData{ glm::vec4(1.0f, 0.0f, 0.0f, 0) };
+		TestBuffer2 greenBlueBufferData{ glm::vec4(0.0f, 1.0f, 0.0f, 0), glm::vec4(0.0f, 0.0f, 1.0f, 0) };
+
+		glCreateBuffers(1, &redBuffer);
+		glBindBuffer(GL_UNIFORM_BUFFER, redBuffer);
+		glBufferData(GL_UNIFORM_BUFFER, sizeof(TestBuffer), &redBufferData, GL_DYNAMIC_DRAW);
+		glBindBufferBase(GL_UNIFORM_BUFFER, 0, redBuffer);
+
+		glCreateBuffers(1, &greenBlueBuffer);
+		glBindBuffer(GL_UNIFORM_BUFFER, greenBlueBuffer);
+		glBufferData(GL_UNIFORM_BUFFER, sizeof(TestBuffer2), &greenBlueBufferData, GL_DYNAMIC_DRAW);
+		glBindBufferBase(GL_UNIFORM_BUFFER, 1, greenBlueBuffer);
+
 		gShader = Shader::Create("../Shaders/TestShader.hlsl");
 		gShader->Bind();
 
@@ -150,27 +164,11 @@ namespace Evoke
 			}
 		});
 
-		// Remember: This needs to be rebound on shader recompile
-		i32 program;
-		glGetIntegerv(GL_CURRENT_PROGRAM, &program);
-
-		TestBuffer testBufferData{ glm::vec4(1.0f, 0.0f, 0.0f, 0) };
-		u32 testBuffer;
-		glCreateBuffers(1, &testBuffer);
-		glBindBufferBase(GL_UNIFORM_BUFFER, 0, testBuffer);
-		glBufferData(GL_UNIFORM_BUFFER, sizeof(TestBuffer), &testBufferData, GL_STATIC_DRAW);
-		glUniformBlockBinding(program, 0, 0);
-
-		TestBuffer2 testBufferData2{ glm::vec4(0.1f, 0.0f, 1.0f, 0), glm::vec4(0.2f, 1.0f, 0.4f, 0), { 1.0f, 0.5f, 0.5f, 1.0f } };
-		u32 testBuffer2;
-		glCreateBuffers(1, &testBuffer2);
-		glBindBufferBase(GL_UNIFORM_BUFFER, 1, testBuffer2);
-		glBufferData(GL_UNIFORM_BUFFER, sizeof(TestBuffer2), &testBufferData2, GL_STATIC_DRAW);
-		glUniformBlockBinding(program, 0, 1);
-
 		while (mIsRunning)
 		{
 			Update();
+			gShader->Bind();
+
 			glBindVertexArray(vao);
 			glDrawArrays(GL_TRIANGLES, 0, 3);
 		}

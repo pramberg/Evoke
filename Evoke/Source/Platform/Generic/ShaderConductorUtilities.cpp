@@ -77,6 +77,17 @@ namespace Evoke
 		return errorData;
 	}
 
+	const void ShaderConductorUtilities::LogDisassembly(const ShaderConductor::Compiler::ResultDesc& inResults, ShaderConductor::ShadingLanguage inLanguage)
+	{
+		ShaderConductor::Compiler::DisassembleDesc desc;
+		desc.binary = (u8*)inResults.target->Data();
+		desc.binarySize = inResults.target->Size();
+		desc.language = inLanguage;
+
+		auto results = ShaderConductor::Compiler::Disassemble(desc);
+		EV_LOG(LogShader, EV_TRACE, "\n{}", (c8*)results.target->Data());
+	}
+
 }
 
 

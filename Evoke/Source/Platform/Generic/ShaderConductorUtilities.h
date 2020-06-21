@@ -45,5 +45,11 @@ namespace Evoke
 		 */
 		static const ErrorData ParseErrorBlob(const ShaderConductor::Blob* inErrorBlob);
 
+		/**
+		 * Prints the compiled and disassembled shader to the log.
+		 * @param 	inResults 	The results struct from ShaderConductor's Compile().
+		 * @param 	inLanguage	(Optional) The target language. Defaults to SPIR-V.
+		 */
+		static const void LogDisassembly(const ShaderConductor::Compiler::ResultDesc& inResults, ShaderConductor::ShadingLanguage inLanguage = ShaderConductor::ShadingLanguage::SpirV);
 	};
 }

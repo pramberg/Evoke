@@ -7,15 +7,10 @@ public:
 
 	virtual void Attached() override
 	{
-		auto& app = Evoke::Application::Get();
-		app.GetWindow().OnKeyPressed.Subscribe([](i32 inKeyCode, i32 inRepeatCount) { EV_INFO("KeyPressed({}, {})", inKeyCode, inRepeatCount); });
 	}
 
 	virtual void Update() override
 	{
-		auto [x, y] = Evoke::Input::GetMousePosition();
-		if (Evoke::Input::IsMouseButtonPressed(EV_MOUSE_LEFT))
-			EV_INFO("{}, {}", x, y);
 	}
 
 };
