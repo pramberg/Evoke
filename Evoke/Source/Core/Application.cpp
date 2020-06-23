@@ -6,6 +6,8 @@
 #include "InputIDs.h"
 
 #include "glad/glad.h"
+#include "GLFW/glfw3.h"
+#include "Renderer/Buffer.h"
 
 namespace Evoke
 {
@@ -21,12 +23,6 @@ namespace Evoke
 		PushOverlay(new ImGuiLayer());
 	}
 
-	struct MeshBufferLayout
-	{
-		glm::vec3 Position;
-		glm::vec3 Normal;
-	};
-
 	Application::~Application()
 	{
 	}
@@ -35,13 +31,14 @@ namespace Evoke
 
 	struct TestBuffer
 	{
-		glm::vec4 Something;
+		glm::vec4 Red;
 	};
 
 	struct TestBuffer2
 	{
-		glm::vec4 SomethingElse;
-		glm::vec4 SomethingElseAgain;
+		glm::vec4 Green;
+		glm::vec4 Blue;
+		f32 GameTime;
 	};
 
 	void Application::Run()
@@ -137,20 +134,10 @@ namespace Evoke
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 		glEnableVertexAttribArray(0);
 
-		u32 redBuffer;
-		u32 greenBlueBuffer;
-		TestBuffer redBufferData{ glm::vec4(1.0f, 0.0f, 0.0f, 0) };
-		TestBuffer2 greenBlueBufferData{ glm::vec4(0.0f, 1.0f, 0.0f, 0), glm::vec4(0.0f, 0.0f, 1.0f, 0) };
+		auto redBuffer = ConstantBuffer::Create<TestBuffer>(0);
+		auto greenBlueBuffer = ConstantBuffer::Create<TestBuffer2>(1);
 
-		glCreateBuffers(1, &redBuffer);
-		glBindBuffer(GL_UNIFORM_BUFFER, redBuffer);
-		glBufferData(GL_UNIFORM_BUFFER, sizeof(TestBuffer), &redBufferData, GL_DYNAMIC_DRAW);
-		glBindBufferBase(GL_UNIFORM_BUFFER, 0, redBuffer);
-
-		glCreateBuffers(1, &greenBlueBuffer);
-		glBindBuffer(GL_UNIFORM_BUFFER, greenBlueBuffer);
-		glBufferData(GL_UNIFORM_BUFFER, sizeof(TestBuffer2), &greenBlueBufferData, GL_DYNAMIC_DRAW);
-		glBindBufferBase(GL_UNIFORM_BUFFER, 1, greenBlueBuffer);
+		redBuffer->Data().Red = glm::vec4(1, 0, 0, 1);
 
 		gShader = Shader::Create("../Shaders/TestShader.hlsl");
 		gShader->Bind();
@@ -167,6 +154,11 @@ namespace Evoke
 		while (mIsRunning)
 		{
 			Update();
+
+			auto& data = greenBlueBuffer->Data();
+			data.GameTime = (f32)glfwGetTime();
+			greenBlueBuffer->Update();
+
 			gShader->Bind();
 
 			glBindVertexArray(vao);

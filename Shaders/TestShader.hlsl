@@ -14,9 +14,10 @@ cbuffer TestBuffer2 : register(b1)
 {
     float4 Green;
     float4 Blue;
+    float GameTime;
 };
 
 float4 PSMain(float4 inPosition : SV_POSITION) : SV_TARGET
 {
-    return float4(Red.xyz, 1);
+    return float4(sin(GameTime) * 0.5 + 0.5, cos(GameTime) * 0.5 + 0.5, cos(GameTime + 3.14 * 0.5) * 0.5 + 0.5, 1);
 }
