@@ -1,29 +1,26 @@
 #include "PCH.h"
-#include "WindowsInput.h"
+#include "Core/Input.h"
 #include "Core/Application.h"
 
 #include <GLFW/glfw3.h>
 
 namespace Evoke
 {
-
-	Input* Input::sInstance = new WindowsInput();
-
-	b8 WindowsInput::IsKeyPressedImpl(i32 inKeycode)
+	b8 Input::IsKeyPressed(i32 inKeycode)
 	{
 		auto window = static_cast<GLFWwindow*>(Application::Get().GetWindow().GetNativeWindow());
 		auto state = glfwGetKey(window, inKeycode);
 		return state == GLFW_PRESS || state == GLFW_REPEAT;
 	}
 
-	b8 WindowsInput::IsMouseButtonPressedImpl(i32 inButton)
+	b8 Input::IsMouseButtonPressed(i32 inButton)
 	{
 		auto window = static_cast<GLFWwindow*>(Application::Get().GetWindow().GetNativeWindow());
 		auto state = glfwGetMouseButton(window, inButton);
 		return state == GLFW_PRESS;
 	}
 
-	std::pair<f32, f32> WindowsInput::GetMousePositionImpl()
+	std::pair<f32, f32> Input::GetMousePosition()
 	{
 		auto window = static_cast<GLFWwindow*>(Application::Get().GetWindow().GetNativeWindow());
 		f64 x, y;
@@ -31,15 +28,15 @@ namespace Evoke
 		return { (f32)x, (f32)y };
 	}
 
-	f32 WindowsInput::GetMouseXImpl()
+	f32 Input::GetMouseX()
 	{
-		auto [x, y] = GetMousePositionImpl();
+		auto [x, y] = GetMousePosition();
 		return x;
 	}
 
-	f32 WindowsInput::GetMouseYImpl()
+	f32 Input::GetMouseY()
 	{
-		auto [x, y] = GetMousePositionImpl();
+		auto [x, y] = GetMousePosition();
 		return y;
 	}
 }
