@@ -6,9 +6,9 @@ namespace Evoke
 {
 	static bool sGLFWInitialized = false;
 
-	Window* Window::Create(const WindowProperties& inProperties /* = WindowProperties() */)
+	std::unique_ptr<Window> Window::Create(const WindowProperties& inProperties /*= WindowProperties()*/)
 	{
-		return new WindowsWindow(inProperties);
+		return std::make_unique<WindowsWindow>(inProperties);
 	}
 
 	WindowsWindow::WindowsWindow(const WindowProperties& inProperties) : mWindow(nullptr)
@@ -84,17 +84,18 @@ namespace Evoke
 		glfwSetKeyCallback(mWindow, [](GLFWwindow* inWindow, i32 inKey, i32 inScanCode, i32 inAction, i32 inMods)
 		{
 			WindowsWindow* window = reinterpret_cast<WindowsWindow*>(glfwGetWindowUserPointer(inWindow));
+			const EKeyCode keyCode = static_cast<EKeyCode>(inKey); // EKeyCode == GLFW key codes
 
 			switch (inAction)
 			{
 			case GLFW_PRESS:
-				window->OnKeyPressed.Broadcast(inKey, 0);
+				window->OnKeyPressed.Broadcast(keyCode, 0);
 				break;
 			case GLFW_RELEASE:
-				window->OnKeyReleased.Broadcast(inKey);
+				window->OnKeyReleased.Broadcast(keyCode);
 				break;
 			case GLFW_REPEAT:
-				window->OnKeyPressed.Broadcast(inKey, 1);
+				window->OnKeyPressed.Broadcast(keyCode, 1);
 				break;
 			}
 		});
@@ -102,17 +103,15 @@ namespace Evoke
 		glfwSetMouseButtonCallback(mWindow, [](GLFWwindow* inWindow, i32 inKey, i32 inAction, i32 inMods)
 		{
 			WindowsWindow* window = reinterpret_cast<WindowsWindow*>(glfwGetWindowUserPointer(inWindow));
+			const EMouseButton keyCode = static_cast<EMouseButton>(inKey); // EMouseButton == GLFW button codes
 
 			switch (inAction)
 			{
 			case GLFW_PRESS:
-				window->OnMouseButtonPressed.Broadcast(inKey, 0);
+				window->OnMouseButtonPressed.Broadcast(keyCode, 0);
 				break;
 			case GLFW_RELEASE:
-				window->OnMouseButtonReleased.Broadcast(inKey);
-				break;
-			case GLFW_REPEAT:
-				window->OnKeyPressed.Broadcast(inKey, 1);
+				window->OnMouseButtonReleased.Broadcast(keyCode);
 				break;
 			}
 		});

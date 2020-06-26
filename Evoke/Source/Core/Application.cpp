@@ -13,7 +13,7 @@ namespace Evoke
 {
 	Application* Application::sApplication = nullptr;
 
-	Application::Application() : mMainWindow(std::unique_ptr<Window>(Window::Create()))
+	Application::Application() : mMainWindow(Window::Create())
 	{
 		EV_CORE_ASSERT(!sApplication, "Application already exists");
 		sApplication = this;
@@ -117,9 +117,11 @@ namespace Evoke
 
 			EV_LOG(LogRHI, logLevel, "\nGL Debug:\n  Source: {}\n  Type: {}\n  Id: {}  \n  Message: {}", source, type, inId, inMessage);
 		}, nullptr);
+		
 		u32 vao;
 		glCreateVertexArrays(1, &vao);
 		glBindVertexArray(vao);
+
 		f32 vertices[]{
 			-0.5f, -0.5f, 0.0f,
 			0.5f, -0.5f, 0.0f,
@@ -142,9 +144,9 @@ namespace Evoke
 		gShader = Shader::Create("../Shaders/TestShader.hlsl");
 		gShader->Bind();
 
-		mMainWindow->OnKeyPressed.Subscribe([](i32 inKeycode, i32 inRepeatCount)
+		mMainWindow->OnKeyPressed.Subscribe([](EKeyCode inKeycode, i32 inRepeatCount)
 		{
-			if (inKeycode == EV_KEY_ENTER)
+			if (inKeycode == EKeyCode::Enter)
 			{
 				gShader->Recompile();
 				gShader->Bind();

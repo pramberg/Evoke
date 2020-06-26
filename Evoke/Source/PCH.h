@@ -20,6 +20,7 @@
 #include <type_traits>
 
 #include "Core/Log.h"
+#include "Core/InputIDs.h"
 
 #include <glm/glm.hpp>
 
