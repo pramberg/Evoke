@@ -27,7 +27,7 @@ namespace Evoke
 		glfwSwapBuffers(mWindow);
 	}
 
-	void WindowsWindow::SetVSync(bool inEnabled)
+	void WindowsWindow::SetVSync(b8 inEnabled)
 	{
 		if (inEnabled == GetVSyncEnabled())
 			return;
