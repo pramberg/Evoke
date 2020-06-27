@@ -36,11 +36,11 @@ namespace Evoke
 	{
 	public:
 		template<typename T>
-		static std::unique_ptr<TConstantBuffer<T>> Create(const T& inData, u32 inSlot)
+		static TUniquePtr<TConstantBuffer<T>> Create(const T& inData, u32 inSlot)
 		{
 			switch (Renderer::GetAPI())
 			{
-			case ERenderAPI::OpenGL: return std::make_unique<TOpenGLConstantBuffer<T>>(inData, inSlot);
+			case ERenderAPI::OpenGL: return MakeUnique<TOpenGLConstantBuffer<T>>(inData, inSlot);
 			default:
 				EV_CORE_ASSERT(false, "Unknown render API");
 			}
@@ -48,11 +48,11 @@ namespace Evoke
 		}
 
 		template<typename T>
-		static std::unique_ptr<TConstantBuffer<T>> Create(u32 inSlot)
+		static TUniquePtr<TConstantBuffer<T>> Create(u32 inSlot)
 		{
 			switch (Renderer::GetAPI())
 			{
-			case ERenderAPI::OpenGL: return std::make_unique<TOpenGLConstantBuffer<T>>(inSlot);
+			case ERenderAPI::OpenGL: return MakeUnique<TOpenGLConstantBuffer<T>>(inSlot);
 			default:
 				EV_CORE_ASSERT(false, "Unknown render API");
 			}

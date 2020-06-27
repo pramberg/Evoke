@@ -6,9 +6,9 @@ namespace Evoke
 {
 	static bool sGLFWInitialized = false;
 
-	std::unique_ptr<Window> Window::Create(const WindowProperties& inProperties /*= WindowProperties()*/)
+	TUniquePtr<Window> Window::Create(const WindowProperties& inProperties /*= WindowProperties()*/)
 	{
-		return std::make_unique<WindowsWindow>(inProperties);
+		return MakeUnique<WindowsWindow>(inProperties);
 	}
 
 	WindowsWindow::WindowsWindow(const WindowProperties& inProperties) : mWindow(nullptr)

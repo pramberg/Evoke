@@ -27,7 +27,7 @@ namespace Evoke
 	{
 	}
 
-	static std::shared_ptr<Shader> gShader;
+	static TSharedPtr<Shader> gShader;
 
 	struct TestBuffer
 	{

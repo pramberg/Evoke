@@ -29,7 +29,7 @@ namespace Evoke
 		void OnWindowResized(u32 inWidth, u32 inHeight);
 
 	private:
-		std::unique_ptr<Window> mMainWindow;
+		TUniquePtr<Window> mMainWindow;
 		b8 mIsRunning = true;
 		LayerStack mLayerStack;
 

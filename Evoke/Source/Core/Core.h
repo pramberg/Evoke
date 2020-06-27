@@ -38,3 +38,24 @@ using b8 = bool;
 #define EV_BIND_2(inFn) std::bind(&inFn, this, std::placeholders::_1, std::placeholders::_2)
 #define EV_BIND_3(inFn) std::bind(&inFn, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3)
 #define EV_BIND_4(inFn) std::bind(&inFn, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)
+
+namespace Evoke
+{
+	template<typename T>
+	using TSharedPtr = std::shared_ptr<T>;
+
+	template<typename T, typename... TArgs>
+	constexpr TSharedPtr<T> MakeShared(TArgs&&... inArgs)
+	{
+		return std::make_shared<T>(std::forward<TArgs>(inArgs)...);
+	}
+
+	template<typename T>
+	using TUniquePtr = std::unique_ptr<T>;
+
+	template<typename T, typename... TArgs>
+	constexpr TUniquePtr<T> MakeUnique(TArgs&&... inArgs)
+	{
+		return std::make_unique<T>(std::forward<TArgs>(inArgs)...);
+	}
+}

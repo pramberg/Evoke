@@ -6,11 +6,11 @@
 namespace Evoke
 {
 
-	std::shared_ptr<Shader> Shader::Create(const string& inFilepath, const ShaderCompilerConfig& inConfig)
+	TSharedPtr<Shader> Shader::Create(const string& inFilepath, const ShaderCompilerConfig& inConfig)
 	{
 		switch (Renderer::GetAPI())
 		{
-		case ERenderAPI::OpenGL: return std::make_shared<OpenGLShader>(inFilepath, inConfig);
+		case ERenderAPI::OpenGL: return MakeShared<OpenGLShader>(inFilepath, inConfig);
 		default:
 			EV_CORE_ASSERT(false, "Unknown render API.");
 			return nullptr;

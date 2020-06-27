@@ -29,7 +29,7 @@ namespace Evoke
 
 		inline virtual void* GetNativeWindow() const = 0;
 
-		static std::unique_ptr<Window> Create(const WindowProperties& inProperties = WindowProperties());
+		static TUniquePtr<Window> Create(const WindowProperties& inProperties = WindowProperties());
 
 	public:
 		/**
