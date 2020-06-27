@@ -8,6 +8,7 @@
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
 #include "Renderer/Buffer.h"
+#include "Input.h"
 
 namespace Evoke
 {
@@ -29,15 +30,11 @@ namespace Evoke
 
 	static TSharedPtr<Shader> gShader;
 
-	struct TestBuffer
+	struct GlobalShaderData
 	{
-		glm::vec4 Red;
-	};
-
-	struct TestBuffer2
-	{
-		glm::vec4 Green;
-		glm::vec4 Blue;
+		glm::mat4 View;
+		glm::mat4 Projection;
+		glm::mat4 ViewProjection;
 		f32 GameTime;
 	};
 
@@ -136,10 +133,10 @@ namespace Evoke
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 		glEnableVertexAttribArray(0);
 
-		auto redBuffer = ConstantBuffer::Create<TestBuffer>(0);
-		auto greenBlueBuffer = ConstantBuffer::Create<TestBuffer2>(1);
+		auto shaderDataBuffer = ConstantBuffer::Create<GlobalShaderData>(0);
 
-		redBuffer->Data().Red = glm::vec4(1, 0, 0, 1);
+		auto& gsData = shaderDataBuffer->Data();
+		gsData.Projection = glm::perspectiveFov(glm::radians(70.0f), 1280.0f, 720.0f, 0.01f, 1000.0f);
 
 		gShader = Shader::Create("../Shaders/TestShader.hlsl");
 		gShader->Bind();
@@ -156,10 +153,46 @@ namespace Evoke
 		while (mIsRunning)
 		{
 			Update();
+			static glm::vec3 gPosition(0, 0, 1);
+			static glm::vec3 gRotation(0, 0, 0);
+			
+			if (Input::IsKeyPressed(EKeyCode::W))
+				gPosition.z -= 0.1f;
 
-			auto& data = greenBlueBuffer->Data();
-			data.GameTime = (f32)glfwGetTime();
-			greenBlueBuffer->Update();
+			if (Input::IsKeyPressed(EKeyCode::S))
+				gPosition.z += 0.1f;
+
+			if (Input::IsKeyPressed(EKeyCode::A))
+				gPosition.x -= 0.1f;
+
+			if (Input::IsKeyPressed(EKeyCode::D))
+				gPosition.x += 0.1f;
+
+			if (Input::IsKeyPressed(EKeyCode::E))
+				gPosition.y += 0.1f;
+
+			if (Input::IsKeyPressed(EKeyCode::Q))
+				gPosition.y -= 0.1f;
+
+
+			if (Input::IsKeyPressed(EKeyCode::Left))
+				gRotation.y -= 0.01;
+
+			if (Input::IsKeyPressed(EKeyCode::Right))
+				gRotation.y += 0.01;
+
+			if (Input::IsKeyPressed(EKeyCode::Up))
+				gRotation.x -= 0.01;
+
+			if (Input::IsKeyPressed(EKeyCode::Down))
+				gRotation.x += 0.01;
+
+			auto rot = glm::rotate(glm::identity<glm::mat4>(), gRotation.x, glm::vec3(1, 0, 0)) * glm::rotate(glm::identity<glm::mat4>(), gRotation.y, glm::vec3(0, 1, 0));
+
+			gsData.View = glm::translate(glm::mat4(1.0f), -gPosition) * rot;
+			gsData.ViewProjection = gsData.Projection * gsData.View;
+			gsData.GameTime = (f32)glfwGetTime();
+			shaderDataBuffer->Update();
 
 			gShader->Bind();
 

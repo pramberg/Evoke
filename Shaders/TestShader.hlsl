@@ -1,21 +1,17 @@
 #include "TestShaderInclude.hlsli"
 
-float4 VSMain(float4 inPosition : POSITION) : SV_POSITION
+cbuffer GlobalShaderData : register(b0)
 {
-    return inPosition;
-}
-
-cbuffer TestBuffer : register(b0)
-{
-    float4 Red;
-};
-
-cbuffer TestBuffer2 : register(b1)
-{
-    float4 Green;
-    float4 Blue;
+    float4x4 View;
+    float4x4 Projection;
+    float4x4 ViewProjection;
     float GameTime;
 };
+
+float4 VSMain(float4 inPosition : POSITION) : SV_POSITION
+{
+    return mul(float4(inPosition.xyz, 1.0f), ViewProjection);
+}
 
 float4 PSMain(float4 inPosition : SV_POSITION) : SV_TARGET
 {

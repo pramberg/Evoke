@@ -6,17 +6,17 @@
 
 namespace Evoke
 {
-	b8 Input::IsKeyPressed(i32 inKeycode)
+	b8 Input::IsKeyPressed(EKeyCode inKeycode)
 	{
 		auto window = static_cast<GLFWwindow*>(Application::Get().GetWindow().GetNativeWindow());
-		auto state = glfwGetKey(window, inKeycode);
+		auto state = glfwGetKey(window, static_cast<i32>(inKeycode));
 		return state == GLFW_PRESS || state == GLFW_REPEAT;
 	}
 
-	b8 Input::IsMouseButtonPressed(i32 inButton)
+	b8 Input::IsMouseButtonPressed(EMouseButton inButton)
 	{
 		auto window = static_cast<GLFWwindow*>(Application::Get().GetWindow().GetNativeWindow());
-		auto state = glfwGetMouseButton(window, inButton);
+		auto state = glfwGetMouseButton(window, static_cast<i32>(inButton));
 		return state == GLFW_PRESS;
 	}
 

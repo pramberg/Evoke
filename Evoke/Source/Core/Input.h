@@ -6,10 +6,10 @@ namespace Evoke
 	class Input
 	{
 	public:
-		inline static b8 IsKeyPressed(i32 inKeycode);
-		inline static b8 IsMouseButtonPressed(i32 inButton);
-		inline static std::pair<f32, f32> GetMousePosition();
-		inline static f32 GetMouseX();
-		inline static f32 GetMouseY();
+		static b8 IsKeyPressed(EKeyCode inKeycode);
+		static b8 IsMouseButtonPressed(EMouseButton inButton);
+		static std::pair<f32, f32> GetMousePosition();
+		static f32 GetMouseX();
+		static f32 GetMouseY();
 	};
 }
