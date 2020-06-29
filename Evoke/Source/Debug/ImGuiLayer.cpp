@@ -56,7 +56,7 @@ namespace Evoke
 		ImGui::DestroyContext();
 	}
 
-	void ImGuiLayer::Update()
+	void ImGuiLayer::Update(f32 inDeltaTime)
 	{
 		/*Begin();
 

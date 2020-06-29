@@ -59,3 +59,5 @@ namespace Evoke
 		return std::make_unique<T>(std::forward<TArgs>(inArgs)...);
 	}
 }
+
+#include "Math/Common.h"

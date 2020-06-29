@@ -11,7 +11,7 @@ namespace Evoke
 
 		virtual void Attached() {}
 		virtual void Detached() {}
-		virtual void Update() {}
+		virtual void Update(f32 inDeltaTime) {}
 
 		const string& GetName() const { return mName; }
 

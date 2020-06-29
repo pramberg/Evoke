@@ -10,7 +10,7 @@ namespace Evoke
 		WindowsWindow(const WindowProperties& inProperties);
 		virtual ~WindowsWindow();
 	
-		virtual void Update() override;
+		virtual void Update(f32 inDeltaTime) override;
 	
 		virtual u32 GetWidth() const override { return mData.Width; }
 		virtual u32 GetHeight() const override { return mData.Height; }

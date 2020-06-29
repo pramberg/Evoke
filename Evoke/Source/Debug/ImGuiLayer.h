@@ -11,7 +11,7 @@ namespace Evoke
 
 		virtual void Attached() override;
 		virtual void Detached() override;
-		virtual void Update() override;
+		virtual void Update(f32 inDeltaTime) override;
 
 		void Begin();
 		void End();

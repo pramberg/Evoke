@@ -24,7 +24,7 @@ namespace Evoke
 		static Application& Get() { return *sApplication; }
 
 	private:
-		void Update();
+		void Update(f32 inDeltaTime);
 		void OnWindowClose();
 		void OnWindowResized(u32 inWidth, u32 inHeight);
 
@@ -32,6 +32,7 @@ namespace Evoke
 		TUniquePtr<Window> mMainWindow;
 		b8 mIsRunning = true;
 		LayerStack mLayerStack;
+		f32 mLastFrameTime = 0.0f;
 
 	private:
 		static Application* sApplication;

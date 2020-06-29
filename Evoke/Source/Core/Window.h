@@ -19,7 +19,7 @@ namespace Evoke
 	public:
 		virtual ~Window() {}
 	
-		virtual void Update() = 0;
+		virtual void Update(f32 inDeltaTime) = 0;
 	
 		virtual u32 GetWidth() const = 0;
 		virtual u32 GetHeight() const = 0;

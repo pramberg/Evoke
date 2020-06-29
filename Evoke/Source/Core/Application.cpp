@@ -4,11 +4,12 @@
 #include "Debug/ImGuiLayer.h"
 #include "Renderer/Shader.h"
 #include "InputIDs.h"
+#include "Renderer/Buffer.h"
+#include "Input.h"
+#include "Renderer/OrbitCameraController.h"
 
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
-#include "Renderer/Buffer.h"
-#include "Input.h"
 
 namespace Evoke
 {
@@ -40,7 +41,7 @@ namespace Evoke
 
 	void Application::Run()
 	{
-		glEnable(GL_DEBUG_OUTPUT);
+		//glEnable(GL_DEBUG_OUTPUT);
 		glDebugMessageCallback([](GLenum inSource, GLenum inType, GLuint inId, GLenum inSeverity, GLsizei inLength, const GLchar* inMessage, const void* inUserPtr)
 		{
 			auto logLevel = EV_INFO;
@@ -122,7 +123,7 @@ namespace Evoke
 		f32 vertices[]{
 			-0.5f, -0.5f, 0.0f,
 			0.5f, -0.5f, 0.0f,
-			0.0f, 0.5f, 0.0f
+			0.5f, 0.5f, 0.0f
 		};
 		
 		u32 vbo;
@@ -150,47 +151,19 @@ namespace Evoke
 			}
 		});
 
+		OrbitCameraController camera;
+
 		while (mIsRunning)
 		{
-			Update();
-			static glm::vec3 gPosition(0, 0, 1);
-			static glm::vec3 gRotation(0, 0, 0);
-			
-			if (Input::IsKeyPressed(EKeyCode::W))
-				gPosition.z -= 0.1f;
+			const f32 time = (f32)glfwGetTime();
+			const f32 deltaTime = time - mLastFrameTime;
+			mLastFrameTime = time;
 
-			if (Input::IsKeyPressed(EKeyCode::S))
-				gPosition.z += 0.1f;
-
-			if (Input::IsKeyPressed(EKeyCode::A))
-				gPosition.x -= 0.1f;
-
-			if (Input::IsKeyPressed(EKeyCode::D))
-				gPosition.x += 0.1f;
-
-			if (Input::IsKeyPressed(EKeyCode::E))
-				gPosition.y += 0.1f;
-
-			if (Input::IsKeyPressed(EKeyCode::Q))
-				gPosition.y -= 0.1f;
-
-
-			if (Input::IsKeyPressed(EKeyCode::Left))
-				gRotation.y -= 0.01;
-
-			if (Input::IsKeyPressed(EKeyCode::Right))
-				gRotation.y += 0.01;
-
-			if (Input::IsKeyPressed(EKeyCode::Up))
-				gRotation.x -= 0.01;
-
-			if (Input::IsKeyPressed(EKeyCode::Down))
-				gRotation.x += 0.01;
-
-			auto rot = glm::rotate(glm::identity<glm::mat4>(), gRotation.x, glm::vec3(1, 0, 0)) * glm::rotate(glm::identity<glm::mat4>(), gRotation.y, glm::vec3(0, 1, 0));
-
-			gsData.View = glm::translate(glm::mat4(1.0f), -gPosition) * rot;
-			gsData.ViewProjection = gsData.Projection * gsData.View;
+			Update(deltaTime);
+			camera.Update(deltaTime);
+			gsData.Projection = camera.GetCamera().GetProjection();
+			gsData.View = camera.GetCamera().GetView();
+			gsData.ViewProjection = camera.GetCamera().GetViewProjection();
 			gsData.GameTime = (f32)glfwGetTime();
 			shaderDataBuffer->Update();
 
@@ -201,12 +174,12 @@ namespace Evoke
 		}
 	}
 
-	void Application::Update()
+	void Application::Update(f32 inDeltaTime)
 	{
 		for (Layer* layer : mLayerStack)
-			layer->Update();
+			layer->Update(inDeltaTime);
 
-		mMainWindow->Update();
+		mMainWindow->Update(inDeltaTime);
 
 		glClearColor(0.0f, 0.0f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -219,7 +192,7 @@ namespace Evoke
 
 	void Application::OnWindowResized(u32 inWidth, u32 inHeight)
 	{
-		Update();
+		Update(0.0f);
 	}
 
 	void Application::PushLayer(Layer* inLayer)

@@ -9,7 +9,7 @@ public:
 	{
 	}
 
-	virtual void Update() override
+	virtual void Update(f32 inDeltaTime) override
 	{
 	}
 

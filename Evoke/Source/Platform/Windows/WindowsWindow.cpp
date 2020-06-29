@@ -21,7 +21,7 @@ namespace Evoke
 		Close();
 	}
 
-	void WindowsWindow::Update()
+	void WindowsWindow::Update(f32 inDeltaTime)
 	{
 		glfwPollEvents();
 		glfwSwapBuffers(mWindow);
