@@ -1,29 +1,24 @@
 #include "PCH.h"
-#include "OrbitCameraController.h"
+#include "EditorCameraController.h"
 #include "Core\Application.h"
 
 namespace Evoke
 {
 
-	OrbitCameraController::OrbitCameraController()
+	EditorCameraController::EditorCameraController()
 	{
 		Application::Get().GetWindow().OnMouseButtonPressed.Subscribe([&](EMouseButton inButton, i32 inRepeat)
 		{
 			if (inButton == EMouseButton::Left && Input::IsKeyPressed(EKeyCode::LeftAlt))
 			{
-				mArcballEnabled = true;
-				mStartMouse = mCurrentMouse = glm::vec2(Input::GetMouseX(), Input::GetMouseY());
+				mRotationEnabled = true;
+				mMouseStartPosition = mMouseCurrentPosition = glm::vec2(Input::GetMouseX(), Input::GetMouseY());
 				mStartRotation = mCamera.GetRotation();
-			}
-
-			if (inButton == EMouseButton::Middle && Input::IsKeyPressed(EKeyCode::LeftAlt))
-			{
-				mStartPosition = mCamera.GetPosition();
 			}
 
 			if (inButton == EMouseButton::Right && Input::IsKeyPressed(EKeyCode::LeftAlt))
 			{
-				mStartMouse = mCurrentMouse = glm::vec2(Input::GetMouseX(), Input::GetMouseY());
+				mMouseStartPosition = mMouseCurrentPosition = glm::vec2(Input::GetMouseX(), Input::GetMouseY());
 			}
 		});
 
@@ -31,7 +26,7 @@ namespace Evoke
 		{
 			if (inButton == EMouseButton::Left)
 			{
-				mArcballEnabled = false;
+				mRotationEnabled = false;
 			}
 		});
 
@@ -54,20 +49,20 @@ namespace Evoke
 
 		Application::Get().GetWindow().OnMouseMoved.Subscribe([&](f32 inX, f32 inY)
 		{
-			if (mArcballEnabled)
+			if (mRotationEnabled)
 			{
-				mCurrentMouse = glm::vec2(inX, inY);
+				mMouseCurrentPosition = glm::vec2(inX, inY);
 
-				constexpr f32 sensitivity = glm::radians(1.0f);
+				constexpr f32 sensitivity = glm::radians(0.4f);
 				const f32 ratio = (f32)Application::Get().GetWindow().GetWidth() / (f32)Application::Get().GetWindow().GetHeight();
 
 				const glm::vec3 up(0.0f, 1.0f, 0.0f);
 
-				glm::mat3 m = glm::mat3_cast(mStartRotation);
-				glm::mat3 mInv = glm::inverse(m);
+				const glm::mat3 m = glm::mat3_cast(mStartRotation);
+				const glm::mat3 mInv = glm::inverse(m);
 
-				glm::vec3 x = mInv[2] - up;
-				f32 lenSqared = glm::dot(x, x);
+				const glm::vec3 x = mInv[2] - up;
+				const f32 lenSqared = glm::dot(x, x);
 
 				glm::vec3 xAxis;
 				if (lenSqared > 0.001f)
@@ -87,18 +82,15 @@ namespace Evoke
 					xAxis = mInv[0];
 				}
 
-				auto localX = glm::angleAxis(sensitivity * (mCurrentMouse.y - mStartMouse.y), xAxis);
-				localX = mStartRotation * localX;
-
-				auto globalUp = glm::angleAxis(sensitivity * (mCurrentMouse.x - mStartMouse.x) * ratio, up);
-				auto finalRot = glm::normalize(localX * globalUp);
-				mCamera.SetRotation(finalRot);
+				const glm::quat localX = mStartRotation * glm::angleAxis(sensitivity * (mMouseCurrentPosition.y - mMouseStartPosition.y), xAxis);
+				const glm::quat globalUp = glm::angleAxis(sensitivity * (mMouseCurrentPosition.x - mMouseStartPosition.x) * ratio, up);
+				mCamera.SetRotation(glm::normalize(localX * globalUp));
 			}
 		});
 
 		Application::Get().GetWindow().OnMouseScrolled.Subscribe([&](f32 inScrollX, f32 inScrollY)
 		{
-			auto invCameraRotation = glm::inverse(mCamera.GetRotation());
+			const glm::quat invCameraRotation = glm::inverse(mCamera.GetRotation());
 			const glm::vec3 forwardVector = (invCameraRotation * glm::vec3(0.0f, 0.0f, 1.0f)) * -inScrollY * 0.1667f;
 
 			const glm::vec3 displacement = mCamera.GetRotation() * forwardVector;
@@ -106,24 +98,25 @@ namespace Evoke
 		});
 	}
 
-	void OrbitCameraController::Update(f32 inDeltaTime)
+	void EditorCameraController::Update(f32 inDeltaTime)
 	{
-		glm::vec2 currentMousePosition(Input::GetMouseX(), Input::GetMouseY());
-		glm::vec2 mouseDelta = (currentMousePosition - mPreviousMouse);
+		const glm::vec2 currentMousePosition(Input::GetMouseX(), Input::GetMouseY());
+		const glm::vec2 mouseDelta = (currentMousePosition - mMousePreviousPosition);
 
 		const f32 screenWidth = (f32)Application::Get().GetWindow().GetWidth();
 		const f32 screenHeight = (f32)Application::Get().GetWindow().GetHeight();
 		const f32 aspectRatio = screenWidth / screenHeight;
-		const f32 aspectRatio2 = screenHeight / screenWidth;
 
 		if (Input::IsKeyPressed(EKeyCode::LeftAlt) && Input::IsMouseButtonPressed(EMouseButton::Middle))
 		{
+			// #TODO Make movement match 100%, this one is hacky af
+			// Look at https://doc.magnum.graphics/magnum/examples-mouseinteraction.html for a real panning implementation
 			const f32 zoomLength = glm::length(mCamera.GetPosition());
 			const glm::vec2 normalizedDelta = mouseDelta * glm::vec2(1.0f / screenHeight * aspectRatio, 1.0f / screenHeight * aspectRatio) ;
 			auto invCameraRotation = glm::inverse(mCamera.GetRotation());
-			const glm::vec3 rightVector = (invCameraRotation * glm::vec3(1.0f, 0.0f, 0.0f)) * -normalizedDelta.x  * zoomLength;
-			const glm::vec3 upVector = (invCameraRotation * glm::vec3(0.0f, 1.0f, 0.0f)) * normalizedDelta.y * zoomLength; // #TODO How to make a movement match 100%?
-
+			const glm::vec3 rightVector = (invCameraRotation * Vec3f::Right()) * -normalizedDelta.x  * zoomLength;
+			const glm::vec3 upVector = (invCameraRotation * Vec3f::Up()) * normalizedDelta.y * zoomLength;
+			
 			const glm::vec3 displacement = mCamera.GetRotation() * (rightVector + upVector);
 			mCamera.SetPosition(mCamera.GetPosition() + displacement);
 		}
@@ -134,13 +127,13 @@ namespace Evoke
 			f32 zoomLevel = glm::dot(mouseDelta, glm::vec2(-1.0f, 0.0f)) * zoomSensitivity;
 			zoomLevel += glm::dot(mouseDelta, glm::vec2(0.0f, 1.0f)) * zoomSensitivity;
 
-			auto invCameraRotation = glm::inverse(mCamera.GetRotation());
-			const glm::vec3 forwardVector = (invCameraRotation * glm::vec3(0.0f, 0.0f, 1.0f)) * zoomLevel * 0.1667f;
+			const glm::quat invCameraRotation = glm::inverse(mCamera.GetRotation());
+			const glm::vec3 forwardVector = (invCameraRotation * glm::vec3(0.0f, 0.0f, 1.0f)) * zoomLevel * inDeltaTime;
 
 			const glm::vec3 displacement = mCamera.GetRotation() * forwardVector;
 			mCamera.SetPosition(mCamera.GetPosition() + displacement);
 		}
 
-		mPreviousMouse = currentMousePosition;
+		mMousePreviousPosition = currentMousePosition;
 	}
 }

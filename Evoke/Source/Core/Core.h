@@ -61,3 +61,4 @@ namespace Evoke
 }
 
 #include "Math/Common.h"
+#include "Math/Types.h"

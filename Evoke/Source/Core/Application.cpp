@@ -6,7 +6,7 @@
 #include "InputIDs.h"
 #include "Renderer/Buffer.h"
 #include "Input.h"
-#include "Renderer/OrbitCameraController.h"
+#include "Renderer/EditorCameraController.h"
 
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
@@ -151,7 +151,7 @@ namespace Evoke
 			}
 		});
 
-		OrbitCameraController camera;
+		EditorCameraController cameraController;
 
 		while (mIsRunning)
 		{
@@ -160,10 +160,10 @@ namespace Evoke
 			mLastFrameTime = time;
 
 			Update(deltaTime);
-			camera.Update(deltaTime);
-			gsData.Projection = camera.GetCamera().GetProjection();
-			gsData.View = camera.GetCamera().GetView();
-			gsData.ViewProjection = camera.GetCamera().GetViewProjection();
+			cameraController.Update(deltaTime);
+			gsData.Projection = cameraController.GetCamera().GetProjection();
+			gsData.View = cameraController.GetCamera().GetView();
+			gsData.ViewProjection = cameraController.GetCamera().GetViewProjection();
 			gsData.GameTime = (f32)glfwGetTime();
 			shaderDataBuffer->Update();
 
