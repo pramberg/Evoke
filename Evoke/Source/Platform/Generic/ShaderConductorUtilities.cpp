@@ -5,7 +5,7 @@
 
 namespace Evoke
 {
-	ShaderConductor::ShaderStage ShaderConductorUtilities::GetShaderStage(const EShaderStage& inShaderStage)
+	ShaderConductor::ShaderStage ShaderConductorUtilities::ConvertShaderStage(const EShaderStage& inShaderStage)
 	{
 		switch (inShaderStage)
 		{
@@ -27,9 +27,9 @@ namespace Evoke
 		}
 	}
 
-	const std::vector<ShaderConductor::MacroDefine> ShaderConductorUtilities::GetDefines(const std::vector<ShaderCompilerConfig::Define>& inDefines)
+	const std::vector<ShaderConductor::MacroDefine> ShaderConductorUtilities::ConvertDefines(const std::vector<ShaderCompilerConfig::Define>& inDefines)
 	{
-		if (inDefines.size() <= 0)
+		if (inDefines.empty())
 		{
 			return std::vector<ShaderConductor::MacroDefine>();
 		}
@@ -45,30 +45,31 @@ namespace Evoke
 		return outDefines;
 	}
 
-	const ShaderConductorUtilities::ErrorData ShaderConductorUtilities::ParseErrorBlob(const ShaderConductor::Blob* inErrorBlob)
+	const ShaderConductorUtilities::ErrorDataContainer ShaderConductorUtilities::ParseErrorBlob(const ShaderConductor::Blob* inErrorBlob)
 	{
 		string data((c8*)inErrorBlob->Data());
 		
-		ErrorData errorData;
+		ErrorDataContainer errorData;
 
 		// Matches an entire entry, and captures the relevant data
-		std::regex regex{ "\\w+.\\w+:(\\d+):(\\d+): (\\w+): ([\\s\\S]+?\\^)" };
+		std::regex regex{ R"((\w*.\w+):(\d+):(\d+): (\w+): ([\s\S]+?\^))" };
 		std::smatch match;
 		while (std::regex_search(data, match, regex))
 		{
-			const i32 line = std::stoi(match[1].str());
-			const i32 column = std::stoi(match[2].str()); // #TODO: Use column too
-			const string errorType = match[3].str();
-			string info = match[4].str();
+			const string fileName = match[1].str();
+			const i32 line = std::stoi(match[2].str());
+			const i32 column = std::stoi(match[3].str()); // #TODO: Use column too
+			const string errorType = match[4].str();
+			string info = match[5].str();
 			info[0] = std::toupper(info[0]);
 
 			if (errorType == "error")
 			{
-				errorData.Errors.emplace_back(line, info);
+				errorData.Errors.emplace_back(fileName, line, info);
 			}
 			else if (errorType == "warning")
 			{
-				errorData.Warnings.emplace_back(line, info);
+				errorData.Warnings.emplace_back(fileName, line, info);
 			}
 
 			data = match.suffix();

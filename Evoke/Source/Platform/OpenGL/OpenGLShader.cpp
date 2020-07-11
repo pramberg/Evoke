@@ -47,7 +47,6 @@ namespace Evoke
 		}
 
 		string fileSource = Filesystem::ReadFile(path.string());
-		return ShaderConductor::CreateBlob(nullptr, 0);
 		return ShaderConductor::CreateBlob(fileSource.c_str(), (u32)fileSource.size());
 	}
 
@@ -76,7 +75,7 @@ namespace Evoke
 		// #TODO: Handle the case where the filepath is invalid.
 		const string sourceData = Filesystem::ReadFile(mFilepath.string());
 		const string fileName = mFilepath.filename().string();
-		const auto defines = ShaderConductorUtilities::GetDefines(mConfig.Defines);
+		const auto defines = ShaderConductorUtilities::ConvertDefines(mConfig.Defines);
 
 		b8 isValid = true;
 		i32 success;
@@ -101,18 +100,18 @@ namespace Evoke
 		for (auto [entryPoint, shaderStage] : mConfig.EntryPoints)
 		{
 			sourceDesc.entryPoint = entryPoint.c_str();
-			sourceDesc.stage = ShaderConductorUtilities::GetShaderStage(shaderStage);
+			sourceDesc.stage = ShaderConductorUtilities::ConvertShaderStage(shaderStage);
 
 			ShaderConductor::Compiler::ResultDesc results = ShaderConductor::Compiler::Compile(sourceDesc, options, targetDesc);
-
+			
 			if (results.hasError && results.errorWarningMsg)
 			{
 				const auto errorData = ShaderConductorUtilities::ParseErrorBlob(results.errorWarningMsg);
-				for (auto[line, description] : errorData.Errors)
-					EV_LOG_CUSTOM_LOCATION(LogShader, ELogLevel::Error, fileName.c_str(), line, "{}", description);
+				for (auto[sourceFileName, line, description] : errorData.Errors)
+					EV_LOG_CUSTOM_LOCATION(LogShader, ELogLevel::Error, sourceFileName.c_str(), line, "{}", description);
 
-				for (auto [line, description] : errorData.Warnings)
-					EV_LOG_CUSTOM_LOCATION(LogShader, ELogLevel::Warning, fileName.c_str(), line, "{}", description);
+				for (auto [sourceFileName, line, description] : errorData.Warnings)
+					EV_LOG_CUSTOM_LOCATION(LogShader, ELogLevel::Warning, sourceFileName.c_str(), line, "{}", description);
 
 				isValid = false;
 				ShaderConductor::DestroyBlob(results.errorWarningMsg);
@@ -127,8 +126,6 @@ namespace Evoke
 
 			// Push back before potentially breaking, because shader needs to be cleaned up regardless.
 			createdShaders.push_back(shader);
-
-			//ShaderConductorUtilities::LogDisassembly(results);
 
 			ShaderConductor::DestroyBlob(results.errorWarningMsg);
 			ShaderConductor::DestroyBlob(results.target);
@@ -147,7 +144,7 @@ namespace Evoke
 		if (!success && isValid)
 		{
 			std::array<c8, 512> infoLog;
-			glGetProgramInfoLog(program, (i32)infoLog.size(), NULL, infoLog.data());
+			glGetProgramInfoLog(program, (i32)infoLog.size(), nullptr, infoLog.data());
 			EV_LOG(LogShader, EV_ERROR, "Linking failed: {}", infoLog.data());
 			isValid = false;
 		}
@@ -171,6 +168,4 @@ namespace Evoke
 			glDeleteShader(shader);
 		}
 	}
-
-	
 }
