@@ -11,7 +11,7 @@ namespace fs = std::filesystem;
 // #TODO: Error handling
 namespace Evoke
 {
-	static GLenum GetGLSLShaderStage(const EShaderStage& inShaderType)
+	static GLenum GetOpenGLShaderStage(const EShaderStage& inShaderType)
 	{
 		switch (inShaderType)
 		{
@@ -40,7 +40,7 @@ namespace Evoke
 		if (!fs::exists(path))
 		{
 			// #TODO: The "included in" part isn't necessarily helpful, what if it's a sub-include?
-			EV_LOG(LogEngine, EV_ERROR, "Can't find file \"{}\", included in \"{}\"", inFilepath, mFilepath.filename().string());
+			EV_LOG(LogShader, ELogLevel::Error, "Can't find file \"{}\", included in \"{}\"", inFilepath, mFilepath.filename().string());
 
 			// ShaderConductor crashes if we return nullptr here, so create an empty blob.
 			return ShaderConductor::CreateBlob(nullptr, 0);
@@ -93,7 +93,7 @@ namespace Evoke
 
 		ShaderConductor::Compiler::TargetDesc targetDesc;
 		targetDesc.asModule = false;
-		targetDesc.language = ShaderConductor::ShadingLanguage::SpirV;
+		targetDesc.language = ShaderConductor::ShadingLanguage::SpirV; // Could probably compile to GLSL and skip the Spir-V extension for OpenGL?
 
 		ShaderConductor::Compiler::Options options;
 
@@ -119,7 +119,7 @@ namespace Evoke
 				break;
 			}
 			
-			const u32 shader = glCreateShader(GetGLSLShaderStage(shaderStage));
+			const u32 shader = glCreateShader(GetOpenGLShaderStage(shaderStage));
 			glShaderBinary(1, &shader, GL_SHADER_BINARY_FORMAT_SPIR_V_ARB, results.target->Data(), results.target->Size());
 			glSpecializeShaderARB(shader, entryPoint.c_str(), 0, nullptr, nullptr); // Required
 			glAttachShader(program, shader);
@@ -145,7 +145,7 @@ namespace Evoke
 		{
 			std::array<c8, 512> infoLog;
 			glGetProgramInfoLog(program, (i32)infoLog.size(), nullptr, infoLog.data());
-			EV_LOG(LogShader, EV_ERROR, "Linking failed: {}", infoLog.data());
+			EV_LOG(LogShader, ELogLevel::Error, "Linking failed: {}", infoLog.data());
 			isValid = false;
 		}
 
