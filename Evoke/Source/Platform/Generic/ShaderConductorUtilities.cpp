@@ -52,7 +52,7 @@ namespace Evoke
 		ErrorDataContainer errorData;
 
 		// Matches an entire entry, and captures the relevant data
-		std::regex regex{ R"((\w*.\w+):(\d+):(\d+): (\w+): ([\s\S]+?\^))" };
+		std::regex regex{ R"((\w*\.*\w*):(\d+):(\d+): (\w+): ([\s\S]+?\^))" };
 		std::smatch match;
 		while (std::regex_search(data, match, regex))
 		{
