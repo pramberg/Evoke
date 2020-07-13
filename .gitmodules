@@ -10,3 +10,6 @@
 [submodule "Evoke/ThirdParty/GLM"]
 	path = Evoke/ThirdParty/GLM
 	url = https://github.com/g-truc/glm
+[submodule "Evoke/ThirdParty/EFSW"]
+	path = Evoke/ThirdParty/EFSW
+	url = https://github.com/SpartanJ/efsw
