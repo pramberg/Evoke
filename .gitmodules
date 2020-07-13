@@ -12,4 +12,4 @@
 	url = https://github.com/g-truc/glm
 [submodule "Evoke/ThirdParty/EFSW"]
 	path = Evoke/ThirdParty/EFSW
-	url = https://github.com/SpartanJ/efsw
+	url = https://github.com/pramberg/efsw
