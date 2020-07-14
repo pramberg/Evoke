@@ -33,8 +33,8 @@ namespace Evoke
 
 		/**
 		 * Converts an Evoke shader stage into a ShaderConductor shader stage.
-		 * @param 	inShaderType	Type of the in shader.
-		 * @returns	The shader stage.
+		 * @param 	inShaderStage	The Evoke shader stage.
+		 * @returns	The shader conductor shader stage.
 		 */
 		static ShaderConductor::ShaderStage ConvertShaderStage(const EShaderStage& inShaderStage);
 
