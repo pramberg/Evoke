@@ -108,6 +108,7 @@ function conf_excludes()
 end
 
 project "EFSW"
+    location "make"
     kind "StaticLib"
     staticruntime "On"
     language "C++"
