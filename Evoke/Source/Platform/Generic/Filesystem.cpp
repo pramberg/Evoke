@@ -18,4 +18,21 @@ namespace Evoke
 		fs::path path(inFilepath);
 		return path.filename().string();
 	}
+
+	b8 Filesystem::MatchPattern(const c8* inString, const c8* inPattern)
+	{
+		if (*inString == '\0' && *inPattern == '\0')
+			return true;
+
+		if (*inPattern == '*' && *(inPattern + 1) != '\0' && *inString == '\0')
+			return false;
+
+		if (*inPattern == '?' || *inPattern == *inString)
+			return MatchPattern(inString + 1, inPattern + 1);
+
+		if (*inPattern == '*')
+			return MatchPattern(inString, inPattern + 1) || MatchPattern(inString + 1, inPattern);
+		return false;
+	}
+
 }

@@ -7,6 +7,9 @@
 #include "Renderer/Buffer.h"
 #include "Input.h"
 #include "Renderer/EditorCameraController.h"
+#include "Queue.h"
+#include "Platform/Generic/Filesystem.h"
+#include "Platform/Generic/Filewatcher.h"
 
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
@@ -115,24 +118,27 @@ namespace Evoke
 
 			EV_LOG(LogRHI, logLevel, "\nGL Debug:\n  Source: {}\n  Type: {}\n  Id: {}  \n  Message: {}", source, type, inId, inMessage);
 		}, nullptr);
-		
+
 		u32 vao;
 		glCreateVertexArrays(1, &vao);
 		glBindVertexArray(vao);
 
 		f32 vertices[]{
-			-0.5f, -0.5f, 0.0f,
-			0.5f, -0.5f, 0.0f,
-			0.5f, 0.5f, 0.0f
+			-0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
+			0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
+			0.5f, 0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f
 		};
-		
+
 		u32 vbo;
 		glCreateBuffers(1, &vbo);
 		glBindBuffer(GL_ARRAY_BUFFER, vbo);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(f32), nullptr);
+
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 7 * sizeof(f32), (void*)(3 * sizeof(f32)));
 
 		auto shaderDataBuffer = ConstantBuffer::Create<GlobalShaderData>(0);
 
@@ -141,6 +147,15 @@ namespace Evoke
 
 		gShader = Shader::Create("../Shaders/TestShader.hlsl");
 		gShader->Bind();
+
+		// This is here for testing purposes mainly, since shaders can't be recompiled on threads that aren't the main thread
+		TQueue<i32, EConcurrency::Asynchronous> tempShaderRecompileQueue;
+
+		Filewatcher shaderFw("../Shaders/*.hlsl*");
+		shaderFw.OnFileChanged.Subscribe([&tempShaderRecompileQueue](const string& inFile, Filewatcher::EChangeType inChangeType)
+		{
+			tempShaderRecompileQueue.Push(1);
+		});
 
 		mMainWindow->OnKeyPressed.Subscribe([](EKeyCode inKeycode, i32 inRepeatCount)
 		{
@@ -161,11 +176,19 @@ namespace Evoke
 
 			Update(deltaTime);
 			cameraController.Update(deltaTime);
+
 			gsData.Projection = cameraController.GetCamera().GetProjection();
 			gsData.View = cameraController.GetCamera().GetView();
 			gsData.ViewProjection = cameraController.GetCamera().GetViewProjection();
-			gsData.GameTime = (f32)glfwGetTime();
+			gsData.GameTime = time;
 			shaderDataBuffer->Update();
+
+			while (!tempShaderRecompileQueue.Empty())
+			{
+				gShader->Recompile();
+				gShader->Bind();
+				tempShaderRecompileQueue.Pop();
+			}
 
 			gShader->Bind();
 

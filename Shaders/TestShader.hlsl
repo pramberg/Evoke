@@ -8,12 +8,34 @@ cbuffer GlobalShaderData : register(b0)
     float GameTime;
 };
 
-float4 VSMain(float4 inPosition : POSITION) : SV_POSITION
+struct VertexInput
 {
-    return mul(float4(inPosition.xyz, 1.0f), ViewProjection);
+    float3 LocalPosition : POSITION;
+    float4 Color0 : COLOR;
+};
+
+struct PixelInput
+{
+    float4 Position : SV_POSITION;
+    float3 WorldPosition : WORLD_POSITION;
+    float3 ViewPosition : VIEW_POSITION;
+    float4 Color0 : COLOR0;
+};
+
+PixelInput VSMain(VertexInput inData)
+{
+    PixelInput outData;
+    outData.Position = mul(float4(inData.LocalPosition.xyz, 1.0f), ViewProjection);
+    outData.WorldPosition = inData.LocalPosition;
+    outData.ViewPosition = mul(float4(inData.LocalPosition.xyz, 1.0f), View).xyz;
+    outData.Color0 = inData.Color0;
+    return outData;
 }
 
-float4 PSMain(float4 inPosition : SV_POSITION) : SV_TARGET
+float4 PSMain(PixelInput inData) : SV_TARGET
 {
-    return float4(sin(GameTime) * 0.5 + 0.5, cos(GameTime) * 0.5 + 0.5, cos(GameTime + 3.14 * 0.5) * 0.5 + 0.5, 1);
+    float4 outColor = inData.Color0 * 0.5f;
+    outColor.xyz += float3(sin(GameTime) * 0.5 + 0.5, cos(GameTime) * 0.5 + 0.5, cos(GameTime + 3.14 * 0.5) * 0.5 + 0.5) * 0.5f;
+    return outColor;
+
 }
