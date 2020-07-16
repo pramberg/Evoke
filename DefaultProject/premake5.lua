@@ -20,11 +20,6 @@ project "DefaultProject"
         "Evoke"
     }
 
-    libdirs
-    {
-        "../Evoke/ThirdParty/ShaderConductor/lib"
-    }
-
     filter "system:windows"
         postbuildcommands
         {
