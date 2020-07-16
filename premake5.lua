@@ -5,14 +5,18 @@ outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
 projectroot = path.getabsolute(".")
 
+function AddTargetDirs()
+    targetdir (projectroot .. "/Binaries/" .. outputdir .. "/%{prj.name}")
+    objdir (projectroot .. "/Intermediate/" .. outputdir .. "/%{prj.name}")
+end
+
 function GetDefaultConfig()
     language "C++"
     cppdialect "C++17"
     staticruntime "on"
     systemversion "latest"
 
-    targetdir (projectroot .. "/Binaries/" .. outputdir .. "/%{prj.name}")
-    objdir (projectroot .. "/Intermediate/" .. outputdir .. "/%{prj.name}")
+    AddTargetDirs()
 
     filter "configurations:Debug"
         defines "EV_DEBUG"

@@ -4,8 +4,7 @@ project "GLFW"
 	kind "StaticLib"
 	language "C"
 
-	targetdir (projectroot .. "/Binaries/" .. outputdir .. "/%{prj.name}")
-    objdir (projectroot .. "/Intermediate/" .. outputdir .. "/%{prj.name}")
+	AddTargetDirs()
 
 	files
 	{

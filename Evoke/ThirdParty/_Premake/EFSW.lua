@@ -113,9 +113,8 @@ project "EFSW"
     staticruntime "On"
     language "C++"
     systemversion "latest"
-    targetdir (projectroot .. "/Binaries/" .. outputdir .. "/%{prj.name}")
-    objdir (projectroot .. "/Intermediate/" .. outputdir .. "/%{prj.name}")
     includedirs { "include", "src" }
+    AddTargetDirs()
 
     if os.istarget("windows") then
         osfiles = "src/efsw/platform/win/*.cpp"
