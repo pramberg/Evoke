@@ -1,3 +1,5 @@
+os.chdir("../Glad")
+
 project "Glad"
 	kind "StaticLib"
 	language "C"

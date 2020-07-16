@@ -1,0 +1,3 @@
+These are Premake files for third party projects. The reasoning behind this setup is that
+we don't have to fork a third party repo to use it, we just include it directly as a submodule
+and make our Premake file outside that submodule.

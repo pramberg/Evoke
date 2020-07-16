@@ -49,6 +49,14 @@ function GetCommonIncludes()
     }
 end
 
+function IncludeThirdPartyDependencies()
+    matches = os.matchfiles("Evoke/ThirdParty/_Premake/*.lua")
+    for i, match in ipairs(matches)
+    do
+        include(match)
+    end
+end
+
 --------
 -- Setup
 --------
@@ -69,9 +77,7 @@ workspace "Evoke"
 
 
 group "Dependencies"
-include "Evoke/ThirdParty/GLFW"
-include "Evoke/ThirdParty/Glad"
-include "Evoke/ThirdParty/ImGui"
+IncludeThirdPartyDependencies()
 
 group ""
 include "Evoke"

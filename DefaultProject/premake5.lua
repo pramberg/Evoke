@@ -22,7 +22,7 @@ project "DefaultProject"
 
     libdirs
     {
-        "ThirdParty/ShaderConductor/lib"
+        "../Evoke/ThirdParty/ShaderConductor/lib"
     }
 
     filter "system:windows"
