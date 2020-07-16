@@ -113,7 +113,8 @@ project "EFSW"
     staticruntime "On"
     language "C++"
     systemversion "latest"
-    targetdir("./lib")
+    targetdir (projectroot .. "/Binaries/" .. outputdir .. "/%{prj.name}")
+    objdir (projectroot .. "/Intermediate/" .. outputdir .. "/%{prj.name}")
     includedirs { "include", "src" }
 
     if os.istarget("windows") then

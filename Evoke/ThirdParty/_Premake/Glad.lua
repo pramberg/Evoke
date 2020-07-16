@@ -4,8 +4,8 @@ project "Glad"
 	kind "StaticLib"
 	language "C"
 
-	targetdir ("Binaries/" .. outputdir .. "/%{prj.name}")
-    objdir ("Intermediate/" .. outputdir .. "/%{prj.name}")
+	targetdir (projectroot .. "/Binaries/" .. outputdir .. "/%{prj.name}")
+    objdir (projectroot .. "/Intermediate/" .. outputdir .. "/%{prj.name}")
 
 	files
 	{
