@@ -12,13 +12,13 @@ namespace Evoke
 	
 		virtual void Update(f32 inDeltaTime) override;
 	
-		virtual u32 GetWidth() const override { return mData.Width; }
-		virtual u32 GetHeight() const override { return mData.Height; }
+		virtual u32 Width() const override { return mData.Width; }
+		virtual u32 Height() const override { return mData.Height; }
 	
 		virtual void SetVSync(b8 inEnabled) override;
-		virtual b8 GetVSyncEnabled() const override { return mData.VSyncEnabled; }
+		virtual b8 VSyncEnabled() const override { return mData.VSyncEnabled; }
 
-		virtual void* GetNativeWindow() const override { return mWindow; };
+		virtual void* NativeWindow() const override { return mWindow; };
 	
 	private:
 		virtual void Init(const WindowProperties& inProperties);

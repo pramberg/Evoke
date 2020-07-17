@@ -13,7 +13,7 @@ namespace Evoke
 		virtual void Detached() {}
 		virtual void Update(f32 inDeltaTime) {}
 
-		const string& GetName() const { return mName; }
+		const string& Name() const { return mName; }
 
 	private:
 		string mName;

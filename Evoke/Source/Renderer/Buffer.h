@@ -22,7 +22,7 @@ namespace Evoke
 	public:
 		virtual ~TConstantBuffer() = default;
 		virtual void Update() = 0;
-		virtual u32 GetSlot() = 0;
+		virtual u32 Slot() = 0;
 		virtual void SetSlot(u32 inSlot) = 0;
 	};
 }
@@ -38,7 +38,7 @@ namespace Evoke
 		template<typename T>
 		static TUniquePtr<TConstantBuffer<T>> Create(const T& inData, u32 inSlot)
 		{
-			switch (Renderer::GetAPI())
+			switch (Renderer::API())
 			{
 			case ERenderAPI::OpenGL: return MakeUnique<TOpenGLConstantBuffer<T>>(inData, inSlot);
 			default:
@@ -50,7 +50,7 @@ namespace Evoke
 		template<typename T>
 		static TUniquePtr<TConstantBuffer<T>> Create(u32 inSlot)
 		{
-			switch (Renderer::GetAPI())
+			switch (Renderer::API())
 			{
 			case ERenderAPI::OpenGL: return MakeUnique<TOpenGLConstantBuffer<T>>(inSlot);
 			default:

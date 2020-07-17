@@ -12,14 +12,14 @@ namespace Evoke
 		void SetFieldOfView(f32 inFoV);
 
 		void SetPosition(const glm::vec3& inPosition) { mPosition = inPosition; RecalculateViewMatrix(); }
-		const glm::vec3& GetPosition() const { return mPosition; }
+		const glm::vec3& Position() const { return mPosition; }
 
 		void SetRotation(const glm::quat& inRotation) { mRotation = inRotation; RecalculateViewMatrix(); }
-		const glm::quat& GetRotation() const { return mRotation; };
+		const glm::quat& Rotation() const { return mRotation; };
 
-		const glm::mat4& GetProjection() const { return mProjection; }
-		const glm::mat4& GetView() const { return mView; }
-		const glm::mat4& GetViewProjection() const { return mViewProjection; }
+		const glm::mat4& Projection() const { return mProjection; }
+		const glm::mat4& View() const { return mView; }
+		const glm::mat4& ViewProjection() const { return mViewProjection; }
 
 	private:
 		void RecalculateViewMatrix();

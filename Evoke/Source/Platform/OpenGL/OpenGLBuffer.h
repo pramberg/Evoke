@@ -33,7 +33,7 @@ namespace Evoke
 			glBindBuffer(GL_UNIFORM_BUFFER, 0);
 		}
 
-		virtual u32 GetSlot() override { return mSlot; }
+		virtual u32 Slot() override { return mSlot; }
 		virtual void SetSlot(u32 inSlot) override
 		{
 			glBindBuffer(GL_UNIFORM_BUFFER, mBufferID);

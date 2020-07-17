@@ -177,9 +177,9 @@ namespace Evoke
 			Update(deltaTime);
 			cameraController.Update(deltaTime);
 
-			gsData.Projection = cameraController.GetCamera().GetProjection();
-			gsData.View = cameraController.GetCamera().GetView();
-			gsData.ViewProjection = cameraController.GetCamera().GetViewProjection();
+			gsData.Projection = cameraController.Camera().Projection();
+			gsData.View = cameraController.Camera().View();
+			gsData.ViewProjection = cameraController.Camera().ViewProjection();
 			gsData.GameTime = time;
 			shaderDataBuffer->Update();
 

@@ -8,7 +8,7 @@ namespace Evoke
 
 	TSharedPtr<Shader> Shader::Create(const string& inFilepath, const ShaderCompilerConfig& inConfig)
 	{
-		switch (Renderer::GetAPI())
+		switch (Renderer::API())
 		{
 		case ERenderAPI::OpenGL: return MakeShared<OpenGLShader>(inFilepath, inConfig);
 		default:

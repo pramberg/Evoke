@@ -29,7 +29,7 @@ namespace Evoke
 
 	void WindowsWindow::SetVSync(b8 inEnabled)
 	{
-		if (inEnabled == GetVSyncEnabled())
+		if (inEnabled == VSyncEnabled())
 			return;
 
 		glfwSwapInterval(static_cast<i32>(inEnabled));

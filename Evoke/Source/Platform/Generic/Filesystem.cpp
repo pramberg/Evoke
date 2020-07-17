@@ -13,7 +13,7 @@ namespace Evoke
 		return buffer.str();
 	}
 
-	string Filesystem::GetFilename(const string& inFilepath)
+	string Filesystem::ExtractFilename(const string& inFilepath)
 	{
 		fs::path path(inFilepath);
 		return path.filename().string();

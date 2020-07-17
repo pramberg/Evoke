@@ -11,7 +11,7 @@ namespace fs = std::filesystem;
 // #TODO: Error handling
 namespace Evoke
 {
-	static GLenum GetOpenGLShaderStage(const EShaderStage& inShaderType)
+	static GLenum ConvertToOpenGLShaderStage(const EShaderStage& inShaderType)
 	{
 		switch (inShaderType)
 		{
@@ -119,7 +119,7 @@ namespace Evoke
 				break;
 			}
 			
-			const u32 shader = glCreateShader(GetOpenGLShaderStage(shaderStage));
+			const u32 shader = glCreateShader(ConvertToOpenGLShaderStage(shaderStage));
 			glShaderBinary(1, &shader, GL_SHADER_BINARY_FORMAT_SPIR_V_ARB, results.target->Data(), results.target->Size());
 			glSpecializeShaderARB(shader, entryPoint.c_str(), 0, nullptr, nullptr); // Required
 			glAttachShader(program, shader);

@@ -11,6 +11,8 @@ namespace Evoke
 		Geometry,
 		Pixel,
 		Compute,
+		Amplify,
+		Mesh,
 		Count
 	};
 
@@ -30,7 +32,7 @@ namespace Evoke
 			const string Value;
 		};
 
-		static const ShaderCompilerConfig& GetStandard()
+		static const ShaderCompilerConfig& BasicConfig()
 		{
 			static ShaderCompilerConfig config;
 			config.EntryPoints.emplace_back("VSMain", EShaderStage::Vertex);
@@ -55,7 +57,7 @@ namespace Evoke
 		virtual void Unbind() = 0;
 		virtual void Recompile() = 0;
 	
-		static TSharedPtr<Shader> Create(const string& inFilepath, const ShaderCompilerConfig& inConfig = ShaderCompilerConfig::GetStandard());
+		static TSharedPtr<Shader> Create(const string& inFilepath, const ShaderCompilerConfig& inConfig = ShaderCompilerConfig::BasicConfig());
 
 	private:
 	};

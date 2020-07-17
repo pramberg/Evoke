@@ -14,6 +14,6 @@ namespace Evoke
 	class Renderer
 	{
 	public:
-		static ERenderAPI GetAPI() { return ERenderAPI::OpenGL; }
+		static ERenderAPI API() { return ERenderAPI::OpenGL; }
 	};
 }

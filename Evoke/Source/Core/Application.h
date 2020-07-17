@@ -17,11 +17,11 @@ namespace Evoke
 		void PushLayer(Layer* inLayer);
 		void PushOverlay(Layer* inLayer);
 
-		Window& GetWindow() { return *mMainWindow; }
-		const Window& GetWindow() const { return *mMainWindow; }
+		Window& MainWindow() { return *mMainWindow; }
+		const Window& MainWindow() const { return *mMainWindow; }
 
 	public:
-		static Application& Get() { return *sApplication; }
+		static Application& Instance() { return *sApplication; }
 
 	private:
 		void Update(f32 inDeltaTime);

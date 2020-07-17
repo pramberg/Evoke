@@ -41,8 +41,8 @@ namespace Evoke
 			style.Colors[ImGuiCol_WindowBg].w = 1.0f;
 		}
 
-		Application& app = Application::Get();
-		GLFWwindow* window = static_cast<GLFWwindow*>(app.GetWindow().GetNativeWindow());
+		Application& app = Application::Instance();
+		GLFWwindow* window = static_cast<GLFWwindow*>(app.MainWindow().NativeWindow());
 
 		// Setup Platform/Renderer bindings
 		ImGui_ImplGlfw_InitForOpenGL(window, true);
@@ -119,7 +119,7 @@ namespace Evoke
 		{
 			if (ImGui::BeginMenu("File"))
 			{
-				if (ImGui::MenuItem("Exit")) { Application::Get().Close(); }
+				if (ImGui::MenuItem("Exit")) { Application::Instance().Close(); }
 				ImGui::EndMenu();
 			}
 
@@ -132,8 +132,8 @@ namespace Evoke
 		ImGui::End();
 
 		ImGuiIO& io = ImGui::GetIO();
-		Application& app = Application::Get();
-		io.DisplaySize = ImVec2((f32)app.GetWindow().GetWidth(), (f32)app.GetWindow().GetHeight());
+		Application& app = Application::Instance();
+		io.DisplaySize = ImVec2((f32)app.MainWindow().Width(), (f32)app.MainWindow().Height());
 
 		// Rendering
 		ImGui::Render();

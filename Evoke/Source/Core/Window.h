@@ -21,13 +21,13 @@ namespace Evoke
 	
 		virtual void Update(f32 inDeltaTime) = 0;
 	
-		virtual u32 GetWidth() const = 0;
-		virtual u32 GetHeight() const = 0;
+		virtual u32 Width() const = 0;
+		virtual u32 Height() const = 0;
 
 		virtual void SetVSync(b8 inEnabled) = 0;
-		virtual b8 GetVSyncEnabled() const = 0;
+		virtual b8 VSyncEnabled() const = 0;
 
-		inline virtual void* GetNativeWindow() const = 0;
+		inline virtual void* NativeWindow() const = 0;
 
 		static TUniquePtr<Window> Create(const WindowProperties& inProperties = WindowProperties());
 
