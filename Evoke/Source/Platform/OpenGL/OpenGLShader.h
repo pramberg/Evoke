@@ -19,6 +19,7 @@ namespace Evoke
 		virtual void Bind() override;
 		virtual void Unbind() override;
 		virtual void Recompile() override;
+		virtual const std::unordered_set<string>& IncludedFiles() const override;
 
 	private:
 		ShaderConductor::Blob* OnFileIncluded(const c8* inFilepath);
@@ -28,5 +29,6 @@ namespace Evoke
 		ShaderCompilerConfig mConfig;
 		u32 mRendererID;
 		b8 mIsValid;
+		std::unordered_set<string> mIncludedFiles;
 	};
 }

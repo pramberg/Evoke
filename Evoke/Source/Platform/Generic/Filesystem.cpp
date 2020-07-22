@@ -19,6 +19,11 @@ namespace Evoke
 		return path.filename().string();
 	}
 
+	string Filesystem::Absolute(const string& inFilepath)
+	{
+		return fs::absolute(inFilepath).string();
+	}
+
 	b8 Filesystem::MatchPattern(const c8* inString, const c8* inPattern)
 	{
 		if (*inString == '\0' && *inPattern == '\0')

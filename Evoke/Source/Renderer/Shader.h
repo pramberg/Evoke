@@ -56,9 +56,14 @@ namespace Evoke
 		virtual void Bind() = 0;
 		virtual void Unbind() = 0;
 		virtual void Recompile() = 0;
+
+		/** Returns the included files in this shader, including any potential sub-included files. */
+		virtual const std::unordered_set<std::string>& IncludedFiles() const = 0;
 	
+	private:
 		static TSharedPtr<Shader> Create(const string& inFilepath, const ShaderCompilerConfig& inConfig = ShaderCompilerConfig::BasicConfig());
 
+		friend class ShaderLibrary;
 	private:
 	};
 }

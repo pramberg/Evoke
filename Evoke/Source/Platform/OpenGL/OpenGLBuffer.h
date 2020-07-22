@@ -26,10 +26,10 @@ namespace Evoke
 
 	public:
 		// #TODO: This is probably very naive and inefficient. Use glBufferSubData() but only update values that were updated.
-		virtual void Update() override
+		virtual void Upload() override
 		{
 			glBindBuffer(GL_UNIFORM_BUFFER, mBufferID);
-			glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(T), &mData);
+			glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(T), static_cast<T*>(this));
 			glBindBuffer(GL_UNIFORM_BUFFER, 0);
 		}
 
@@ -46,7 +46,7 @@ namespace Evoke
 		{
 			glCreateBuffers(1, &mBufferID);
 			glBindBuffer(GL_UNIFORM_BUFFER, mBufferID);
-			glBufferData(GL_UNIFORM_BUFFER, sizeof(T), &mData, GL_DYNAMIC_DRAW);
+			glBufferData(GL_UNIFORM_BUFFER, sizeof(T), static_cast<T*>(this), GL_DYNAMIC_DRAW);
 			glBindBufferBase(GL_UNIFORM_BUFFER, mSlot, mBufferID);
 			glBindBuffer(GL_UNIFORM_BUFFER, 0);
 		}

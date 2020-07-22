@@ -45,8 +45,9 @@ namespace Evoke
 			// ShaderConductor crashes if we return nullptr here, so create an empty blob.
 			return ShaderConductor::CreateBlob(nullptr, 0);
 		}
+		mIncludedFiles.insert(path.string());
 
-		string fileSource = Filesystem::ReadFile(path.string());
+		const string fileSource = Filesystem::ReadFile(path.string());
 		return ShaderConductor::CreateBlob(fileSource.c_str(), (u32)fileSource.size());
 	}
 
@@ -72,6 +73,8 @@ namespace Evoke
 	
 	void OpenGLShader::Recompile()
 	{
+		mIncludedFiles.clear();
+
 		// #TODO: Handle the case where the filepath is invalid.
 		const string sourceData = Filesystem::ReadFile(mFilepath.string());
 		const string fileName = mFilepath.filename().string();
@@ -103,7 +106,7 @@ namespace Evoke
 			sourceDesc.stage = ShaderConductorUtilities::ConvertShaderStage(shaderStage);
 
 			ShaderConductor::Compiler::ResultDesc results = ShaderConductor::Compiler::Compile(sourceDesc, options, targetDesc);
-			
+
 			if (results.hasError && results.errorWarningMsg)
 			{
 				const auto errorData = ShaderConductorUtilities::ParseErrorBlob(results.errorWarningMsg);
@@ -132,9 +135,7 @@ namespace Evoke
 
 			glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
 			if (!success)
-			{
 				break;
-			}
 		}
 
 		glLinkProgram(program);
@@ -168,4 +169,10 @@ namespace Evoke
 			glDeleteShader(shader);
 		}
 	}
+
+	const std::unordered_set<string>& OpenGLShader::IncludedFiles() const
+	{
+		return mIncludedFiles;
+	}
+
 }
