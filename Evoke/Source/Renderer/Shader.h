@@ -20,16 +20,16 @@ namespace Evoke
 	{
 		struct EntryPoint
 		{
-			EntryPoint(const string& inName, EShaderStage inStage) : Name(inName), Stage(inStage) {}
-			const string Name;
+			EntryPoint(const String& inName, EShaderStage inStage) : Name(inName), Stage(inStage) {}
+			const String Name;
 			const EShaderStage Stage;
 		};
 
 		struct Define
 		{
-			Define(const string& inName, const string& inValue) : Name(inName), Value(inValue) {}
-			const string Name;
-			const string Value;
+			Define(const String& inName, const String& inValue) : Name(inName), Value(inValue) {}
+			const String Name;
+			const String Value;
 		};
 
 		static const ShaderCompilerConfig& BasicConfig()
@@ -40,9 +40,9 @@ namespace Evoke
 			return config;
 		}
 
-		void AddVertexShader(const string& inEntryPoint) { EntryPoints.emplace_back(inEntryPoint, EShaderStage::Vertex); }
-		void AddPixelShader(const string& inEntryPoint) { EntryPoints.emplace_back(inEntryPoint, EShaderStage::Pixel); }
-		void AddDefine(const string& inName, const string& inValue) { Defines.emplace_back(inName, inValue); }
+		void AddVertexShader(const String& inEntryPoint) { EntryPoints.emplace_back(inEntryPoint, EShaderStage::Vertex); }
+		void AddPixelShader(const String& inEntryPoint) { EntryPoints.emplace_back(inEntryPoint, EShaderStage::Pixel); }
+		void AddDefine(const String& inName, const String& inValue) { Defines.emplace_back(inName, inValue); }
 
 		std::vector<EntryPoint> EntryPoints;
 		std::vector<Define> Defines;
@@ -58,10 +58,10 @@ namespace Evoke
 		virtual void Recompile() = 0;
 
 		/** Returns the included files in this shader, including any potential sub-included files. */
-		virtual const std::unordered_set<std::string>& IncludedFiles() const = 0;
+		virtual const std::unordered_set<String>& IncludedFiles() const = 0;
 	
 	private:
-		static TSharedPtr<Shader> Create(const string& inFilepath, const ShaderCompilerConfig& inConfig = ShaderCompilerConfig::BasicConfig());
+		static TSharedPtr<Shader> Create(const String& inFilepath, const ShaderCompilerConfig& inConfig = ShaderCompilerConfig::BasicConfig());
 
 		friend class ShaderLibrary;
 	private:

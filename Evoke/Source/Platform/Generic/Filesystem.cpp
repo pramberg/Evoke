@@ -5,7 +5,7 @@ namespace fs = std::filesystem;
 
 namespace Evoke
 {
-	string Filesystem::ReadFile(const string& inFilepath)
+	String Filesystem::ReadFile(StringView inFilepath)
 	{
 		std::ifstream filestream(inFilepath);
 		std::stringstream buffer;
@@ -13,18 +13,23 @@ namespace Evoke
 		return buffer.str();
 	}
 
-	string Filesystem::ExtractFilename(const string& inFilepath)
+	String Filesystem::ExtractFilename(StringView inFilepath)
 	{
 		fs::path path(inFilepath);
 		return path.filename().string();
 	}
 
-	string Filesystem::Absolute(const string& inFilepath)
+	String Filesystem::Absolute(StringView inFilepath)
 	{
 		return fs::absolute(inFilepath).string();
 	}
 
-	b8 Filesystem::MatchPattern(const c8* inString, const c8* inPattern)
+	b8 Filesystem::MatchPattern(StringView inString, StringView inPattern)
+	{
+		return MatchPatternImpl(inString.data(), inPattern.data());
+	}
+
+	b8 Filesystem::MatchPatternImpl(const c8* inString, const c8* inPattern)
 	{
 		if (*inString == '\0' && *inPattern == '\0')
 			return true;
@@ -33,11 +38,10 @@ namespace Evoke
 			return false;
 
 		if (*inPattern == '?' || *inPattern == *inString)
-			return MatchPattern(inString + 1, inPattern + 1);
+			return MatchPatternImpl(inString + 1, inPattern + 1);
 
 		if (*inPattern == '*')
-			return MatchPattern(inString, inPattern + 1) || MatchPattern(inString + 1, inPattern);
+			return MatchPatternImpl(inString, inPattern + 1) || MatchPatternImpl(inString + 1, inPattern);
 		return false;
 	}
-
 }

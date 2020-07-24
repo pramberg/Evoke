@@ -63,7 +63,7 @@ namespace Evoke
 	{
 		for (const string& pattern : mPatterns)
 		{
-			if (Filesystem::MatchPattern(inFilename.c_str(), pattern.c_str()))
+			if (Filesystem::MatchPattern(inFilename, pattern))
 				return true;
 		}
 		return false;

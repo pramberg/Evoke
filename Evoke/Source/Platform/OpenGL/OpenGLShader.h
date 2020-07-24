@@ -13,13 +13,13 @@ namespace Evoke
 	class OpenGLShader : public Shader
 	{
 	public:
-		OpenGLShader(const string& inFilepath, const ShaderCompilerConfig& inConfig);
+		OpenGLShader(const String& inFilepath, const ShaderCompilerConfig& inConfig);
 		~OpenGLShader();
 
 		virtual void Bind() override;
 		virtual void Unbind() override;
 		virtual void Recompile() override;
-		virtual const std::unordered_set<string>& IncludedFiles() const override;
+		virtual const std::unordered_set<String>& IncludedFiles() const override;
 
 	private:
 		ShaderConductor::Blob* OnFileIncluded(const c8* inFilepath);
@@ -29,6 +29,6 @@ namespace Evoke
 		ShaderCompilerConfig mConfig;
 		u32 mRendererID;
 		b8 mIsValid;
-		std::unordered_set<string> mIncludedFiles;
+		std::unordered_set<String> mIncludedFiles;
 	};
 }

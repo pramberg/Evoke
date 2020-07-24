@@ -6,7 +6,7 @@
 namespace Evoke
 {
 
-	TSharedPtr<Shader> Shader::Create(const string& inFilepath, const ShaderCompilerConfig& inConfig)
+	TSharedPtr<Shader> Shader::Create(const String& inFilepath, const ShaderCompilerConfig& inConfig)
 	{
 		switch (Renderer::API())
 		{

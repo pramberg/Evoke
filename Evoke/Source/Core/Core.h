@@ -20,6 +20,9 @@ using c16 = char16_t;
 using c32 = char32_t;
 
 using string = std::string;
+using string_view = std::string_view;
+using String = std::string;
+using StringView = std::string_view;
 
 using b8 = bool;
 

@@ -1,6 +1,7 @@
 #pragma once
 #include "Core/Core.h"
 #include "Core/Delegate.h"
+#include "Filesystem.h"
 
 #include "efsw/efsw.hpp"
 
@@ -66,8 +67,7 @@ namespace Evoke
 
 		virtual void handleFileAction(efsw::WatchID inWatchId, const string& inDirectory, const string& inFilename, efsw::Action inAction, string inOldFilename) override
 		{
-			constexpr c8 separator = (c8)std::filesystem::path::preferred_separator;
-			const string path = std::filesystem::absolute(inDirectory + separator + inFilename).string();
+			const string path = Filesystem::Absolute(inDirectory + Filesystem::Separator + inFilename);
 			switch (inAction)
 			{
 			case efsw::Action::Modified:
@@ -83,7 +83,7 @@ namespace Evoke
 				mFilewatcher->OnDirectoryChanged.Broadcast(path, Filewatcher::EChangeType::Deleted);
 				break;
 			case efsw::Action::Moved:
-				mFilewatcher->OnRenamed.Broadcast(path, std::filesystem::absolute(inDirectory + separator + inOldFilename).string());
+				mFilewatcher->OnRenamed.Broadcast(path, Filesystem::Absolute(inDirectory + Filesystem::Separator + inOldFilename));
 				break;
 			}
 		}

@@ -6,12 +6,18 @@ namespace Evoke
 	class Filesystem
 	{
 	public:
-		static string ReadFile(const string& inFilepath);
-		static string ExtractFilename(const string& inFilepath);
-		static string Absolute(const string& inFilepath);
-		static constexpr c8 Separator = std::filesystem::path::preferred_separator;
+		static String ReadFile(StringView inFilepath);
+		static String ExtractFilename(StringView inFilepath);
+		static String Absolute(StringView inFilepath);
 
 		/** Matches a string with a pattern that can have wildcards. */
-		static b8 MatchPattern(const c8* inString, const c8* inPattern);
+		static b8 MatchPattern(StringView inString, StringView inPattern);
+
+	public:
+		static constexpr c8 Separator = std::filesystem::path::preferred_separator;
+
+	private:
+		/** #NOTE: Uses C-style strings because the function is recursive and it's noticeably faster: https://quick-bench.com/q/g4tH2Ox1y4KtNogS3LqUuzfI4uE */
+		static b8 MatchPatternImpl(const c8* inString, const c8* inPattern);
 	};
 }

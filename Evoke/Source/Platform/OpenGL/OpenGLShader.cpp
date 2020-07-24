@@ -47,11 +47,11 @@ namespace Evoke
 		}
 		mIncludedFiles.insert(path.string());
 
-		const string fileSource = Filesystem::ReadFile(path.string());
+		const String fileSource = Filesystem::ReadFile(path.string());
 		return ShaderConductor::CreateBlob(fileSource.c_str(), (u32)fileSource.size());
 	}
 
-	OpenGLShader::OpenGLShader(const string& inFilepath, const ShaderCompilerConfig& inConfig) : mFilepath(fs::absolute(inFilepath)), mConfig(inConfig), mRendererID(0), mIsValid(false)
+	OpenGLShader::OpenGLShader(const String& inFilepath, const ShaderCompilerConfig& inConfig) : mFilepath(fs::absolute(inFilepath)), mConfig(inConfig), mRendererID(0), mIsValid(false)
 	{
 		Recompile();
 	}
@@ -76,8 +76,8 @@ namespace Evoke
 		mIncludedFiles.clear();
 
 		// #TODO: Handle the case where the filepath is invalid.
-		const string sourceData = Filesystem::ReadFile(mFilepath.string());
-		const string fileName = mFilepath.filename().string();
+		const String sourceData = Filesystem::ReadFile(mFilepath.string());
+		const String fileName = mFilepath.filename().string();
 		const auto defines = ShaderConductorUtilities::ConvertDefines(mConfig.Defines);
 
 		b8 isValid = true;
@@ -170,7 +170,7 @@ namespace Evoke
 		}
 	}
 
-	const std::unordered_set<string>& OpenGLShader::IncludedFiles() const
+	const std::unordered_set<String>& OpenGLShader::IncludedFiles() const
 	{
 		return mIncludedFiles;
 	}
