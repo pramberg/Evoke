@@ -25,6 +25,7 @@ project "Evoke"
         "ThirdParty/Glad/include",
         "ThirdParty/ShaderConductor/include",
         "ThirdParty/EFSW/include",
+        "ThirdParty/Assimp-5.0.1/include",
         GetCommonIncludes()
     }
 
@@ -34,7 +35,8 @@ project "Evoke"
         "Glad",
         "ImGui",
         "ShaderConductor",
-        "EFSW"
+        "EFSW",
+        "Assimp"
     }
 
     libdirs
