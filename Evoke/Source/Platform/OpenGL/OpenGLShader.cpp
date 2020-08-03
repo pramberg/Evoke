@@ -33,6 +33,28 @@ namespace Evoke
 		}
 	}
 
+	static String ConvertToStringShaderStage(const EShaderStage& inShaderType)
+	{
+		switch (inShaderType)
+		{
+		case EShaderStage::Vertex:
+			return "VS";
+		case EShaderStage::Hull:
+			return "HS";
+		case EShaderStage::Domain:
+			return "DS";
+		case EShaderStage::Geometry:
+			return "GS";
+		case EShaderStage::Pixel:
+			return "PS";
+		case EShaderStage::Compute:
+			return "CS";
+		default:
+			EV_CORE_ASSERT(false, "Unknown shader stage");
+			return "UNKNOWN";
+		}
+	}
+
 	ShaderConductor::Blob* OpenGLShader::OnFileIncluded(const c8* inFilepath)
 	{
 		auto path = mFilepath;
@@ -127,6 +149,8 @@ namespace Evoke
 			glSpecializeShaderARB(shader, entryPoint.c_str(), 0, nullptr, nullptr); // Required
 			glAttachShader(program, shader);
 
+			glObjectLabel(GL_SHADER, shader, -1, (fileName + " (" + ConvertToStringShaderStage(shaderStage) + ")").c_str()); // #TODO: Labels should only be set in debug
+
 			// Push back before potentially breaking, because shader needs to be cleaned up regardless.
 			createdShaders.push_back(shader);
 
@@ -140,6 +164,7 @@ namespace Evoke
 
 		glLinkProgram(program);
 		glGetProgramiv(program, GL_LINK_STATUS, &success);
+		glObjectLabel(GL_PROGRAM, program, -1, fileName.c_str()); // #TODO: Labels should only be set in debug
 
 		// We don't really care about linking if compilation failed, since that's likely the issue
 		if (!success && isValid)

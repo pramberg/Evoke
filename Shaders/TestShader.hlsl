@@ -32,10 +32,16 @@ PixelInput VSMain(VertexInput inData)
     return outData;
 }
 
+static const float3 gLightDir = { 1.0f, 1.0f, 0.0f };
+
 float4 PSMain(PixelInput inData) : SV_TARGET
 {
     float4 outColor = inData.Color0 * 0.5f;
+    outColor.a = 1.0f;
     outColor.xyz += float3(sin(GameTime) * 0.5 + 0.5, cos(GameTime) * 0.5 + 0.5, cos(GameTime + 3.14 * 0.5) * 0.5 + 0.5) * 0.5f;
-    return outColor;
+    outColor.xyz = inData.Color0.xyz;
 
+    outColor.xyz = saturate(dot(normalize(gLightDir), inData.Color0.xyz)) + 0.1f;
+
+    return outColor;
 }

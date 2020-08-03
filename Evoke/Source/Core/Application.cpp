@@ -14,13 +14,18 @@
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
 
+#include <type_traits>
 #include "Renderer/ShaderLibrary.h"
+
+#include "assimp/Importer.hpp"
+#include <assimp/scene.h>           // Output data structure
+#include <assimp/postprocess.h>     // Post processing flags
 
 namespace Evoke
 {
 	Application* Application::sApplication = nullptr;
 
-	Application::Application() : mMainWindow(Window::Create())
+	Application::Application() : mMainWindow(Window::Create()), mContext(GraphicsContext::Create(mMainWindow->NativeWindow()))
 	{
 		EV_CORE_ASSERT(!sApplication, "Application already exists");
 		sApplication = this;
@@ -42,6 +47,14 @@ namespace Evoke
 		f32 GameTime;
 	};
 
+	struct Vertex
+	{
+		glm::vec3 Position;
+		f32 PackedNormal;
+		f32 PackedTangent;
+		glm::vec2 UV0;
+	};
+
 	struct TestVertex
 	{
 		glm::vec3 Position;
@@ -50,101 +63,55 @@ namespace Evoke
 
 	void Application::Run()
 	{
-		//glEnable(GL_DEBUG_OUTPUT);
-		glDebugMessageCallback([](GLenum inSource, GLenum inType, GLuint inId, GLenum inSeverity, GLsizei inLength, const GLchar* inMessage, const void* inUserPtr)
+		mContext->SetFaceCullingMethod(EFaceCulling::Back);
+
+		Assimp::Importer importer;
+		const aiScene* scene = importer.ReadFile(
+			"W:/Projects/Evoke/DefaultProject/Assets/TestSphere.fbx",
+			aiProcessPreset_TargetRealtime_MaxQuality 
+		);
+
+		std::vector<TestVertex> vertices;
+		std::vector<u32> indices;
+
+		if (scene)
 		{
-			auto logLevel = EV_INFO;
-			switch (inSeverity)
+			for (u32 i = 0; i < scene->mNumMeshes; i++)
 			{
-			case GL_DEBUG_SEVERITY_HIGH:
-				logLevel = EV_ERROR;
-				break;
-			case GL_DEBUG_SEVERITY_MEDIUM:
-				logLevel = EV_WARNING;
-				break;
-			case GL_DEBUG_SEVERITY_LOW:
-				logLevel = EV_INFO;
-				break;
+				auto* mesh = scene->mMeshes[i];
+
+				for (u32 v = 0; v < mesh->mNumVertices; v++)
+				{
+					auto vert = mesh->mVertices[v];
+					auto nrm = mesh->mNormals[v];
+					vertices.push_back({ { vert.x, vert.y, vert.z }, { nrm.x, nrm.y, nrm.z, 1.0f } });
+				}
+
+				for (u32 f = 0; f < mesh->mNumFaces; f++)
+				{
+					auto face = mesh->mFaces[f];
+					for (u32 j = 0; j < 3; j++)
+					{
+						indices.push_back(face.mIndices[j]);
+					}
+				}
 			}
-
-			string source;
-			switch (inSource)
-			{
-			case GL_DEBUG_SOURCE_API:
-				source = "API";
-				break;
-			case GL_DEBUG_SOURCE_WINDOW_SYSTEM:
-				source = "Window system";
-				break;
-			case GL_DEBUG_SOURCE_SHADER_COMPILER:
-				source = "Shader compiler";
-				break;
-			case GL_DEBUG_SOURCE_THIRD_PARTY:
-				source = "Third party";
-				break;
-			case GL_DEBUG_SOURCE_APPLICATION:
-				source = "Application";
-				break;
-			case GL_DEBUG_SOURCE_OTHER:
-				source = "Other";
-				break;
-			}
-
-			string type;
-			switch (inType)
-			{
-			case GL_DEBUG_TYPE_ERROR:
-				type = "Error";
-				break;
-			case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR:
-				type = "Deprecated behavior";
-				break;
-			case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:
-				type = "Undefined behavior";
-				break;
-			case GL_DEBUG_TYPE_PORTABILITY:
-				type = "Portability";
-				break;
-			case GL_DEBUG_TYPE_PERFORMANCE:
-				type = "Performance";
-				break;
-			case GL_DEBUG_TYPE_OTHER:
-				type = "Other";
-				break;
-			case GL_DEBUG_TYPE_MARKER:
-				type = "Marker";
-				break;
-			case GL_DEBUG_TYPE_PUSH_GROUP:
-				type = "Push group";
-				break;
-			case GL_DEBUG_TYPE_POP_GROUP:
-				type = "Pull group";
-				break;
-			}
-
-			EV_LOG(LogRHI, logLevel, "\nGL Debug:\n  Source: {}\n  Type: {}\n  Id: {}  \n  Message: {}", source, type, inId, inMessage);
-		}, nullptr);
-		//glEnable(GL_CULL_FACE); // cull face
-		//glCullFace(GL_BACK); // cull back face
-		//glFrontFace(GL_CCW); // GL_CCW for counter clock-wise
-
-		TestVertex vertices[]
+		}
+		else
 		{
-			{ {-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f, 1.0f} },
-			{ { 0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f, 1.0f} },
-			{ { 0.5f,  0.5f, 0.0f}, {0.0f, 0.0f, 1.0f, 1.0f} },
-			{ {-0.5f,  0.5f, 0.0f}, {1.0f, 1.0f, 0.0f, 1.0f} }
-		};
-		
-		u32 indices[]
-		{
-			0, 1, 3,
-			1, 2, 3
-		};
-
-		std::vector<i32> sizeStuff;
-		sizeStuff.push_back(3);
-		sizeStuff.push_back(4);
+			EV_LOG(LogTemp, ELogLevel::Error, "{}", importer.GetErrorString());
+			vertices.push_back({ { -0.5f, -0.5f, 0.0f }, { 1.0f, 0.0f, 0.0f, 1.0f } });
+			vertices.push_back({ {  0.5f, -0.5f, 0.0f }, { 0.0f, 1.0f, 0.0f, 1.0f } });
+			vertices.push_back({ {  0.5f,  0.5f, 0.0f }, { 0.0f, 0.0f, 1.0f, 1.0f } });
+			vertices.push_back({ { -0.5f,  0.5f, 0.0f }, { 1.0f, 1.0f, 0.0f, 1.0f } });
+			indices.push_back(0);
+			indices.push_back(1);
+			indices.push_back(3);
+			indices.push_back(1);
+			indices.push_back(2);
+			indices.push_back(3);
+		}
+		importer.FreeScene();
 
 		u32 vao;
 		glCreateVertexArrays(1, &vao);
@@ -153,13 +120,19 @@ namespace Evoke
 		u32 vbo;
 		glCreateBuffers(1, &vbo);
 		glBindBuffer(GL_ARRAY_BUFFER, vbo);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(TestVertex), vertices.data(), GL_STATIC_DRAW);
 
+		std::vector<i32> sizeStuff;
+		sizeStuff.push_back(3);
+		sizeStuff.push_back(4);
+
+		i32 sumStride = 0;
 		for (i32 i = 0; i < sizeStuff.size(); i++)
 		{
+			glVertexAttribFormat(i, sizeStuff[i], GL_FLOAT, GL_FALSE, sumStride);
+			glVertexAttribBinding(i, 0);
 			glEnableVertexAttribArray(i);
-			i32 stride = i > 0 ? sizeStuff[i - 1] : 0;
-			glVertexAttribPointer(i, sizeStuff[i], GL_FLOAT, GL_FALSE, 7 * sizeof(f32), (void*)(stride * sizeof(f32)));
+			sumStride += sizeStuff[i] * sizeof(f32);
 		}
 
 		//glEnableVertexAttribArray(0);
@@ -171,12 +144,17 @@ namespace Evoke
 		u32 ebo;
 		glCreateBuffers(1, &ebo);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(u32), indices.data(), GL_STATIC_DRAW);
 
-		auto shaderLibrary = ShaderLibrary({ "../Shaders/" });
+		ShaderLibrary shaderLibrary;
 		auto shader = shaderLibrary.Load("../Shaders/TestShader.hlsl");
 		shader->Bind();
 		
+		glm::vec3 test{ 10, 20, 40 };
+		auto x = reinterpret_cast<f32*>(&test);
+		EV_LOG(LogTemp, ELogLevel::Info, "{}", *(x + 1));
+		EV_LOG(LogTemp, ELogLevel::Info, "{}", Filesystem::MatchPattern("C:/TestDir/TestFile.txt", "*.txt"));
+
 		EditorCameraController cameraController;
 		auto shaderDataBuffer = ConstantBuffer::Create<GlobalShaderData>(0);
 
@@ -198,9 +176,12 @@ namespace Evoke
 
 			shader->Bind();
 
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+			mContext->BeginEvent("Drawing something");
 			glBindVertexArray(vao);
-			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+			glBindVertexBuffer(0, vbo, 0, sizeof(TestVertex));
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+			glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+			mContext->EndEvent();
 		}
 	}
 
@@ -211,8 +192,8 @@ namespace Evoke
 
 		mMainWindow->Update(inDeltaTime);
 
-		glClearColor(0.0f, 0.0f, 0.1f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		mContext->ClearColor({ 0.1f, 0.0f, 0.1f, 1.0f });
+		mContext->ClearDepth();
 	}
 
 	void Application::OnWindowClose()

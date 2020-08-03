@@ -4,7 +4,7 @@
 
 namespace Evoke
 {
-	Camera::Camera() : mProjection(glm::perspectiveFov(mFieldOfView, (f32)Application::Instance().MainWindow().Width(), (f32)Application::Instance().MainWindow().Height(), mNearClip, mFarClip)),
+	Camera_DEPRECATED::Camera_DEPRECATED() : mProjection(glm::perspectiveFov(mFieldOfView, (f32)Application::Instance().MainWindow().Width(), (f32)Application::Instance().MainWindow().Height(), mNearClip, mFarClip)),
 		mViewProjection(mProjection * mView)
 	{
 		Application::Instance().MainWindow().OnWindowResized.Subscribe([this](u32 inWidth, u32 inHeight)
@@ -14,7 +14,7 @@ namespace Evoke
 		});
 	}
 
-	Camera::Camera(Camera&& inCamera) noexcept
+	Camera_DEPRECATED::Camera_DEPRECATED(Camera_DEPRECATED&& inCamera) noexcept
 	{
 		mView = std::move(inCamera.mView);
 		mProjection = std::move(inCamera.mProjection);
@@ -26,13 +26,13 @@ namespace Evoke
 		mFarClip = inCamera.mFarClip;
 	}
 
-	void Camera::SetFieldOfView(f32 inFoV)
+	void Camera_DEPRECATED::SetFieldOfView(f32 inFoV)
 	{
 		mFieldOfView = inFoV;
 		mProjection = glm::perspectiveFov(mFieldOfView, (f32)Application::Instance().MainWindow().Width(), (f32)Application::Instance().MainWindow().Height(), mNearClip, mFarClip);
 	}
 
-	void Camera::RecalculateViewMatrix()
+	void Camera_DEPRECATED::RecalculateViewMatrix()
 	{
 		auto transform = glm::translate(glm::identity<glm::mat4>(), -mPosition) * glm::mat4_cast(mRotation);
 

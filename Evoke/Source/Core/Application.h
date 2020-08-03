@@ -2,6 +2,7 @@
 #include "Core.h"
 #include "Window.h"
 #include "LayerStack.h"
+#include "Renderer\GraphicsContext.h"
 
 namespace Evoke
 {
@@ -33,6 +34,7 @@ namespace Evoke
 		b8 mIsRunning = true;
 		LayerStack mLayerStack;
 		f32 mLastFrameTime = 0.0f;
+		TUniquePtr<GraphicsContext> mContext;
 
 	private:
 		static Application* sApplication;

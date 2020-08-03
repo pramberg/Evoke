@@ -4,34 +4,40 @@
 
 namespace Evoke
 {
-
-	ShaderLibrary::ShaderLibrary(const std::initializer_list<string>& inPaths)
+	ShaderLibrary::ShaderLibrary()
 	{
-		for (const string& path : inPaths)
-		{
-			auto absPath = std::filesystem::absolute(path);
-			if (!absPath.extension().empty())
-				absPath += Filesystem::Separator;
-			mFilewatcher.AddPath(absPath.string() + "*.hlsl*");
-		}
 		mFilewatcher.OnFileChanged.Subscribe(EV_BIND_2(ShaderLibrary::RecompileOnFileModified));
 	}
 
-	TSharedPtr<Shader> ShaderLibrary::Load(const string& inFilepath, b8 inForceLoad /*= false*/)
+	ShaderLibrary::ShaderLibrary(const std::initializer_list<std::tuple<StringView, const ShaderCompilerConfig&>> inShadersToLoad) : ShaderLibrary()
+	{
+		for (auto [shaderPath, config] : inShadersToLoad)
+		{
+			Load(shaderPath, config);
+		}
+	}
+
+	TSharedPtr<Shader> ShaderLibrary::Load(StringView inFilepath, b8 inForceLoad)
 	{
 		return Load(inFilepath, ShaderCompilerConfig::BasicConfig());
 	}
 
-	TSharedPtr<Shader> ShaderLibrary::Load(const string& inFilepath, const ShaderCompilerConfig& inConfig, b8 inForceLoad /*= false*/)
+	TSharedPtr<Shader> ShaderLibrary::Load(StringView inFilepath, const ShaderCompilerConfig& inConfig, b8 inForceLoad /*= false*/)
 	{
-		auto absPath = Filesystem::Absolute(inFilepath);
-		EV_CORE_ASSERT(!Exists(absPath), "Shader is already loaded.");
-		auto shader = Shader::Create(absPath, inConfig);
-		mShaders[absPath] = shader;
+		auto absPath = std::filesystem::absolute(inFilepath);
+		const String fullPath = absPath.string();
+
+		if (Exists(fullPath))
+			return mShaders[fullPath];
+
+		absPath.remove_filename();
+		mFilewatcher.AddPath(absPath.string() + "*.hlsl*");
+		auto shader = Shader::Create(fullPath, inConfig);
+		mShaders[fullPath] = shader;
 		return shader;
 	}
 
-	b8 ShaderLibrary::Exists(const string& inFilepath) const
+	b8 ShaderLibrary::Exists(StringView inFilepath) const
 	{
 		auto absPath = Filesystem::Absolute(inFilepath);
 		return mShaders.find(absPath) != mShaders.end();

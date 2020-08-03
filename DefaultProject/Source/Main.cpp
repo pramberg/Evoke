@@ -1,5 +1,7 @@
 #include <Evoke.h>
 
+using namespace Evoke;
+
 class SceneLayer : public Evoke::Layer
 {
 public:
@@ -11,8 +13,11 @@ public:
 
 	virtual void Update(f32 inDeltaTime) override
 	{
+		mActiveScene->Update(inDeltaTime);
 	}
 
+private:
+	TUniquePtr<Scene> mActiveScene;
 };
 
 class Sandbox : public Evoke::Application

@@ -10,10 +10,16 @@ namespace Evoke
 	class ShaderLibrary
 	{
 	public:
-		ShaderLibrary(const std::initializer_list<string>& inPaths);
-		TSharedPtr<Shader> Load(const string& inFilepath, b8 inForceLoad = false);
-		TSharedPtr<Shader> Load(const string& inFilepath, const ShaderCompilerConfig& inConfig, b8 inForceLoad = false);
-		b8 Exists(const string& inFilepath) const;
+		ShaderLibrary();
+
+		/**
+		 * Constructor that compiles some shaders immediately.
+		 * @param 	inShadersToLoad	The shaders to compile during construction.
+		 */
+		ShaderLibrary(const std::initializer_list<std::tuple<StringView, const ShaderCompilerConfig&>> inShadersToLoad);
+		TSharedPtr<Shader> Load(StringView inFilepath, b8 inForceLoad = false);
+		TSharedPtr<Shader> Load(StringView inFilepath, const ShaderCompilerConfig& inConfig, b8 inForceLoad = false);
+		b8 Exists(StringView inFilepath) const;
 		void Update(f32 inDeltaTime);
 
 	private:

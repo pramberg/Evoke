@@ -7,3 +7,5 @@
 #include "Core/InputIDs.h"
 
 #include "Core/EntryPoint.h"
+
+#include "ECS/Scene.h"

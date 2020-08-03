@@ -3,11 +3,11 @@
 
 namespace Evoke
 {
-	class Camera
+	class Camera_DEPRECATED
 	{
 	public:
-		Camera();
-		Camera(Camera&& inCamera) noexcept;
+		Camera_DEPRECATED();
+		Camera_DEPRECATED(Camera_DEPRECATED&& inCamera) noexcept;
 
 		void SetFieldOfView(f32 inFoV);
 
@@ -35,5 +35,16 @@ namespace Evoke
 		glm::mat4 mView = glm::translate(glm::identity<glm::mat4>(), -mPosition);
 		glm::mat4 mProjection;
 		glm::mat4 mViewProjection;
+	};
+
+	class Camera
+	{
+	public:
+		Camera() : mProjection(1.0f) {}
+		Camera(const glm::mat4& inProjection) : mProjection(inProjection) {}
+		const glm::mat4& Projection() const { return mProjection; }
+
+	private:
+		glm::mat4 mProjection;
 	};
 }

@@ -11,10 +11,10 @@ namespace Evoke
 		EditorCameraController();
 		void Update(f32 inDeltaTime);
 
-		class Camera& Camera() { return mCamera; }
-		const class Camera& Camera() const { return mCamera; }
+		class Camera_DEPRECATED& Camera() { return mCamera; }
+		const class Camera_DEPRECATED& Camera() const { return mCamera; }
 	private:
-		class Camera mCamera;
+		class Camera_DEPRECATED mCamera;
 
 		b8 mRotationEnabled = false;
 		glm::vec2 mMouseStartPosition = glm::vec2(0.0f);
