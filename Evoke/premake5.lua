@@ -26,6 +26,7 @@ project "Evoke"
         "ThirdParty/ShaderConductor/include",
         "ThirdParty/EFSW/include",
         "ThirdParty/Assimp-5.0.1/include",
+        "ThirdParty/NativeFileDialog/src/include",
         GetCommonIncludes()
     }
 
@@ -36,7 +37,8 @@ project "Evoke"
         "ImGui",
         "ShaderConductor",
         "EFSW",
-        "Assimp"
+        "Assimp",
+        "NativeFileDialog"
     }
 
     libdirs

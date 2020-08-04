@@ -13,3 +13,6 @@
 [submodule "Evoke/ThirdParty/EFSW"]
 	path = Evoke/ThirdParty/EFSW
 	url = https://github.com/SpartanJ/efsw
+[submodule "Evoke/ThirdParty/NativeFileDialog"]
+	path = Evoke/ThirdParty/NativeFileDialog
+	url = https://github.com/mlabbe/nativefiledialog
