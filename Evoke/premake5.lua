@@ -26,7 +26,7 @@ project "Evoke"
         "ThirdParty/ShaderConductor/include",
         "ThirdParty/EFSW/include",
         "ThirdParty/Assimp-5.0.1/include",
-        "ThirdParty/NativeFileDialog/src/include",
+        "ThirdParty/PortableFileDialogs/",
         GetCommonIncludes()
     }
 
@@ -38,7 +38,6 @@ project "Evoke"
         "ShaderConductor",
         "EFSW",
         "Assimp",
-        "NativeFileDialog"
     }
 
     libdirs
@@ -48,10 +47,4 @@ project "Evoke"
     }
 
     filter "system:windows"
-        links
-        {
-            --"opengl32.lib", -- This doesn't seem to be necessary?
-            --"ShaderConductor"
-        }
-
         defines "GLFW_INCLUDE_NONE"

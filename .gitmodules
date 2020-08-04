@@ -18,7 +18,7 @@
     ignore = dirty
 	path = Evoke/ThirdParty/EFSW
 	url = https://github.com/SpartanJ/efsw
-[submodule "Evoke/ThirdParty/NativeFileDialog"]
+[submodule "Evoke/ThirdParty/PortableFileDialogs"]
     ignore = dirty
-	path = Evoke/ThirdParty/NativeFileDialog
-	url = https://github.com/mlabbe/nativefiledialog
+	path = Evoke/ThirdParty/PortableFileDialogs
+	url = https://github.com/samhocevar/portable-file-dialogs
