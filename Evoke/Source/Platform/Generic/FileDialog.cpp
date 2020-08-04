@@ -6,94 +6,85 @@
 
 namespace Evoke
 {
-	std::optional<String> FileDialog::Save(StringView inDefaultPath, StringView inFilter)
+	b8 IsNFDDialogSuccessful(nfdresult_t inResult)
 	{
-		nfdchar_t* rawPath{ nullptr };
-		nfdresult_t result = NFD_SaveDialog(inFilter.data(), Filesystem::Absolute(inDefaultPath).data(), &rawPath);
-		switch (result)
+		switch (inResult)
 		{
 		case NFD_OKAY:
-		{
-			String outPath{ rawPath };
-			delete rawPath;
-			return outPath;
-		}
+			return true;
 		case NFD_CANCEL:
-			return std::nullopt;
+			return false;
 		default:
 		case NFD_ERROR:
 			EV_LOG(LogEngine, ELogLevel::Error, "{}", NFD_GetError());
-			return std::nullopt;
+			return false;
 		}
 	}
 
-	std::optional<String> FileDialog::Open(StringView inDefaultPath, StringView inFilter)
+	std::optional<String> FileDialog::Save(std::optional<StringView> inDefaultPath, std::optional<StringView> inFilter)
 	{
 		nfdchar_t* rawPath{ nullptr };
-		nfdresult_t result = NFD_OpenDialog(inFilter.data(), Filesystem::Absolute(inDefaultPath).data(), &rawPath);
-		switch (result)
-		{
-		case NFD_OKAY:
-		{
-			String outPath{ rawPath };
-			delete rawPath;
-			return outPath;
-		}
-		case NFD_CANCEL:
+		nfdresult_t result = NFD_SaveDialog(
+			inFilter ? inFilter->data() : nullptr,
+			inDefaultPath ? Filesystem::Absolute(*inDefaultPath).data() : nullptr,
+			&rawPath
+		);
+		if (!IsNFDDialogSuccessful(result))
 			return std::nullopt;
-		default:
-		case NFD_ERROR:
-			EV_LOG(LogEngine, ELogLevel::Error, "{}", NFD_GetError());
-			return std::nullopt;
-		}
+
+		String outPath{ rawPath };
+		delete rawPath;
+		return outPath;
 	}
 
-	std::optional<std::vector<String>> FileDialog::OpenMultiple(StringView inDefaultPath, StringView inFilter)
+	std::optional<String> FileDialog::Open(std::optional<StringView> inDefaultPath, std::optional<StringView> inFilter)
+	{
+		nfdchar_t* rawPath{ nullptr };
+		nfdresult_t result = NFD_OpenDialog(
+			inFilter ? inFilter->data() : nullptr,
+			inDefaultPath ? Filesystem::Absolute(*inDefaultPath).data() : nullptr,
+			&rawPath
+		);
+		if (!IsNFDDialogSuccessful(result))
+			return std::nullopt;
+
+		String outPath{ rawPath };
+		delete rawPath;
+		return outPath;
+	}
+
+	std::optional<std::vector<String>> FileDialog::OpenMultiple(std::optional<StringView> inDefaultPath, std::optional<StringView> inFilter)
 	{
 		nfdpathset_t pathSet;
-		nfdresult_t result = NFD_OpenDialogMultiple(inFilter.data(), Filesystem::Absolute(inDefaultPath).data(), &pathSet);
-		switch (result)
-		{
-		case NFD_OKAY:
-		{
-			std::vector<String> paths;
-			for (size_t i = 0; i < NFD_PathSet_GetCount(&pathSet); i++)
-			{
-				nfdchar_t* path = NFD_PathSet_GetPath(&pathSet, i);
-				paths.emplace_back(path);
-			}
-			NFD_PathSet_Free(&pathSet);
+		nfdresult_t result = NFD_OpenDialogMultiple(
+			inFilter ? inFilter->data() : nullptr,
+			inDefaultPath ? Filesystem::Absolute(*inDefaultPath).data() : nullptr,
+			&pathSet
+		);
 
-			return paths;
-		}
-		case NFD_CANCEL:
+		if (!IsNFDDialogSuccessful(result))
 			return std::nullopt;
-		default:
-		case NFD_ERROR:
-			EV_LOG(LogEngine, ELogLevel::Error, "{}", NFD_GetError());
-			return std::nullopt;
-		}
+
+		std::vector<String> paths;
+		for (size_t i = 0; i < NFD_PathSet_GetCount(&pathSet); i++)
+			paths.emplace_back(NFD_PathSet_GetPath(&pathSet, i));
+		NFD_PathSet_Free(&pathSet);
+		return paths;
 	}
 
-	std::optional<String> FileDialog::OpenFolder(StringView inDefaultPath)
+	std::optional<String> FileDialog::OpenFolder(std::optional<StringView> inDefaultPath)
 	{
 		nfdchar_t* rawPath{ nullptr };
-		nfdresult_t result = NFD_PickFolder(Filesystem::Absolute(inDefaultPath).data(), &rawPath);
-		switch (result)
-		{
-		case NFD_OKAY:
-		{
-			String outPath{ rawPath };
-			delete rawPath;
-			return outPath;
-		}
-		case NFD_CANCEL:
+		nfdresult_t result = NFD_PickFolder(
+			inDefaultPath ? Filesystem::Absolute(*inDefaultPath).data() : nullptr,
+			&rawPath
+		);
+		if (!IsNFDDialogSuccessful(result))
 			return std::nullopt;
-		default:
-		case NFD_ERROR:
-			EV_LOG(LogEngine, ELogLevel::Error, "{}", NFD_GetError());
-			return std::nullopt;
-		}
+
+		String outPath{ rawPath };
+		delete rawPath;
+		return outPath;
 	}
 
 }
