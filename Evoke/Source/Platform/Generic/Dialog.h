@@ -84,7 +84,7 @@ namespace Evoke
 		static std::optional<String> SelectFolder(StringView inTitle = "Select folder", StringView inInitialPath = ".");
 
 		/**
-		 * Displays a message dialog window, with the specified message type.
+		 * Displays a message box, with the specified message type.
 		 *
 		 * @param 	inTitle		 	The title of the window.
 		 * @param 	inText		 	The main text to be displayed.
@@ -93,7 +93,7 @@ namespace Evoke
 		 *
 		 * @returns	The button that was pressed.
 		 */
-		static EButton Message(StringView inTitle, StringView inText, EMessageType inMessageType = EMessageType::OkCancel, EIcon inIcon = EIcon::Info);
+		static EButton MessageBox(StringView inTitle, StringView inText, EMessageType inMessageType = EMessageType::OkCancel, EIcon inIcon = EIcon::Info);
 
 		/**
 		 * Displays an OS notification.

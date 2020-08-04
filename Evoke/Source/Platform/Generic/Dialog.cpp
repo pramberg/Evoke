@@ -38,7 +38,7 @@ namespace Evoke
 		return dialog;
 	}
 
-	Dialog::EButton Dialog::Message(StringView inTitle, StringView inText, EMessageType inMessageType, EIcon inIcon)
+	Dialog::EButton Dialog::MessageBox(StringView inTitle, StringView inText, EMessageType inMessageType, EIcon inIcon)
 	{
 		return (EButton)pfd::message(inTitle.data(), inText.data(), (pfd::choice)inMessageType, (pfd::icon)inIcon).result();
 	}
