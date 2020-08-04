@@ -5,9 +5,38 @@
 
 namespace Evoke
 {
-	class Dialogs
+	class Dialog
 	{
 	public:
+		enum class EButton : c8
+		{
+			Cancel,
+			Ok,
+			Yes,
+			No,
+			Abort,
+			Retry,
+			Ignore,
+		};
+
+		enum class EMessageType : c8
+		{
+			Ok = 0,
+			OkCancel,
+			YesNo,
+			YesNoCancel,
+			RetryCancel,
+			AbortRetryIgnore,
+		};
+
+		enum class EIcon : c8
+		{
+			Info = 0,
+			Warning,
+			Error,
+			Question,
+		};
+
 		/**
 		 * Opens a save dialog window to save a single file.
 		 *
@@ -53,5 +82,26 @@ namespace Evoke
 		 * @returns	The selected path, if the operation wasn't canceled.
 		 */
 		static std::optional<String> SelectFolder(StringView inTitle = "Select folder", StringView inInitialPath = ".");
+
+		/**
+		 * Displays a message dialog window, with the specified message type.
+		 *
+		 * @param 	inTitle		 	The title of the window.
+		 * @param 	inText		 	The main text to be displayed.
+		 * @param 	inMessageType	(Optional) The button choices the dialog should have.
+		 * @param 	inIcon		 	(Optional) The icon to show.
+		 *
+		 * @returns	The button that was pressed.
+		 */
+		static EButton Message(StringView inTitle, StringView inText, EMessageType inMessageType = EMessageType::OkCancel, EIcon inIcon = EIcon::Info);
+
+		/**
+		 * Displays an OS notification.
+		 *
+		 * @param 	inTitle	The title of the notification.
+		 * @param 	inText 	The main text to be displayed.
+		 * @param 	inIcon 	(Optional) The icon to show.
+		 */
+		static void Notification(StringView inTitle, StringView inText, EIcon inIcon = EIcon::Info);
 	};
 }
