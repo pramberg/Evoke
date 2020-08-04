@@ -1,18 +1,24 @@
 [submodule "Evoke/ThirdParty/spdlog"]
+    ignore = dirty
 	path = Evoke/ThirdParty/spdlog
 	url = https://github.com/gabime/spdlog
 [submodule "Evoke/ThirdParty/GLFW"]
+    ignore = dirty
 	path = Evoke/ThirdParty/GLFW
 	url = https://github.com/glfw/glfw
 [submodule "Evoke/ThirdParty/ImGui"]
+    ignore = dirty
 	path = Evoke/ThirdParty/ImGui
 	url = https://github.com/ocornut/imgui
 [submodule "Evoke/ThirdParty/GLM"]
+    ignore = dirty
 	path = Evoke/ThirdParty/GLM
 	url = https://github.com/g-truc/glm
 [submodule "Evoke/ThirdParty/EFSW"]
+    ignore = dirty
 	path = Evoke/ThirdParty/EFSW
 	url = https://github.com/SpartanJ/efsw
 [submodule "Evoke/ThirdParty/NativeFileDialog"]
+    ignore = dirty
 	path = Evoke/ThirdParty/NativeFileDialog
 	url = https://github.com/mlabbe/nativefiledialog
