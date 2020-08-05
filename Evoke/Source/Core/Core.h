@@ -36,11 +36,7 @@ using b8 = bool;
 #define EV_CORE_ASSERT(x, ...)
 #endif // EV_ENABLE_ASSERTS
 
-#define EV_BIND_0(inFn) std::bind(&inFn, this)
-#define EV_BIND_1(inFn) std::bind(&inFn, this, std::placeholders::_1)
-#define EV_BIND_2(inFn) std::bind(&inFn, this, std::placeholders::_1, std::placeholders::_2)
-#define EV_BIND_3(inFn) std::bind(&inFn, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3)
-#define EV_BIND_4(inFn) std::bind(&inFn, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)
+#define EV_BIND(inFn) [this](auto&&... inArgs) -> decltype(auto) { return this->inFn(std::forward<decltype(inArgs)>(inArgs)...); }
 
 namespace Evoke
 {

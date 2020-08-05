@@ -114,7 +114,7 @@ namespace Evoke
 		sourceDesc.source = sourceData.c_str();
 		sourceDesc.defines = defines.data();
 		sourceDesc.numDefines = (u32)defines.size();
-		sourceDesc.loadIncludeCallback = EV_BIND_1(OpenGLShader::OnFileIncluded);
+		sourceDesc.loadIncludeCallback = EV_BIND(OpenGLShader::OnFileIncluded);
 
 		ShaderConductor::Compiler::TargetDesc targetDesc;
 		targetDesc.asModule = false;

@@ -27,6 +27,7 @@ project "Evoke"
         "ThirdParty/EFSW/include",
         "ThirdParty/Assimp-5.0.1/include",
         "ThirdParty/PortableFileDialogs/",
+        "ThirdParty/dynalo/include",
         GetCommonIncludes()
     }
 

@@ -6,7 +6,7 @@ namespace Evoke
 {
 	ShaderLibrary::ShaderLibrary()
 	{
-		mFilewatcher.OnFileChanged.Subscribe(EV_BIND_2(ShaderLibrary::RecompileOnFileModified));
+		mFilewatcher.OnFileChanged.Subscribe(EV_BIND(ShaderLibrary::RecompileOnFileModified));
 	}
 
 	ShaderLibrary::ShaderLibrary(const std::initializer_list<std::tuple<StringView, const ShaderCompilerConfig&>> inShadersToLoad) : ShaderLibrary()

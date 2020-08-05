@@ -10,16 +10,23 @@
 #include "Queue.h"
 #include "Platform/Generic/Filesystem.h"
 #include "Platform/Generic/Filewatcher.h"
+#include "Renderer/ShaderLibrary.h"
+#include "CommandLine.h"
+#include "Platform/Generic/Dialog.h"
 
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
 
 #include <type_traits>
-#include "Renderer/ShaderLibrary.h"
 
 #include "assimp/Importer.hpp"
 #include <assimp/scene.h>           // Output data structure
 #include <assimp/postprocess.h>     // Post processing flags
+
+#include "Platform/RenderDoc/RenderDoc.h"
+#include "Platform/RenderDoc/renderdoc_app.h"
+
+RENDERDOC_API_1_1_2* rdoc_api = NULL;
 
 namespace Evoke
 {
@@ -30,8 +37,8 @@ namespace Evoke
 		EV_CORE_ASSERT(!sApplication, "Application already exists");
 		sApplication = this;
 
-		mMainWindow->OnWindowClosed.Subscribe(EV_BIND_0(Application::OnWindowClose));
-		mMainWindow->OnWindowResized.Subscribe(EV_BIND_2(Application::OnWindowResized));
+		mMainWindow->OnWindowClosed.Subscribe(EV_BIND(Application::OnWindowClose));
+		mMainWindow->OnWindowResized.Subscribe(EV_BIND(Application::OnWindowResized));
 		PushOverlay(new ImGuiLayer());
 	}
 
@@ -65,9 +72,22 @@ namespace Evoke
 	{
 		mContext->SetFaceCullingMethod(EFaceCulling::Back);
 
+		auto x = CommandLine::Arguments("--help");
+		if (x)
+		{
+			for (const auto& xd : *x)
+			{
+				EV_LOG(LogTemp, ELogLevel::Info, "{}", xd);
+			}
+		}
+
+		Dialog::Notification("Evoke Event", "Test event", Dialog::EIcon::Error);
+
+		auto fbxSelection = Dialog::OpenFile("Select mesh", ".", { "Mesh (*.fbx)", "*.fbx;*.obj" });
+
 		Assimp::Importer importer;
 		const aiScene* scene = importer.ReadFile(
-			"W:/Projects/Evoke/DefaultProject/Assets/TestSphere.fbx",
+			fbxSelection ? *fbxSelection : "Assets/TestSphere.fbx",
 			aiProcessPreset_TargetRealtime_MaxQuality 
 		);
 
@@ -148,15 +168,19 @@ namespace Evoke
 
 		ShaderLibrary shaderLibrary;
 		auto shader = shaderLibrary.Load("../Shaders/TestShader.hlsl");
-		shader->Bind();
-		
-		glm::vec3 test{ 10, 20, 40 };
-		auto x = reinterpret_cast<f32*>(&test);
-		EV_LOG(LogTemp, ELogLevel::Info, "{}", *(x + 1));
-		EV_LOG(LogTemp, ELogLevel::Info, "{}", Filesystem::MatchPattern("C:/TestDir/TestFile.txt", "*.txt"));
 
 		EditorCameraController cameraController;
 		auto shaderDataBuffer = ConstantBuffer::Create<GlobalShaderData>(0);
+
+		// Capture a frame and open RenderDoc
+		mMainWindow->OnKeyReleased.Subscribe([](EKeyCode inKeyCode)
+		{
+			if (inKeyCode == EKeyCode::Enter) 
+			{
+				RenderDoc::TriggerCapture();
+				RenderDoc::LaunchUI();
+			}
+		});
 
 		while (mIsRunning)
 		{
@@ -168,9 +192,10 @@ namespace Evoke
 			cameraController.Update(deltaTime);
 			shaderLibrary.Update(deltaTime);
 
-			shaderDataBuffer->View = cameraController.Camera().View();
-			shaderDataBuffer->Projection = cameraController.Camera().Projection();
-			shaderDataBuffer->ViewProjection = cameraController.Camera().ViewProjection();
+			auto& camera = cameraController.Camera();
+			shaderDataBuffer->View = camera.View();
+			shaderDataBuffer->Projection = camera.Projection();
+			shaderDataBuffer->ViewProjection = camera.ViewProjection();
 			shaderDataBuffer->GameTime = time;
 			shaderDataBuffer->Upload();
 
@@ -180,7 +205,7 @@ namespace Evoke
 			glBindVertexArray(vao);
 			glBindVertexBuffer(0, vbo, 0, sizeof(TestVertex));
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-			glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+			glDrawElements(GL_TRIANGLES, (i32)indices.size(), GL_UNSIGNED_INT, nullptr);
 			mContext->EndEvent();
 		}
 	}
@@ -203,6 +228,7 @@ namespace Evoke
 
 	void Application::OnWindowResized(u32 inWidth, u32 inHeight)
 	{
+		mContext->SetViewport(0, 0, inWidth, inHeight);
 		Update(0.0f);
 	}
 
