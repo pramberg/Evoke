@@ -2,7 +2,7 @@
 #include "RenderDoc.h"
 #include "Platform/Generic/Filesystem.h"
 
-#include "dynalo/dynalo.hpp"
+#include "RLL/RLL.hpp"
 
 namespace Evoke
 {
@@ -39,9 +39,19 @@ namespace Evoke
 #endif
 	}
 
+	// #TEMP
+	String MakePlatformName(StringView inName)
+	{
+		String prefix;
+#ifndef EV_PLATFORM_WINDOWS
+		prefix = "lib";
+#endif
+		return prefix + inName.data() + rll::shared_library::get_platform_suffix();
+	}
+
 	RENDERDOC_API_1_1_2* RenderDoc::sRenderDocAPI = nullptr;
 	u32 RenderDoc::sRenderDocProcessID = 0;
-	void* RenderDoc::sRenderDocHandle = nullptr;
+	rll::shared_library RenderDoc::sRenderDocLib;
 
 	b8 RenderDoc::TryInject(StringView inPathToRenderDoc)
 	{
@@ -49,15 +59,16 @@ namespace Evoke
 		path.make_preferred();
 		if (path.has_filename())
 			path += Filesystem::Separator;
-		path += dynalo::to_native_name("renderdoc");
+		path += MakePlatformName("renderdoc");
 
-		try { sRenderDocHandle = dynalo::open(path.string()); }
-		catch (const std::runtime_error&) { return false; }
+
+		try { sRenderDocLib.load(path.string()); }
+		catch (const rll::exception::library_loading_error&) { return false; }
 
 		using GetAPISignature = i32(RENDERDOC_Version, void**);
 
-		const auto GetAPIFn = dynalo::get_function<GetAPISignature>((dynalo::native::handle)sRenderDocHandle, "RENDERDOC_GetAPI");
-		const i32 result = GetAPIFn(eRENDERDOC_API_Version_1_1_2, (void**)&sRenderDocAPI);
+		const auto renderDocGetAPIFn = sRenderDocLib.get_function_symbol<GetAPISignature>("RENDERDOC_GetAPI");
+		const i32 result = renderDocGetAPIFn(eRENDERDOC_API_Version_1_1_2, (void**)&sRenderDocAPI);
 		
 		EV_CORE_ASSERT(result == 1, "Failed to initialize RenderDoc.");
 
@@ -67,8 +78,8 @@ namespace Evoke
 
 	void RenderDoc::Close()
 	{
-		if (sRenderDocHandle)
-			dynalo::close((dynalo::native::handle)sRenderDocHandle);
+		if (sRenderDocLib.is_loaded())
+			sRenderDocLib.unload();
 	}
 
 	void RenderDoc::LaunchUI(StringView inCommandLine)

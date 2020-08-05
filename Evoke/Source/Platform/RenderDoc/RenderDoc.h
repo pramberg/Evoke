@@ -1,6 +1,8 @@
 #include "renderdoc_app.h"
 #include "Core/Core.h"
 
+namespace rll { class shared_library; }
+
 namespace Evoke
 {
 	class RenderDoc
@@ -16,6 +18,6 @@ namespace Evoke
 	private:
 		static RENDERDOC_API_1_1_2* sRenderDocAPI;
 		static u32 sRenderDocProcessID;
-		static void* sRenderDocHandle;
+		static rll::shared_library sRenderDocLib;
 	};
 }
