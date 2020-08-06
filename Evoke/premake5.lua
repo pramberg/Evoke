@@ -11,11 +11,6 @@ project "Evoke"
         "Source/**.h",
         "Source/**.cpp",
     }
-
-    removefiles
-    {
-        "Source/Platform/SDL/**"
-    }
     
     includedirs
     {
