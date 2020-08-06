@@ -79,6 +79,7 @@ namespace Evoke
 	{
 		if (sRenderDocLib.is_loaded())
 			sRenderDocLib.unload();
+		sRenderDocAPI.release();
 	}
 
 	void RenderDoc::LaunchUI(StringView inCommandLine)
