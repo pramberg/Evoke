@@ -40,7 +40,7 @@ namespace Evoke
 	}
 
 	// #TEMP
-	String MakePlatformName(StringView inName)
+	String ConvertToPlatformName(StringView inName)
 	{
 		String prefix;
 #ifndef EV_PLATFORM_WINDOWS
@@ -49,7 +49,7 @@ namespace Evoke
 		return prefix + inName.data() + rll::shared_library::get_platform_suffix();
 	}
 
-	RENDERDOC_API_1_1_2* RenderDoc::sRenderDocAPI = nullptr;
+	TUniquePtr<RENDERDOC_API_1_1_2> RenderDoc::sRenderDocAPI;
 	u32 RenderDoc::sRenderDocProcessID = 0;
 	rll::shared_library RenderDoc::sRenderDocLib;
 
@@ -59,8 +59,7 @@ namespace Evoke
 		path.make_preferred();
 		if (path.has_filename())
 			path += Filesystem::Separator;
-		path += MakePlatformName("renderdoc");
-
+		path += ConvertToPlatformName("renderdoc");
 
 		try { sRenderDocLib.load(path.string()); }
 		catch (const rll::exception::library_loading_error&) { return false; }
