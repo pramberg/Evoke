@@ -143,7 +143,7 @@ namespace Evoke
 	void OpenGLGraphicsContext::ClearDepth(f32 inDepth)
 	{
 		glClearDepth(inDepth);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glClear(GL_DEPTH_BUFFER_BIT);
 	}
 	
 	void OpenGLGraphicsContext::ClearStencil(u32 inStencil)
