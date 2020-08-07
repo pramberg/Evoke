@@ -1,5 +1,9 @@
 #pragma once
 
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+
 #include <iostream>
 #include <utility>
 #include <algorithm>
@@ -16,7 +20,7 @@
 #include <unordered_map>
 #include <unordered_set>
 
-#include <stdint.h>
+#include <cstdint>
 #include <type_traits>
 
 #include "Core/Log.h"
@@ -25,5 +29,5 @@
 #include <glm/glm.hpp>
 
 #ifdef EV_PLATFORM_WINDOWS
-	#include <Windows.h>
+#include <Windows.h>
 #endif
