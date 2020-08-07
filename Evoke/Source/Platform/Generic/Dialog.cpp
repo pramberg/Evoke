@@ -6,8 +6,21 @@
 
 namespace Evoke
 {
+	static void AddFilterToNames(std::vector<String>& inFilter)
+	{
+		EV_CORE_ASSERT(inFilter.size() % 2 == 0, "Invalid filter layout. Even index should have the filter name, uneven filter definition.");
+		for (size_t i = 0; i < inFilter.size(); i += 2)
+		{
+			String& name = inFilter[i];
+			const String& filter = inFilter[i + 1];
+			name += " (" + filter + ")";
+		}
+	}
+
 	std::optional<String> Dialog::SaveFile(StringView inTitle, StringView inInitialPath, std::vector<String> inFilter)
 	{
+		AddFilterToNames(inFilter);
+
 		auto dialog = pfd::save_file(inTitle.data(), inInitialPath.data(), inFilter).result();
 		if (dialog.empty())
 			return std::nullopt;
@@ -16,6 +29,8 @@ namespace Evoke
 
 	std::optional<String> Dialog::OpenFile(StringView inTitle, StringView inInitialPath, std::vector<String> inFilter)
 	{
+		AddFilterToNames(inFilter);
+
 		auto dialog = pfd::open_file(inTitle.data(), inInitialPath.data(), inFilter).result();
 		if (dialog.empty())
 			return std::nullopt;
@@ -24,6 +39,8 @@ namespace Evoke
 
 	std::optional<std::vector<String>> Dialog::OpenMultipleFiles(StringView inTitle, StringView inInitialPath, std::vector<String> inFilter)
 	{
+		AddFilterToNames(inFilter);
+
 		auto dialog = pfd::open_file(inTitle.data(), inInitialPath.data(), inFilter, pfd::opt::multiselect).result();
 		if (dialog.empty())
 			return std::nullopt;
@@ -45,7 +62,7 @@ namespace Evoke
 
 	void Dialog::Notification(StringView inTitle, StringView inText, EIcon inIcon)
 	{
-		pfd::notify(inTitle.data(), inText.data(), (pfd::icon)inIcon);
+		[[maybe_unused]] auto notification = pfd::notify(inTitle.data(), inText.data(), (pfd::icon)inIcon);
 	}
 
 }
