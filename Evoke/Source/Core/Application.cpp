@@ -26,8 +26,6 @@
 #include "Platform/RenderDoc/RenderDoc.h"
 #include "Platform/RenderDoc/renderdoc_app.h"
 
-RENDERDOC_API_1_1_2* rdoc_api = NULL;
-
 namespace Evoke
 {
 	Application* Application::sApplication = nullptr;
@@ -62,123 +60,137 @@ namespace Evoke
 		glm::vec2 UV0;
 	};
 
+	constexpr u32 NumVertexColors = 2;
+	constexpr u32 NumUVSets = 6;
+
 	struct TestVertex
 	{
 		glm::vec3 Position;
-		glm::vec4 Color;
+		glm::vec3 Normal;
+		glm::vec3 Tangent;
+		glm::vec3 Bitangent;
+		std::array<glm::vec4, NumVertexColors> Color;
+		std::array<glm::vec2, NumUVSets> UV;
 	};
+
+	std::pair<std::vector<TestVertex>, std::vector<u32>> LoadMesh(StringView inPath)
+	{
+		Assimp::Importer importer;
+		const aiScene* scene = importer.ReadFile(inPath.data(), aiProcessPreset_TargetRealtime_MaxQuality);
+
+		std::vector<TestVertex> vertices;
+		std::vector<u32> indices;
+
+		if (!scene)
+		{
+			EV_LOG(LogTemp, ELogLevel::Error, "{}", importer.GetErrorString());
+			return std::make_pair(vertices, indices);
+		}
+
+		for (u32 i = 0; i < scene->mNumMeshes; i++)
+		{
+			auto* mesh = scene->mMeshes[i];
+
+			vertices.reserve(vertices.size() + mesh->mNumVertices);
+			indices.reserve(indices.size() + mesh->mNumFaces * 3L);
+
+			for (u32 v = 0; v < mesh->mNumVertices; v++)
+			{
+				const auto& pos = mesh->mVertices[v];
+				const auto& nrm = mesh->mNormals[v];
+				const auto& tan = mesh->mTangents[v];
+				const auto& bit = mesh->mBitangents[v];
+
+				std::array<glm::vec4, NumVertexColors> colors{};
+				for (u32 c = 0; c < NumVertexColors; c++)
+				{
+					if (c < mesh->GetNumColorChannels())
+					{
+						const auto& color = mesh->mColors[c][v];
+						colors[c] = { color.r, color.g, color.b, color.a };
+					}
+				}
+
+				std::array<glm::vec2, NumUVSets> uvs{};
+				for (u32 c = 0; c < NumUVSets; c++)
+				{
+					if (c < mesh->GetNumUVChannels())
+					{
+						const auto& uv = mesh->mTextureCoords[c][v];
+						uvs[c] = { uv.x, uv.y };
+					}
+				}
+
+				vertices.push_back({
+					glm::vec3{ pos.x, pos.y, pos.z },
+					glm::vec3{ nrm.x, nrm.y, nrm.z },
+					glm::vec3{ tan.x, tan.y, tan.z },
+					glm::vec3{ bit.x, bit.y, bit.z },
+					std::move(colors),
+					std::move(uvs)
+					});
+			}
+
+			for (u32 f = 0; f < mesh->mNumFaces; f++)
+			{
+				auto face = mesh->mFaces[f];
+				for (u32 j = 0; j < 3; j++)
+				{
+					indices.push_back(face.mIndices[j]);
+				}
+			}
+		}
+
+		importer.FreeScene();
+		return std::make_pair(vertices, indices);
+	}
 
 	void Application::Run()
 	{
 		mContext->SetFaceCullingMethod(EFaceCulling::Back);
 
-		auto x = CommandLine::Arguments("--help");
-		if (x)
-		{
-			for (const auto& xd : *x)
-			{
-				EV_LOG(LogTemp, ELogLevel::Info, "{}", xd);
-			}
-		}
+		auto fbxSelection = Dialog::OpenFile("Select mesh", ".", { "Mesh", "*.fbx;*.obj" });
+		auto [vertices, indices] = LoadMesh(fbxSelection.value_or("Assets/TestSphere.fbx"));
+		auto [vertices2, indices2] = LoadMesh("Assets/TestSphere.fbx");
 
-		Dialog::Notification("Evoke Event", "Test event", Dialog::EIcon::Error);
+		auto vbo = VertexBuffer::Create(vertices);
+		auto ebo = Buffer::Create<EBufferType::Index>(indices);
 
-		auto fbxSelection = Dialog::OpenFile("Select mesh", ".", { "Mesh (*.fbx)", "*.fbx;*.obj" });
+		auto vbo2 = VertexBuffer::Create(vertices2);
+		auto ebo2 = Buffer::Create<EBufferType::Index>(indices2);
 
-		Assimp::Importer importer;
-		const aiScene* scene = importer.ReadFile(
-			fbxSelection ? *fbxSelection : "Assets/TestSphere.fbx",
-			aiProcessPreset_TargetRealtime_MaxQuality 
-		);
-
-		std::vector<TestVertex> vertices;
-		std::vector<u32> indices;
-
-		if (scene)
-		{
-			for (u32 i = 0; i < scene->mNumMeshes; i++)
-			{
-				auto* mesh = scene->mMeshes[i];
-
-				for (u32 v = 0; v < mesh->mNumVertices; v++)
-				{
-					auto vert = mesh->mVertices[v];
-					auto nrm = mesh->mNormals[v];
-					vertices.push_back({ { vert.x, vert.y, vert.z }, { nrm.x, nrm.y, nrm.z, 1.0f } });
-				}
-
-				for (u32 f = 0; f < mesh->mNumFaces; f++)
-				{
-					auto face = mesh->mFaces[f];
-					for (u32 j = 0; j < 3; j++)
-					{
-						indices.push_back(face.mIndices[j]);
-					}
-				}
-			}
-		}
-		else
-		{
-			EV_LOG(LogTemp, ELogLevel::Error, "{}", importer.GetErrorString());
-			vertices.push_back({ { -0.5f, -0.5f, 0.0f }, { 1.0f, 0.0f, 0.0f, 1.0f } });
-			vertices.push_back({ {  0.5f, -0.5f, 0.0f }, { 0.0f, 1.0f, 0.0f, 1.0f } });
-			vertices.push_back({ {  0.5f,  0.5f, 0.0f }, { 0.0f, 0.0f, 1.0f, 1.0f } });
-			vertices.push_back({ { -0.5f,  0.5f, 0.0f }, { 1.0f, 1.0f, 0.0f, 1.0f } });
-			indices.push_back(0);
-			indices.push_back(1);
-			indices.push_back(3);
-			indices.push_back(1);
-			indices.push_back(2);
-			indices.push_back(3);
-		}
-		importer.FreeScene();
-
-		u32 vao;
-		glCreateVertexArrays(1, &vao);
-		glBindVertexArray(vao);
-
-		u32 vbo;
-		glCreateBuffers(1, &vbo);
-		glBindBuffer(GL_ARRAY_BUFFER, vbo);
-		glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(TestVertex), vertices.data(), GL_STATIC_DRAW);
-
-		std::vector<i32> sizeStuff;
-		sizeStuff.push_back(3);
-		sizeStuff.push_back(4);
-
-		i32 sumStride = 0;
-		for (i32 i = 0; i < sizeStuff.size(); i++)
-		{
-			glVertexAttribFormat(i, sizeStuff[i], GL_FLOAT, GL_FALSE, sumStride);
-			glVertexAttribBinding(i, 0);
-			glEnableVertexAttribArray(i);
-			sumStride += sizeStuff[i] * sizeof(f32);
-		}
-
-		//glEnableVertexAttribArray(0);
-		//glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(f32), nullptr);
-
-		//glEnableVertexAttribArray(1);
-		//glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 7 * sizeof(f32), (void*)(3 * sizeof(f32)));
-
-		u32 ebo;
-		glCreateBuffers(1, &ebo);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(u32), indices.data(), GL_STATIC_DRAW);
+		ShaderCompilerConfig cfg = ShaderCompilerConfig::BasicConfig();
+		cfg.AddDefine("NUM_VERTEX_COLORS", std::to_string(NumVertexColors));
+		cfg.AddDefine("NUM_UV_SETS", std::to_string(NumUVSets));
 
 		ShaderLibrary shaderLibrary;
-		auto shader = shaderLibrary.Load("../Shaders/TestShader.hlsl");
+		auto shader = shaderLibrary.Load("../Shaders/TestShader.hlsl", cfg);
 
 		EditorCameraController cameraController;
 		auto shaderDataBuffer = ConstantBuffer::Create<GlobalShaderData>(0);
 
+		const size_t i1Size = indices.size();
+		const size_t i2Size = indices2.size();
+		size_t numIndices = i2Size;
+
 		// Capture a frame and open RenderDoc
-		mMainWindow->OnKeyReleased.Subscribe([](EKeyCode inKeyCode)
+		mMainWindow->OnKeyReleased.Subscribe([&](EKeyCode inKeyCode)
 		{
-			if (inKeyCode == EKeyCode::Enter) 
+			if (inKeyCode == EKeyCode::Enter)
 			{
 				RenderDoc::TriggerCapture();
 				RenderDoc::LaunchUI();
+			}
+
+			if (inKeyCode == EKeyCode::M)
+			{
+				numIndices = i1Size;
+				vbo->Bind();
+			}
+			else if (inKeyCode == EKeyCode::N)
+			{
+				numIndices = i2Size;
+				vbo2->Bind();
 			}
 		});
 
@@ -202,10 +214,7 @@ namespace Evoke
 			shader->Bind();
 
 			mContext->BeginEvent("Drawing something");
-			glBindVertexArray(vao);
-			glBindVertexBuffer(0, vbo, 0, sizeof(TestVertex));
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-			glDrawElements(GL_TRIANGLES, (i32)indices.size(), GL_UNSIGNED_INT, nullptr);
+			glDrawElements(GL_TRIANGLES, (i32)numIndices, GL_UNSIGNED_INT, nullptr);
 			mContext->EndEvent();
 		}
 	}
@@ -217,8 +226,10 @@ namespace Evoke
 
 		mMainWindow->Update(inDeltaTime);
 
+		mContext->BeginEvent("Frame Start");
 		mContext->ClearColor({ 0.1f, 0.0f, 0.1f, 1.0f });
 		mContext->ClearDepth();
+		mContext->EndEvent();
 	}
 
 	void Application::OnWindowClose()

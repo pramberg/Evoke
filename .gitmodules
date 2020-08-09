@@ -25,3 +25,6 @@
 [submodule "Evoke/ThirdParty/RLL"]
 	path = Evoke/ThirdParty/RLL
 	url = https://github.com/MrZeusTheCoder/RLL
+[submodule "Evoke/ThirdParty/MagicGet"]
+	path = Evoke/ThirdParty/MagicGet
+	url = https://github.com/apolukhin/magic_get

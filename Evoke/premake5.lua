@@ -23,6 +23,7 @@ project "Evoke"
         "ThirdParty/Assimp-5.0.1/include",
         "ThirdParty/PortableFileDialogs/",
         "ThirdParty/RLL/include",
+        "ThirdParty/MagicGet/include",
         GetCommonIncludes()
     }
 
