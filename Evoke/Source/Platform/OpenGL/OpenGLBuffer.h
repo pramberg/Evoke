@@ -75,7 +75,7 @@ namespace Evoke
 	class TOpenGLBuffer : public TBuffer<TDataType, TBufferType>
 	{
 	public:
-		TOpenGLBuffer(const std::vector<TDataType>& inData) : TBuffer<TDataType, TBufferType>(), mNumIndices(inData.size())
+		TOpenGLBuffer(const std::vector<TDataType>& inData) : TBuffer<TDataType, TBufferType>(), mNumIndices((u32)inData.size())
 		{
 			glCreateBuffers(1, &mBufferID);
 			Bind();
@@ -99,7 +99,7 @@ namespace Evoke
 		}
 
 
-		virtual size_t Size() const override
+		virtual u32 Size() const override
 		{
 			return mNumIndices;
 		}

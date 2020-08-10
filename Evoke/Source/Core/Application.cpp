@@ -169,9 +169,9 @@ namespace Evoke
 		EditorCameraController cameraController;
 		auto shaderDataBuffer = ConstantBuffer::Create<GlobalShaderData>(0);
 
-		const size_t i1Size = indices.size();
-		const size_t i2Size = indices2.size();
-		size_t numIndices = i2Size;
+		const u32 i1Size = (u32)indices.size();
+		const u32 i2Size = (u32)indices2.size();
+		u32 numIndices = i2Size;
 
 		// Capture a frame and open RenderDoc
 		mMainWindow->OnKeyReleased.Subscribe([&](EKeyCode inKeyCode)

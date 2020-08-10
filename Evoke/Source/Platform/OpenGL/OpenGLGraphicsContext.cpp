@@ -153,9 +153,9 @@ namespace Evoke
 		glClear(GL_STENCIL_BUFFER_BIT);
 	}
 	
-	void OpenGLGraphicsContext::DrawIndexed(size_t inNumIndices)
+	void OpenGLGraphicsContext::DrawIndexed(u32 inNumIndices)
 	{
-		glDrawElements(GL_TRIANGLES, inNumIndices, GL_UNSIGNED_INT, nullptr);
+		glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(inNumIndices), GL_UNSIGNED_INT, nullptr);
 	}
 
 	void OpenGLGraphicsContext::BeginEvent(StringView inEventName)

@@ -38,7 +38,7 @@ namespace Evoke
 		virtual void ClearDepth(f32 inDepth = 1.0f) = 0;
 		virtual void ClearStencil(u32 inStencil = 0) = 0;
 		
-		virtual void DrawIndexed(size_t inNumIndices) = 0;
+		virtual void DrawIndexed(u32 inNumIndices) = 0;
 		virtual void SetFaceCullingMethod(EFaceCulling inMethod) = 0;
 
 		virtual void BeginEvent(StringView inEventName) = 0;

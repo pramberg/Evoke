@@ -17,7 +17,7 @@ namespace Evoke
 		virtual void ClearDepth(f32 inDepth) override;
 		virtual void ClearStencil(u32 inStencil) override;
 
-		virtual void DrawIndexed(size_t inNumIndices) override;
+		virtual void DrawIndexed(u32 inNumIndices) override;
 		virtual void SetFaceCullingMethod(EFaceCulling inMethod) override;
 
 		virtual void BeginEvent(StringView inEventName) override;

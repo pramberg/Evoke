@@ -124,7 +124,7 @@ namespace Evoke
 
 		virtual void Bind() = 0;
 		virtual void SetData(const std::vector<TDataType>& inData) = 0;
-		virtual size_t Size() const = 0;
+		virtual u32 Size() const = 0;
 	};
 
 	template<typename TDataType>
