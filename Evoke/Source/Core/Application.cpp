@@ -214,7 +214,7 @@ namespace Evoke
 			shader->Bind();
 
 			mContext->BeginEvent("Drawing something");
-			glDrawElements(GL_TRIANGLES, (i32)numIndices, GL_UNSIGNED_INT, nullptr);
+			mContext->DrawIndexed(numIndices);
 			mContext->EndEvent();
 		}
 	}

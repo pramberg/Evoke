@@ -11,6 +11,22 @@ namespace Evoke
 		Disabled
 	};
 
+	enum class EPrimitiveType : c8
+	{
+		Point,
+		Line,
+		LineStrip,
+		Triangle,
+		TriangleStrip,
+		LineAdj,
+		LineStripAdj,
+		TriangleAdj,
+		TriangleStripAdj,
+		Patch1,
+		Patch2,
+		Patch3
+	};
+
 	class GraphicsContext
 	{
 	public:
@@ -21,13 +37,13 @@ namespace Evoke
 		virtual void ClearColor(const glm::vec4 inColor = { 0.0f, 0.0f, 0.0f, 1.0f }) = 0;
 		virtual void ClearDepth(f32 inDepth = 1.0f) = 0;
 		virtual void ClearStencil(u32 inStencil = 0) = 0;
-	
-		virtual void DrawIndexed() = 0;
+		
+		virtual void DrawIndexed(size_t inNumIndices) = 0;
 		virtual void SetFaceCullingMethod(EFaceCulling inMethod) = 0;
 
 		virtual void BeginEvent(StringView inEventName) = 0;
 		virtual void EndEvent() = 0;
-	
+
 	public:
 		static TUniquePtr<GraphicsContext> Create(void* inWindow);
 	};

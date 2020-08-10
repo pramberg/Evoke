@@ -115,7 +115,8 @@ namespace Evoke
 		glEnable(GL_DEBUG_OUTPUT);
 		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
 		glDebugMessageCallback(OpenGLMessageCallback, nullptr);
-		glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_NOTIFICATION, 0, nullptr, GL_FALSE);
+		//glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_NOTIFICATION, 0, nullptr, GL_FALSE);
+		//glDebugMessageControl(GL_DEBUG_SOURCE_API, GL_DEBUG_TYPE_ERROR, GL_DEBUG_SEVERITY_HIGH, 0, nullptr, GL_TRUE);
 #endif
 	}
 
@@ -152,9 +153,9 @@ namespace Evoke
 		glClear(GL_STENCIL_BUFFER_BIT);
 	}
 	
-	void OpenGLGraphicsContext::DrawIndexed()
+	void OpenGLGraphicsContext::DrawIndexed(size_t inNumIndices)
 	{
-		throw std::logic_error("The method or operation is not implemented.");
+		glDrawElements(GL_TRIANGLES, inNumIndices, GL_UNSIGNED_INT, nullptr);
 	}
 
 	void OpenGLGraphicsContext::BeginEvent(StringView inEventName)
