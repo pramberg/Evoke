@@ -24,6 +24,7 @@ project "Evoke"
         "ThirdParty/PortableFileDialogs/",
         "ThirdParty/RLL/include",
         "ThirdParty/MagicGet/include",
+        "ThirdParty/stb",
         GetCommonIncludes()
     }
 
