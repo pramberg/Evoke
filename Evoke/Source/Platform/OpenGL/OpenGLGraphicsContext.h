@@ -2,7 +2,7 @@
 #include "Core/Core.h"
 #include "Renderer/GraphicsContext.h"
 
-#include "GLFW/glfw3.h"
+#include <GLFW/glfw3.h>
 
 namespace Evoke
 {

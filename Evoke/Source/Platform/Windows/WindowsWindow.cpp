@@ -1,5 +1,6 @@
 #include "PCH.h"
 #include "WindowsWindow.h"
+
 #include <glad\glad.h>
 
 namespace Evoke
@@ -55,6 +56,11 @@ namespace Evoke
 
 			sGLFWInitialized = true;
 		}
+
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+		glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
 
 		mWindow = glfwCreateWindow(static_cast<i32>(mData.Width), static_cast<i32>(mData.Height), mData.Title.c_str(), nullptr, nullptr);
 		glfwMakeContextCurrent(mWindow);

@@ -1,11 +1,10 @@
 #include "PCH.h"
 #include "OpenGLGraphicsContext.h"
 
-#include "glad\glad.h"
+#include <glad\glad.h>
 
 namespace Evoke
 {
-
 	void OpenGLMessageCallback(
 		GLenum inSource,
 		GLenum inType,
@@ -20,6 +19,7 @@ namespace Evoke
 		{
 		case GL_DEBUG_SEVERITY_HIGH:
 			logLevel = EV_ERROR;
+			EV_DEBUG_BREAK();
 			break;
 		case GL_DEBUG_SEVERITY_MEDIUM:
 			logLevel = EV_WARNING;
@@ -78,22 +78,17 @@ namespace Evoke
 			break;
 		case GL_DEBUG_TYPE_PUSH_GROUP:
 			type = "Push group";
-			//break;
+			return;
 		case GL_DEBUG_TYPE_POP_GROUP:
 			type = "Pull group";
 			return;
-			//break;
 		}
 
-		EV_LOG(LogRHI, logLevel, "\nGL Debug:\n  Source: {}\n  Type: {}\n  Id: {}  \n  Message: {}", source, type, inId, inMessage);
+		EV_LOG(LogRHI, logLevel, "\nGL Debug:\n  Source: {}\t  Type: {}\t  Id: {}  \n  Message: {}", source, type, inId, inMessage);
 	}
 
 	OpenGLGraphicsContext::OpenGLGraphicsContext(void* inWindow) : mWindowHandle(static_cast<GLFWwindow*>(inWindow))
 	{
-		glfwMakeContextCurrent(mWindowHandle);
-		i32 status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
-		EV_CORE_ASSERT(status, "Failed to initialize Glad.");
-
 		EV_LOG(LogRHI, ELogLevel::Info,
 			"\nOpenGL graphics context:\n  Vendor: {}\n  Hardware: {}\n  Version: {}", 
 			glGetString(GL_VENDOR),
@@ -115,8 +110,7 @@ namespace Evoke
 		glEnable(GL_DEBUG_OUTPUT);
 		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
 		glDebugMessageCallback(OpenGLMessageCallback, nullptr);
-		//glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_NOTIFICATION, 0, nullptr, GL_FALSE);
-		//glDebugMessageControl(GL_DEBUG_SOURCE_API, GL_DEBUG_TYPE_ERROR, GL_DEBUG_SEVERITY_HIGH, 0, nullptr, GL_TRUE);
+		glDebugMessageControl(GL_DEBUG_SOURCE_API, GL_DEBUG_TYPE_ERROR, GL_DEBUG_SEVERITY_HIGH, 0, nullptr, GL_TRUE);
 #endif
 	}
 

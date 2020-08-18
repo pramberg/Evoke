@@ -48,6 +48,10 @@ PixelInput VSMain(VertexInput inData)
     return outData;
 }
 
+Texture2D TestTexture1 : register(t0);
+Texture2D TestTexture2 : register(t1);
+SamplerState Sampler;
+
 static const float3 gLightDir = { 1.0f, 1.0f, 0.0f };
 
 float4 PSMain(PixelInput inData) : SV_TARGET
@@ -62,7 +66,7 @@ float4 PSMain(PixelInput inData) : SV_TARGET
     lightDir = normalize(lightDir);
 
     outColor.xyz = saturate(dot(normalize(lightDir), inData.Normal)) + 0.1f;
-    outColor.xyz *= inData.Color[0].xyz + inData.Color[1].xyz;
+    outColor.xyz *= TestTexture1.SampleLevel(Sampler, inData.UV[0], 2).rgb + TestTexture2.Sample(Sampler, inData.UV[0] * 20.0f).rgb;
 
     return outColor;
 }

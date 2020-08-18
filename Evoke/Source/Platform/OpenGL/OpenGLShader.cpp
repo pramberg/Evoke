@@ -118,9 +118,14 @@ namespace Evoke
 
 		ShaderConductor::Compiler::TargetDesc targetDesc;
 		targetDesc.asModule = false;
-		targetDesc.language = ShaderConductor::ShadingLanguage::SpirV; // Could probably compile to GLSL and skip the Spir-V extension for OpenGL?
+		targetDesc.language = ShaderConductor::ShadingLanguage::Glsl;
+		targetDesc.version = "460";
 
 		ShaderConductor::Compiler::Options options;
+#ifdef EV_DEBUG
+		//options.disableOptimizations = true;
+		//options.enableDebugInfo = true;
+#endif
 
 		for (auto [entryPoint, shaderStage] : mConfig.EntryPoints)
 		{
@@ -145,8 +150,10 @@ namespace Evoke
 			}
 			
 			const u32 shader = glCreateShader(ConvertToOpenGLShaderStage(shaderStage));
-			glShaderBinary(1, &shader, GL_SHADER_BINARY_FORMAT_SPIR_V_ARB, results.target->Data(), results.target->Size());
-			glSpecializeShaderARB(shader, entryPoint.c_str(), 0, nullptr, nullptr); // Required
+			auto shaderData = (c8*)results.target->Data();
+			auto shaderSize = (i32)results.target->Size();
+			glShaderSource(shader, 1, &shaderData, &shaderSize);
+			glCompileShader(shader);
 			glAttachShader(program, shader);
 
 			glObjectLabel(GL_SHADER, shader, -1, (fileName + " (" + ConvertToStringShaderStage(shaderStage) + ")").c_str()); // #TODO: Labels should only be set in debug
@@ -199,5 +206,4 @@ namespace Evoke
 	{
 		return mIncludedFiles;
 	}
-
 }

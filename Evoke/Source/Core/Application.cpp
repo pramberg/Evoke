@@ -13,6 +13,9 @@
 #include "Renderer/ShaderLibrary.h"
 #include "CommandLine.h"
 #include "Platform/Generic/Dialog.h"
+#include "Platform/RenderDoc/RenderDoc.h"
+#include "Platform/RenderDoc/renderdoc_app.h"
+#include "Renderer/Texture.h"
 
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
@@ -23,8 +26,6 @@
 #include <assimp/scene.h>           // Output data structure
 #include <assimp/postprocess.h>     // Post processing flags
 
-#include "Platform/RenderDoc/RenderDoc.h"
-#include "Platform/RenderDoc/renderdoc_app.h"
 
 namespace Evoke
 {
@@ -165,6 +166,13 @@ namespace Evoke
 
 		ShaderLibrary shaderLibrary;
 		auto shader = shaderLibrary.Load("../Shaders/TestShader.hlsl", cfg);
+		shader->Bind();
+
+		auto testTexture1 = Texture2D::Create("Assets/TestTexture1.png");
+		testTexture1->Bind(0);
+
+		auto testTexture2 = Texture2D::Create("Assets/TestTexture2.png");
+		testTexture2->Bind(1);
 
 		EditorCameraController cameraController;
 		auto shaderDataBuffer = ConstantBuffer::Create<GlobalShaderData>(0);

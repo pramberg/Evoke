@@ -26,11 +26,13 @@ using StringView = std::string_view;
 
 using b8 = bool;
 
+#include <Debug/DebugBreak.h>
+#define EV_DEBUG_BREAK() psnip_trap()
+
 #define EV_ENABLE_ASSERTS
 #ifdef EV_ENABLE_ASSERTS
-#include <Debug/DebugBreak.h>
-#define EV_ASSERT(x, ...) { if(!(x)) { EV_LOG(LogApp, EV_ERROR, "Assertion failed: {}", __VA_ARGS__); psnip_trap(); } }
-#define EV_CORE_ASSERT(x, ...) { if(!(x)) { EV_LOG(LogEngine, EV_ERROR, "Assertion failed: {}", __VA_ARGS__); psnip_trap(); } }
+#define EV_ASSERT(x, ...) { if(!(x)) { EV_LOG(LogApp, EV_ERROR, "Assertion failed: {}", __VA_ARGS__); EV_DEBUG_BREAK(); } }
+#define EV_CORE_ASSERT(x, ...) { if(!(x)) { EV_LOG(LogEngine, EV_ERROR, "Assertion failed: {}", __VA_ARGS__); EV_DEBUG_BREAK(); } }
 #else
 #define EV_ASSERT(x, ...)
 #define EV_CORE_ASSERT(x, ...)
