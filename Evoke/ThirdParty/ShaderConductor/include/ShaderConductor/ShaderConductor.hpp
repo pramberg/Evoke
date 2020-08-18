@@ -150,14 +150,15 @@ namespace ShaderConductor
             bool enable16bitTypes = false;      // Enable 16-bit types, such as half, uint16_t. Requires shader model 6.2+
             bool enableDebugInfo = false;       // Embed debug info into the binary
             bool disableOptimizations = false;  // Force to turn off optimizations. Ignore optimizationLevel below.
+            bool combinedSamplersInheritBindings = true; // When targeting OpenGL, should the combined samplers use the existing bindings.
 
             int optimizationLevel = 3; // 0 to 3, no optimization to most optimization
             ShaderModel shaderModel = {6, 0};
 
-            int shiftAllTexturesBindings;
-            int shiftAllSamplersBindings;
-            int shiftAllCBuffersBindings;
-            int shiftAllUABuffersBindings;
+            int shiftAllTexturesBindings = 0;
+            int shiftAllSamplersBindings = 0;
+            int shiftAllCBuffersBindings = 0;
+            int shiftAllUABuffersBindings = 0;
         };
 
         struct TargetDesc

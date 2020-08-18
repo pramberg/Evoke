@@ -1,0 +1,2 @@
+This is currently using artefacts from the ShaderConductor fork at pramberg/ShaderConductor, not Microsofts repo. The reason is that they haven't merged the PR
+for explicit resource bindings (as of 2020-08-18), which is required for HLSL -> OpenGL to work. Only the Windows artefacts have been updated to this version.
