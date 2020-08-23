@@ -1,6 +1,7 @@
 #include "PCH.h"
 #include "RenderDoc.h"
 #include "Platform/Generic/Filesystem.h"
+#include "Core/CommandLine.h"
 
 #include "RLL/RLL.hpp"
 
@@ -72,6 +73,8 @@ namespace Evoke
 		EV_CORE_ASSERT(result == 1, "Failed to initialize RenderDoc.");
 
 		SetCaptureTemplate();
+		if (!CommandLine::HasParameter("-RDUI")) // #TODO: This should not be set via command line, move to preferences.
+			sRenderDocAPI->MaskOverlayBits(eRENDERDOC_Overlay_None, eRENDERDOC_Overlay_None);
 		return true;
 	}
 
@@ -84,6 +87,8 @@ namespace Evoke
 
 	void RenderDoc::LaunchUI(StringView inCommandLine)
 	{
+		if (!IsInitialized())
+			return;
 		if (!sRenderDocAPI->IsTargetControlConnected())
 		{
 			sRenderDocProcessID = sRenderDocAPI->LaunchReplayUI(1, inCommandLine.data());
@@ -96,12 +101,20 @@ namespace Evoke
 
 	void RenderDoc::TriggerCapture()
 	{
+		if (!IsInitialized())
+			return;
 		sRenderDocAPI->TriggerCapture();
 	}
 
 	void RenderDoc::SetCaptureTemplate(StringView inTemplate)
 	{
+		if (!IsInitialized())
+			return;
 		sRenderDocAPI->SetCaptureFilePathTemplate(inTemplate.data());
 	}
 
+	b8 RenderDoc::IsInitialized()
+	{
+		return (b8)sRenderDocAPI && sRenderDocLib.is_loaded();
+	}
 }

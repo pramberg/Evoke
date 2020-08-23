@@ -14,6 +14,7 @@ namespace Evoke
 		static void LaunchUI(StringView inCommandLine = "");
 		static void TriggerCapture();
 		static void SetCaptureTemplate(StringView inTemplate = "RenderDoc/Captures/Evoke");
+		static b8 IsInitialized();
 
 	private:
 		static TUniquePtr<RENDERDOC_API_1_1_2> sRenderDocAPI;
