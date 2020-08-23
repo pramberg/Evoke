@@ -34,9 +34,12 @@ namespace Evoke
 
 		static const ShaderCompilerConfig& BasicConfig()
 		{
-			static ShaderCompilerConfig config;
-			config.EntryPoints.emplace_back("VSMain", EShaderStage::Vertex);
-			config.EntryPoints.emplace_back("PSMain", EShaderStage::Pixel);
+			static const ShaderCompilerConfig config {
+				{ 
+					EntryPoint{"VSMain", EShaderStage::Vertex}, 
+					EntryPoint{"PSMain", EShaderStage::Pixel}
+				}
+			};
 			return config;
 		}
 
