@@ -14,7 +14,7 @@ i32 main(i32 inArgCount, c8* inArgValues[])
 	if (Evoke::CommandLine::HasParameter("-RD"))
 	{
 		// This should come from preferences in the future.
-		const String pathToRenderDoc = Evoke::CommandLine::Arguments("-RD").value()[0];
+		const String pathToRenderDoc = Evoke::CommandLine::Argument("-RD").value_or(R"(C:\Program Files\RenderDoc)");
 		Evoke::RenderDoc::TryInject(pathToRenderDoc);
 	}
 

@@ -36,4 +36,13 @@ namespace Evoke
 			return std::nullopt;
 		return mParameterMap[inParameter.data()];
 	}
+
+	std::optional<String> CommandLine::Argument(StringView inParameter, u64 inIndex)
+	{
+		auto args = Arguments(inParameter);
+		if (!args || args->empty() || args->size() <= inIndex)
+			return std::nullopt;
+		return args.value()[inIndex];
+	}
+
 }

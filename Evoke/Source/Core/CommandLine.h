@@ -30,6 +30,14 @@ namespace Evoke
 		 */
 		static std::optional<std::vector<String>> Arguments(StringView inParameter);
 
+		/**
+		 * Gets the argument after a parameter, at a specified index.
+		 * @param 	inParameter	The parameter, starting with a '-'.
+		 * @param 	inIndex	   	(Optional) What argument to get from the vector. 0 will return the first argument.
+		 * @returns	The argument.
+		 */
+		static std::optional<String> Argument(StringView inParameter, u64 inIndex = 0);
+
 	private:
 		static std::unordered_map<String, std::vector<String>> mParameterMap;
 	};
