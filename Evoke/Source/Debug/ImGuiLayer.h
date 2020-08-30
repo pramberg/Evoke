@@ -18,7 +18,7 @@ namespace Evoke
 		void End();
 	private:
 		b8 mDockable;
-		std::vector<Widget*> mWidgets;
+		std::vector<TUniquePtr<Widget>> mWidgets;
 		b8 mShowDemoWindow = false;
 	};
 }

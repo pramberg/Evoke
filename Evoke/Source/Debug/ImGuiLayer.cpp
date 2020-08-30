@@ -50,7 +50,7 @@ namespace Evoke
 		ImGui_ImplGlfw_InitForOpenGL(window, true);
 		ImGui_ImplOpenGL3_Init("#version 410");
 
-		mWidgets.push_back(new Viewport("Viewport"));
+		mWidgets.push_back(MakeUnique<Viewport>("Viewport"));
 
 	}
 
@@ -59,11 +59,6 @@ namespace Evoke
 		ImGui_ImplOpenGL3_Shutdown();
 		ImGui_ImplGlfw_Shutdown();
 		ImGui::DestroyContext();
-		for (auto widget : mWidgets)
-		{
-			delete widget;
-			widget = nullptr;
-		}
 	}
 
 	void ImGuiLayer::Update(f32 inDeltaTime)
@@ -131,7 +126,7 @@ namespace Evoke
 			}
 			if (ImGui::BeginMenu("Windows"))
 			{
-				if (ImGui::MenuItem("Add Viewport")) { mWidgets.push_back(new Viewport("Viewport")); }
+				if (ImGui::MenuItem("Add Viewport")) { mWidgets.push_back(MakeUnique<Viewport>("Viewport")); }
 				if (ImGui::MenuItem("Show Demo Window")) { mShowDemoWindow = true; }
 				ImGui::EndMenu();
 			}
@@ -139,7 +134,7 @@ namespace Evoke
 			ImGui::EndMenuBar();
 		}
 
-		for (auto* widget : mWidgets)
+		for (auto& widget : mWidgets)
 			widget->RenderInternal();
 	}
 
@@ -163,15 +158,7 @@ namespace Evoke
 			glfwMakeContextCurrent(currentContextBackup);
 		}
 
-		auto removedIt = std::remove_if(mWidgets.begin(), mWidgets.end(), [](Widget* inWidget) { return inWidget->WasClosed(); });
-		if (removedIt == mWidgets.end())
-			return;
-
-		for (auto widget = removedIt; widget != mWidgets.end(); widget++)
-		{
-			delete *widget;
-			*widget = nullptr;
-		}
+		auto removedIt = std::remove_if(mWidgets.begin(), mWidgets.end(), [](auto& inWidget) { return inWidget->WasClosed(); });
 		mWidgets.erase(removedIt, mWidgets.end());
 	}
 
