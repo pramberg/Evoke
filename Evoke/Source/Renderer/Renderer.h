@@ -8,7 +8,8 @@ namespace Evoke
 		OpenGL,
 		Vulkan,
 		DirectX11,
-		DirectX12
+		DirectX12,
+		Metal
 	};
 
 	class Renderer
