@@ -1,17 +1,17 @@
 #include "PCH.h"
 #include "ImGuiLayer.h"
+#include "Widgets/Viewport.h"
+#include "Core/Application.h"
 
 #include <imgui.h>
 #include <examples/imgui_impl_glfw.h>
 #include <examples/imgui_impl_opengl3.h>
 
-#include "Core/Application.h"
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
 
 namespace Evoke
 {
-
 	ImGuiLayer::ImGuiLayer(b8 inDockable) : Layer("ImGuiLayer"), mDockable(inDockable)
 	{
 
@@ -33,6 +33,8 @@ namespace Evoke
 		ImGui::StyleColorsDark();
 		//ImGui::StyleColorsClassic();
 
+		io.Fonts->AddFontFromFileTTF("Assets/Fonts/Roboto-Regular.ttf", 14);
+
 		// When viewports are enabled we tweak WindowRounding/WindowBg so platform windows can look identical to regular ones.
 		ImGuiStyle& style = ImGui::GetStyle();
 		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
@@ -47,6 +49,9 @@ namespace Evoke
 		// Setup Platform/Renderer bindings
 		ImGui_ImplGlfw_InitForOpenGL(window, true);
 		ImGui_ImplOpenGL3_Init("#version 410");
+
+		mWidgets.push_back(new Viewport("Viewport"));
+
 	}
 
 	void ImGuiLayer::Detached()
@@ -54,16 +59,21 @@ namespace Evoke
 		ImGui_ImplOpenGL3_Shutdown();
 		ImGui_ImplGlfw_Shutdown();
 		ImGui::DestroyContext();
+		for (auto widget : mWidgets)
+		{
+			delete widget;
+			widget = nullptr;
+		}
 	}
 
 	void ImGuiLayer::Update(f32 inDeltaTime)
 	{
-		/*Begin();
+		Begin();
 
-		static bool showDemoWindow = true;
-		ImGui::ShowDemoWindow(&showDemoWindow);
+		if (mShowDemoWindow)
+			ImGui::ShowDemoWindow(&mShowDemoWindow);
 
-		End();*/
+		End();
 	}
 
 	void ImGuiLayer::Begin()
@@ -90,7 +100,6 @@ namespace Evoke
 		windowFlags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
 		windowFlags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
 
-
 		if (dockspaceFlags & ImGuiDockNodeFlags_PassthruCentralNode)
 		{
 			windowFlags |= ImGuiWindowFlags_NoBackground;
@@ -103,9 +112,7 @@ namespace Evoke
 		// any change of dockspace/settings would lead to windows being stuck in limbo and never being visible.
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 		ImGui::Begin("Evoke Editor", &dockspaceOpen, windowFlags);
-		ImGui::PopStyleVar();
-
-		ImGui::PopStyleVar(2);
+		ImGui::PopStyleVar(3);
 
 		// DockSpace
 		ImGuiIO& io = ImGui::GetIO();
@@ -122,9 +129,18 @@ namespace Evoke
 				if (ImGui::MenuItem("Exit")) { Application::Instance().Close(); }
 				ImGui::EndMenu();
 			}
+			if (ImGui::BeginMenu("Windows"))
+			{
+				if (ImGui::MenuItem("Add Viewport")) { mWidgets.push_back(new Viewport("Viewport")); }
+				if (ImGui::MenuItem("Show Demo Window")) { mShowDemoWindow = true; }
+				ImGui::EndMenu();
+			}
 
 			ImGui::EndMenuBar();
 		}
+
+		for (auto* widget : mWidgets)
+			widget->RenderInternal();
 	}
 
 	void ImGuiLayer::End()
@@ -146,6 +162,17 @@ namespace Evoke
 			ImGui::RenderPlatformWindowsDefault();
 			glfwMakeContextCurrent(currentContextBackup);
 		}
+
+		auto removedIt = std::remove_if(mWidgets.begin(), mWidgets.end(), [](Widget* inWidget) { return inWidget->WasClosed(); });
+		if (removedIt == mWidgets.end())
+			return;
+
+		for (auto widget = removedIt; widget != mWidgets.end(); widget++)
+		{
+			delete *widget;
+			*widget = nullptr;
+		}
+		mWidgets.erase(removedIt, mWidgets.end());
 	}
 
 }

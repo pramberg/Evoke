@@ -21,6 +21,8 @@ namespace Evoke
 		const glm::mat4& View() const { return mView; }
 		const glm::mat4& ViewProjection() const { return mViewProjection; }
 
+		void Resize(u32 inWidth, u32 inHeight);
+
 	private:
 		void RecalculateViewMatrix();
 
@@ -29,7 +31,7 @@ namespace Evoke
 		f32 mNearClip = 0.01f;
 		f32 mFarClip = 1000.0f;
 
-		glm::vec3 mPosition = glm::vec3(0.0f, 0.0f, 1.0f);
+		glm::vec3 mPosition = glm::vec3(0.0f, 0.0f, 5.0f);
 		glm::quat mRotation = glm::identity<glm::quat>();
 
 		glm::mat4 mView = glm::translate(glm::identity<glm::mat4>(), -mPosition);

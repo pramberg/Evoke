@@ -273,22 +273,22 @@ namespace Evoke
 		}
 	}
 
-	template<typename TDataType>
-	class TOpenGLVertexBuffer : public TVertexBuffer<TDataType>
+	template<typename TContainer>
+	class TOpenGLVertexBuffer : public TVertexBuffer<TContainer>
 	{
 	public:
-		TOpenGLVertexBuffer(const std::vector<TDataType>& inData) : TVertexBuffer<TDataType>()
+		TOpenGLVertexBuffer(const TContainer& inData) : TVertexBuffer<TContainer>()
 		{
 			glCreateVertexArrays(1, &mVertexArrayID);
 			glBindVertexArray(mVertexArrayID);
 
 			glCreateBuffers(1, &mBufferID);
 			glBindBuffer(GL_ARRAY_BUFFER, mBufferID);
-			glBindVertexBuffer(0, mBufferID, 0, sizeof(TDataType));
-			glBufferData(GL_ARRAY_BUFFER, inData.size() * sizeof(TDataType), inData.data(), GL_STATIC_DRAW);
+			glBindVertexBuffer(0, mBufferID, 0, sizeof(TContainer::value_type));
+			glBufferData(GL_ARRAY_BUFFER, inData.size() * sizeof(TContainer::value_type), inData.data(), GL_STATIC_DRAW);
 
 			i32 sumStride = 0;
-			auto shaderTypes = ShaderDataTypes<TDataType>();
+			auto shaderTypes = ShaderDataTypes<TContainer::value_type>();
 			for (i32 i = 0; i < shaderTypes.size(); i++)
 			{
 				glVertexAttribFormat(i, ShaderDataTypeComponentCount(shaderTypes[i]), ConvertToOpenGLDataType(shaderTypes[i]), GL_FALSE, sumStride);
@@ -309,15 +309,51 @@ namespace Evoke
 			glBindVertexArray(mVertexArrayID);
 		}
 
-		virtual void SetData(const std::vector<TDataType>& inData) override
+		virtual void SetData(const TContainer& inData) override
 		{
 			glBindBuffer(GL_ARRAY_BUFFER, mBufferID);
-			glBindVertexBuffer(0, mBufferID, 0, sizeof(TDataType));
-			glBufferSubData(GL_ARRAY_BUFFER, 0, inData.size() * sizeof(TDataType), inData.data());
+			glBindVertexBuffer(0, mBufferID, 0, sizeof(TContainer::value_type));
+			glBufferSubData(GL_ARRAY_BUFFER, 0, inData.size() * sizeof(TContainer::value_type), inData.data());
 		}
 
 	private:
 		u32 mBufferID;
 		u32 mVertexArrayID;
+	};
+
+	/* Index buffer */
+	template<typename TContainer>
+	class TOpenGLIndexBuffer : public TIndexBuffer<TContainer>
+	{
+	public:
+		TOpenGLIndexBuffer(const TContainer& inData) : TIndexBuffer<TContainer>(), mNumIndices((u32)inData.size())
+		{
+			glCreateBuffers(1, &mBufferID);
+			Bind();
+			glBufferData(GL_ELEMENT_ARRAY_BUFFER, inData.size() * sizeof(TContainer::value_type), inData.data(), GL_STATIC_DRAW);
+
+		}
+
+		virtual void Bind() override
+		{
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mBufferID);
+		}
+
+		virtual void SetData(const TContainer& inData) override
+		{
+			Bind();
+			glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, inData.size() * sizeof(TContainer::value_type), inData.data());
+		}
+
+
+		virtual u32 Size() const override
+		{
+			return mNumIndices;
+		}
+
+	private:
+
+		u32 mBufferID;
+		u32 mNumIndices;
 	};
 }

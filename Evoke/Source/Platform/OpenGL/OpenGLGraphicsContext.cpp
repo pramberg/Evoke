@@ -116,7 +116,6 @@ namespace Evoke
 
 	OpenGLGraphicsContext::~OpenGLGraphicsContext()
 	{
-		
 	}
 	
 	void OpenGLGraphicsContext::SwapBuffers()

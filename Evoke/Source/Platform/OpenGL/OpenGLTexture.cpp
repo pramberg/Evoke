@@ -1,29 +1,38 @@
 #include "PCH.h"
 #include "OpenGLTexture.h"
+#include "OpenGLUtilities.h"
+#include "Renderer\TextureUtilities.h"
 
 #include <glad\glad.h>
 #include <stb_image.h>
 
 namespace Evoke
 {
-	OpenGLTexture2D::OpenGLTexture2D(StringView inFilePath)
+	OpenGLTexture2D::OpenGLTexture2D(StringView inFilePath, const TextureDescription& inDescription, const SamplerDescription& inSamplerDesc)
 	{
 		glCreateTextures(GL_TEXTURE_2D, 1, &mTextureID);
 
 		i32 channels;
-		u8* data = stbi_load(inFilePath.data(), &mWidth, &mHeight, &channels, 3);
+		f32* data = stbi_loadf(inFilePath.data(), &mWidth, &mHeight, &channels, STBI_rgb_alpha);
 
-		glTextureParameteri(mTextureID, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTextureParameteri(mTextureID, GL_TEXTURE_WRAP_T, GL_REPEAT);
-		glTextureParameteri(mTextureID, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-		glTextureParameteri(mTextureID, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		const auto [internalFormat, internalBaseFormat] = OpenGLUtilities::InternalTextureFormat(inDescription);
+		const u32 numMips = TextureUtilities::CalculateNumMips(mWidth, mHeight);
+		glTextureStorage2D(mTextureID, numMips, internalFormat, mWidth, mHeight);
+		glTextureSubImage2D(mTextureID, 0, 0, 0, mWidth, mHeight, internalBaseFormat, GL_FLOAT, data);
 
-		glTextureStorage2D(mTextureID, 10, GL_RGB8, mWidth, mHeight);
-		glTextureSubImage2D(mTextureID, 0, 0, 0, mWidth, mHeight, GL_RGB, GL_UNSIGNED_BYTE, data);
-
-		glGenerateTextureMipmap(mTextureID);
+		if (numMips > 1)
+			glGenerateTextureMipmap(mTextureID);
 		
 		stbi_image_free(data);
+	}
+
+	OpenGLTexture2D::OpenGLTexture2D(u32 inWidth, u32 inHeight, const TextureDescription& inDescription) : mWidth(inWidth), mHeight(inHeight)
+	{
+		glCreateTextures(GL_TEXTURE_2D, 1, &mTextureID);
+		const auto [internalFormat, internalBaseFormat] = OpenGLUtilities::InternalTextureFormat(inDescription);
+		const u32 numMips = TextureUtilities::CalculateNumMips(mWidth, mHeight);
+		glTextureStorage2D(mTextureID, numMips, internalFormat, mWidth, mHeight);
+		glTextureSubImage2D(mTextureID, 0, 0, 0, mWidth, mHeight, internalBaseFormat, GL_FLOAT, nullptr);
 	}
 
 	OpenGLTexture2D::~OpenGLTexture2D()
@@ -31,29 +40,20 @@ namespace Evoke
 		glDeleteTextures(1, &mTextureID);
 	}
 
-	void OpenGLTexture2D::SetAddressMode(ETextureAddressMode inAddressMode)
+	void* OpenGLTexture2D::RawHandle()
 	{
-		throw std::logic_error("The method or operation is not implemented.");
+		return reinterpret_cast<void*>(static_cast<u64>(mTextureID));
 	}
 
-	void OpenGLTexture2D::SetFilterMode(ETextureFilter inTextureFilter)
+	void OpenGLTexture2D::SetSampler(const TSharedPtr<Sampler>& inSampler)
 	{
-		throw std::logic_error("The method or operation is not implemented.");
-	}
-
-	void OpenGLTexture2D::SetBorderColor(glm::vec4 inColor)
-	{
-		throw std::logic_error("The method or operation is not implemented.");
-	}
-
-	glm::vec4 OpenGLTexture2D::BorderColor()
-	{
-		throw std::logic_error("The method or operation is not implemented.");
+		mSampler = inSampler;
 	}
 
 	void OpenGLTexture2D::Bind(u32 inSlot)
 	{
 		glBindTextureUnit(inSlot, mTextureID);
+		if (mSampler)
+			mSampler->Bind(inSlot);
 	}
-
 }

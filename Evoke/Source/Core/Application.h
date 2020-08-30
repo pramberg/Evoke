@@ -3,6 +3,8 @@
 #include "Window.h"
 #include "LayerStack.h"
 #include "Renderer\GraphicsContext.h"
+#include "Renderer\RenderTarget.h"
+#include "Renderer\EditorCameraController.h"
 
 namespace Evoke
 {
@@ -21,6 +23,10 @@ namespace Evoke
 		Window& MainWindow() { return *mMainWindow; }
 		const Window& MainWindow() const { return *mMainWindow; }
 
+		// #TEMP
+		TSharedPtr<EditorCameraController>& CameraController() { return mCameraController; }
+		TSharedPtr<RenderTarget2D>& RenderTarget() { return mAppRT; }
+
 	public:
 		static Application& Instance() { return *sApplication; }
 
@@ -35,6 +41,9 @@ namespace Evoke
 		LayerStack mLayerStack;
 		f32 mLastFrameTime = 0.0f;
 		TUniquePtr<GraphicsContext> mContext;
+
+		TSharedPtr<EditorCameraController> mCameraController;
+		TSharedPtr<RenderTarget2D> mAppRT;
 
 	private:
 		static Application* sApplication;

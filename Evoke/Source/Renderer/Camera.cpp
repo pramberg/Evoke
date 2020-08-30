@@ -9,8 +9,7 @@ namespace Evoke
 	{
 		Application::Instance().MainWindow().OnWindowResized.Subscribe([this](u32 inWidth, u32 inHeight)
 		{
-			mProjection = glm::perspectiveFov(mFieldOfView, (f32)inWidth, (f32)inHeight, mNearClip, mFarClip);
-			mViewProjection = mProjection * mView;
+			Resize(inWidth, inHeight);
 		});
 	}
 
@@ -30,6 +29,12 @@ namespace Evoke
 	{
 		mFieldOfView = inFoV;
 		mProjection = glm::perspectiveFov(mFieldOfView, (f32)Application::Instance().MainWindow().Width(), (f32)Application::Instance().MainWindow().Height(), mNearClip, mFarClip);
+	}
+
+	void Camera_DEPRECATED::Resize(u32 inWidth, u32 inHeight)
+	{
+		mProjection = glm::perspectiveFov(mFieldOfView, (f32)inWidth, (f32)inHeight, mNearClip, mFarClip);
+		mViewProjection = mProjection * mView;
 	}
 
 	void Camera_DEPRECATED::RecalculateViewMatrix()

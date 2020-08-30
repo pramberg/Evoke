@@ -124,11 +124,12 @@ namespace Evoke
 		if (Input::IsKeyPressed(EKeyCode::LeftAlt) && Input::IsMouseButtonPressed(EMouseButton::Right))
 		{
 			constexpr f32 zoomSensitivity = 0.1f;
-			f32 zoomLevel = glm::dot(mouseDelta, glm::vec2(-1.0f, 0.0f)) * zoomSensitivity;
-			zoomLevel += glm::dot(mouseDelta, glm::vec2(0.0f, 1.0f)) * zoomSensitivity;
+			const f32 zoomLength = glm::length(mCamera.Position());
+			f32 zoomLevel = glm::dot(mouseDelta, glm::vec2(-1.0f, 0.0f));
+			zoomLevel += glm::dot(mouseDelta, glm::vec2(0.0f, 1.0f));
 
 			const glm::quat invCameraRotation = glm::inverse(mCamera.Rotation());
-			const Vec3f forwardVector = (invCameraRotation * Vec3f::Forward()) * zoomLevel * inDeltaTime;
+			const Vec3f forwardVector = (invCameraRotation * Vec3f::Forward()) * zoomLevel * zoomLength * inDeltaTime;
 
 			const Vec3f displacement = mCamera.Rotation() * forwardVector;
 			mCamera.SetPosition(mCamera.Position() + displacement);

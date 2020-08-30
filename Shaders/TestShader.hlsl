@@ -1,12 +1,4 @@
-#include "TestShaderInclude.hlsli"
-
-cbuffer GlobalShaderData : register(b0)
-{
-    float4x4 View;
-    float4x4 Projection;
-    float4x4 ViewProjection;
-    float GameTime;
-};
+#include "Common.hlsli"
 
 #ifndef NUM_VERTEX_COLORS
 #define NUM_VERTEX_COLORS 2
@@ -66,7 +58,7 @@ float4 PSMain(PixelInput inData) : SV_TARGET
     lightDir = normalize(lightDir);
 
     outColor.xyz = saturate(dot(normalize(lightDir), inData.Normal)) + 0.1f;
-    outColor.xyz *= TestTexture1.SampleLevel(Sampler, inData.UV[0], 2).rgb + TestTexture2.Sample(Sampler, inData.UV[0] * 20.0f).rgb;
-
+    outColor.xyz *= TestTexture1.SampleLevel(Sampler, inData.UV[0], 2).rgb + TestTexture2.Sample(Sampler, inData.UV[0] * 10.0f).rgb;
+    
     return outColor;
 }

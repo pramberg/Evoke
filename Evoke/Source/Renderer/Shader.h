@@ -1,5 +1,6 @@
 #pragma once
 #include "Core/Core.h"
+#include "Renderer.h"
 
 namespace Evoke
 {
@@ -15,6 +16,19 @@ namespace Evoke
 		Mesh,
 		Count
 	};
+
+	inline const String GetAPIDefineName()
+	{
+		switch (Renderer::API())
+		{
+		case ERenderAPI::OpenGL: return "OPENGL";
+		case ERenderAPI::DirectX11: return "DX11";
+		case ERenderAPI::DirectX12: return "DX12";
+		case ERenderAPI::Vulkan: return "VULKAN";
+		case ERenderAPI::Metal: return "METAL";
+		}
+		return "";
+	}
 
 	struct ShaderCompilerConfig
 	{
@@ -34,12 +48,7 @@ namespace Evoke
 
 		static const ShaderCompilerConfig& BasicConfig()
 		{
-			static const ShaderCompilerConfig config {
-				{ 
-					EntryPoint{"VSMain", EShaderStage::Vertex}, 
-					EntryPoint{"PSMain", EShaderStage::Pixel}
-				}
-			};
+			static const ShaderCompilerConfig config;
 			return config;
 		}
 
@@ -47,8 +56,13 @@ namespace Evoke
 		void AddPixelShader(const String& inEntryPoint) { EntryPoints.emplace_back(inEntryPoint, EShaderStage::Pixel); }
 		void AddDefine(const String& inName, const String& inValue) { Defines.emplace_back(inName, inValue); }
 
-		std::vector<EntryPoint> EntryPoints;
-		std::vector<Define> Defines;
+		std::vector<EntryPoint> EntryPoints { 
+			{ "VSMain", EShaderStage::Vertex },
+			{ "PSMain", EShaderStage::Pixel } 
+		};
+		std::vector<Define> Defines {
+			{GetAPIDefineName(), ""} 
+		};
 	};
 
 	class Shader

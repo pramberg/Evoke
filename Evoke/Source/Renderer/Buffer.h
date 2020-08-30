@@ -127,7 +127,18 @@ namespace Evoke
 		virtual u32 Size() const = 0;
 	};
 
-	template<typename TDataType>
+	template<typename TContainer>
+	class TIndexBuffer
+	{
+	public:
+		TIndexBuffer() = default;
+
+		virtual void Bind() = 0;
+		virtual void SetData(const TContainer& inData) = 0;
+		virtual u32 Size() const = 0;
+	};
+
+	template<typename TContainer>
 	class TVertexBuffer
 	{
 	public:
@@ -135,7 +146,7 @@ namespace Evoke
 		virtual ~TVertexBuffer() = default;
 
 		virtual void Bind() = 0;
-		virtual void SetData(const std::vector<TDataType>& inData) = 0;
+		virtual void SetData(const TContainer& inData) = 0;
 	};
 
 	template<typename T>
@@ -207,12 +218,28 @@ namespace Evoke
 	class VertexBuffer
 	{
 	public:
-		template<typename TDataType>
-		static TUniquePtr<TVertexBuffer<TDataType>> Create(const std::vector<TDataType>& inData)
+		template<typename TContainer>
+		static TUniquePtr<TVertexBuffer<TContainer>> Create(const TContainer& inData)
 		{
 			switch (Renderer::API())
 			{
-			case ERenderAPI::OpenGL: return MakeUnique<TOpenGLVertexBuffer<TDataType>>(inData);
+			case ERenderAPI::OpenGL: return MakeUnique<TOpenGLVertexBuffer<TContainer>>(inData);
+			default:
+				EV_CORE_ASSERT(false, "Unknown render API");
+			}
+			return nullptr;
+		}
+	};
+
+	class IndexBuffer
+	{
+	public:
+		template<typename TContainer>
+		static TUniquePtr<TIndexBuffer<TContainer>> Create(const TContainer& inData)
+		{
+			switch (Renderer::API())
+			{
+			case ERenderAPI::OpenGL: return MakeUnique<TOpenGLIndexBuffer<TContainer>>(inData);
 			default:
 				EV_CORE_ASSERT(false, "Unknown render API");
 			}

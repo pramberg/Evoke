@@ -1,5 +1,6 @@
 #pragma once
 #include "Core/Layer.h"
+#include "Widgets/Widget.h"
 
 namespace Evoke
 {
@@ -17,5 +18,7 @@ namespace Evoke
 		void End();
 	private:
 		b8 mDockable;
+		std::vector<Widget*> mWidgets;
+		b8 mShowDemoWindow = false;
 	};
 }
