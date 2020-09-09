@@ -33,6 +33,7 @@ float4 PSMain(PixelInput inData) : SV_TARGET
     float2 uv = float2((atan2(vec.z, vec.x) / Math::Tau) + 0.5f, acos(vec.y) / Math::Pi);
 
     float3 color = SkyboxTexture.Sample(Sampler, uv, 0).rgb;
+    color = color / (color + 1.0f);
 
-    return float4(pow(color, 1.0f), 1.0f);
+    return float4(color, 1.0f);
 }

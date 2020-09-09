@@ -3,6 +3,7 @@ cbuffer GlobalShaderData : register(b0)
     float4x4 View;
     float4x4 Projection;
     float4x4 ViewProjection;
+    float3 CameraPosition;
     float GameTime;
 };
 
