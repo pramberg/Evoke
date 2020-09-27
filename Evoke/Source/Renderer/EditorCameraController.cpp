@@ -7,7 +7,6 @@
 
 namespace Evoke
 {
-
 	EditorCameraController::EditorCameraController()
 	{
 		auto& window = Application::Instance().MainWindow();
@@ -67,14 +66,14 @@ namespace Evoke
 			if (ImGui::CollapsingHeader("Flycam"))
 			{
 				ImGui::DragFloat("Speed", &mCameraSettings.FlycamSpeed, 0.05f, 0.0f, 10.0f, "%.3f", 1.0f);
-				ImGui::DragFloat("Rotation Sensitivity", &mCameraSettings.FlycamRotationSensitivity, 0.001f, 0.01f, 1.0f, "%.3f", 1.0f);
+				ImGui::DragFloat("Rotation Sensitivity##Flycam", &mCameraSettings.FlycamRotationSensitivity, 0.001f, 0.01f, 1.0f, "%.3f", 1.0f);
 			}
 
 			if (ImGui::CollapsingHeader("Trackball"))
 			{
 				ImGui::DragFloat("Zoom Sensitivity", &mCameraSettings.TrackballZoomSensitivity, 0.001f, 0.0f, 0.1f);
 				ImGui::DragFloat("Pan Sensitivity", &mCameraSettings.TrackballPanSensitivity, 0.001f, 0.0f, 0.1f);
-				ImGui::DragFloat("Rotation Sensitivity", &mCameraSettings.TrackballRotationSensitivity, 0.001f, 0.01f, 1.0f);
+				ImGui::DragFloat("Rotation Sensitivity##Trackball", &mCameraSettings.TrackballRotationSensitivity, 0.001f, 0.01f, 1.0f);
 			}
 			ImGui::End();
 		});
