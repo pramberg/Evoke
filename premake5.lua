@@ -50,7 +50,8 @@ function GetCommonIncludes()
     return { 
         projectroot .. "/Evoke/ThirdParty/spdlog/include",
         projectroot .. "/Evoke/ThirdParty/GLM/",
-        projectroot .. "/Evoke/ThirdParty/EnTT/include"
+        projectroot .. "/Evoke/ThirdParty/EnTT/include",
+        projectroot .. "/Evoke/ThirdParty/magic_enum/include",
     }
 end
 

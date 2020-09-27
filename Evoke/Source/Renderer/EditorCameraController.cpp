@@ -2,139 +2,212 @@
 #include "EditorCameraController.h"
 #include "Core\Application.h"
 
+#include <imgui.h>
+#include "magic_enum.hpp"
+
 namespace Evoke
 {
 
 	EditorCameraController::EditorCameraController()
 	{
-		Application::Instance().MainWindow().OnMouseButtonPressed.Subscribe([&](EMouseButton inButton, i32 inRepeat)
+		auto& window = Application::Instance().MainWindow();
+		window.OnKeyPressed.Subscribe([&](EKeyCode inButton, i32 inRepeat)
 		{
-			if (inButton == EMouseButton::Left && Input::IsKeyPressed(EKeyCode::LeftAlt))
+			if (inButton == EKeyCode::F)
 			{
-				mRotationEnabled = true;
-				mMouseStartPosition = mMouseCurrentPosition = glm::vec2(Input::MouseX(), Input::MouseY());
-				mStartRotation = mCamera.Rotation();
+				mTarget = glm::vec3{ 0.0f };
+				mPosition = (mRotation * glm::vec3{ 0.0f, 0.0f, 1.0f } * mRadius) + mTarget;
+				UpdateView();
 			}
 
-			if (inButton == EMouseButton::Right && Input::IsKeyPressed(EKeyCode::LeftAlt))
+			if (inButton == EKeyCode::X)
 			{
-				mMouseStartPosition = mMouseCurrentPosition = glm::vec2(Input::MouseX(), Input::MouseY());
-			}
-		});
-
-		Application::Instance().MainWindow().OnMouseButtonReleased.Subscribe([&](EMouseButton inButton)
-		{
-			if (inButton == EMouseButton::Left)
-			{
-				mRotationEnabled = false;
+				ResetView();
 			}
 		});
 
-		auto angleNormalized = [](const Vec3f& inV1, const Vec3f& inV2)
+		window.OnMouseButtonPressed.Subscribe([this](EMouseButton inButton, i32 inRepeat)
 		{
-			if (Vec3f::Dot(inV1, inV2) > 0.0f)
-				return glm::acos(Vec3f::Dot(inV1, inV2));
+			if (Input::IsKeyPressed(EKeyCode::LeftAlt) && (inButton == EMouseButton::Right || inButton == EMouseButton::Middle || inButton == EMouseButton::Left))
+				mCameraMode = ECameraMode::Trackball;
+			else if (inButton == EMouseButton::Right)
+				mCameraMode = ECameraMode::Flycam;
+		});
+
+		window.OnMouseButtonReleased.Subscribe([this](EMouseButton inButton)
+		{
+			if (!Input::IsMouseButtonPressed(EMouseButton::Left) && !Input::IsMouseButtonPressed(EMouseButton::Middle) && !Input::IsMouseButtonPressed(EMouseButton::Right))
+				mCameraMode = ECameraMode::None;
+		});
+
+		window.OnMouseMoved.Subscribe(EV_BIND(EditorCameraController::MouseMoved));
+		window.OnMouseScrolled.Subscribe([this](f32 inScrollX, f32 inScrollY)
+		{
+			if (mCameraMode == ECameraMode::Flycam)
+			{
+				mCameraSettings.FlycamSpeed = glm::max(mCameraSettings.FlycamSpeed + inScrollY, 0.01f);
+			}
 			else
 			{
-				glm::vec3 v2n = -inV2;
-				return 3.1415f - glm::acos(Vec3f::Dot(inV1, v2n));
+				Zoom(inScrollY * 0.1667f);
+				mPosition = (mRotation * glm::vec3{ 0.0f, 0.0f, 1.0f } * mRadius) + mTarget;
+				UpdateView();
 			}
-		};
+		});
 
-		auto interpVec3 = [](const Vec3f& inV1, const Vec3f& inV2, f32 inT)
+		Application::Instance().AddOnImGuiRenderCallback([this]()
 		{
-			const f32 s = 1.0f - inT;
-			return inV1 * s + inV2 * inT;
-		};
+			static b8 showEditorCameraSettings = true;
+			if (!showEditorCameraSettings)
+				return;
 
-		Application::Instance().MainWindow().OnMouseMoved.Subscribe([&](f32 inX, f32 inY)
-		{
-			if (mRotationEnabled)
+			ImGui::Begin("Editor Camera Settings", &showEditorCameraSettings);
+			ImGui::Text("Current camera mode: %s", magic_enum::enum_name(mCameraMode).data());
+
+			if (ImGui::CollapsingHeader("Flycam"))
 			{
-				mMouseCurrentPosition = glm::vec2(inX, inY);
-
-				constexpr f32 sensitivity = glm::radians(0.4f);
-				const f32 ratio = (f32)Application::Instance().MainWindow().Width() / (f32)Application::Instance().MainWindow().Height();
-
-				const glm::vec3 up(0.0f, 1.0f, 0.0f);
-
-				const glm::mat3 m = glm::mat3_cast(mStartRotation);
-				const glm::mat3 mInv = glm::inverse(m);
-
-				const Vec3f x = mInv[2] - up;
-				const f32 lenSqared = Vec3f::Dot(x, x);
-
-				glm::vec3 xAxis;
-				if (lenSqared > 0.001f)
-				{
-					f32 fac;
-					xAxis = glm::cross(up, mInv[2]);
-					if (glm::dot(xAxis, mInv[0]) < 0.0f)
-						xAxis = -xAxis;
-
-					fac = angleNormalized(up, mInv[2]) / (f32)Math::Pi;
-					fac = glm::abs(fac - 0.5f) * 2.0f;
-					fac = fac * fac;
-					xAxis = interpVec3(xAxis, mInv[0], fac);
-				}
-				else
-				{
-					xAxis = mInv[0];
-				}
-
-				const glm::quat localX = mStartRotation * glm::angleAxis(sensitivity * (mMouseCurrentPosition.y - mMouseStartPosition.y), xAxis);
-				const glm::quat globalUp = glm::angleAxis(sensitivity * (mMouseCurrentPosition.x - mMouseStartPosition.x) * ratio, up);
-				mCamera.SetRotation(glm::normalize(localX * globalUp));
+				ImGui::DragFloat("Speed", &mCameraSettings.FlycamSpeed, 0.05f, 0.0f, 10.0f, "%.3f", 1.0f);
+				ImGui::DragFloat("Rotation Sensitivity", &mCameraSettings.FlycamRotationSensitivity, 0.001f, 0.01f, 1.0f, "%.3f", 1.0f);
 			}
+
+			if (ImGui::CollapsingHeader("Trackball"))
+			{
+				ImGui::DragFloat("Zoom Sensitivity", &mCameraSettings.TrackballZoomSensitivity, 0.001f, 0.0f, 0.1f);
+				ImGui::DragFloat("Pan Sensitivity", &mCameraSettings.TrackballPanSensitivity, 0.001f, 0.0f, 0.1f);
+				ImGui::DragFloat("Rotation Sensitivity", &mCameraSettings.TrackballRotationSensitivity, 0.001f, 0.01f, 1.0f);
+			}
+			ImGui::End();
 		});
 
-		Application::Instance().MainWindow().OnMouseScrolled.Subscribe([&](f32 inScrollX, f32 inScrollY)
-		{
-			const glm::quat invCameraRotation = glm::inverse(mCamera.Rotation());
-			const Vec3f forwardVector = (invCameraRotation * Vec3f::Forward()) * -inScrollY * 0.1667f;
-
-			const Vec3f displacement = mCamera.Rotation() * forwardVector;
-			mCamera.SetPosition(mCamera.Position() + displacement);
-		});
+		ResetView();
 	}
 
 	void EditorCameraController::Update(f32 inDeltaTime)
 	{
-		const glm::vec2 currentMousePosition(Input::MouseX(), Input::MouseY());
-		const glm::vec2 mouseDelta = (currentMousePosition - mMousePreviousPosition);
-
-		const f32 screenWidth = (f32)Application::Instance().MainWindow().Width();
-		const f32 screenHeight = (f32)Application::Instance().MainWindow().Height();
-		const f32 aspectRatio = screenWidth / screenHeight;
-
-		if (Input::IsKeyPressed(EKeyCode::LeftAlt) && Input::IsMouseButtonPressed(EMouseButton::Middle))
-		{
-			// #TODO Make movement match 100%, this one is hacky af
-			// Look at https://doc.magnum.graphics/magnum/examples-mouseinteraction.html for a real panning implementation
-			const f32 zoomLength = glm::length(mCamera.Position());
-			const glm::vec2 normalizedDelta = mouseDelta * glm::vec2(1.0f / screenHeight * aspectRatio, 1.0f / screenHeight * aspectRatio) ;
-			auto invCameraRotation = glm::inverse(mCamera.Rotation());
-			const Vec3f rightVector = (invCameraRotation * Vec3f::Right()) * -normalizedDelta.x  * zoomLength;
-			const Vec3f upVector = (invCameraRotation * Vec3f::Up()) * normalizedDelta.y * zoomLength;
-			
-			const glm::vec3 displacement = mCamera.Rotation() * (rightVector + upVector);
-			mCamera.SetPosition(mCamera.Position() + displacement);
-		}
-
-		if (Input::IsKeyPressed(EKeyCode::LeftAlt) && Input::IsMouseButtonPressed(EMouseButton::Right))
-		{
-			constexpr f32 zoomSensitivity = 0.1f;
-			const f32 zoomLength = glm::length(mCamera.Position());
-			f32 zoomLevel = glm::dot(mouseDelta, glm::vec2(-1.0f, 0.0f));
-			zoomLevel += glm::dot(mouseDelta, glm::vec2(0.0f, 1.0f));
-
-			const glm::quat invCameraRotation = glm::inverse(mCamera.Rotation());
-			const Vec3f forwardVector = (invCameraRotation * Vec3f::Forward()) * zoomLevel * zoomLength * inDeltaTime;
-
-			const Vec3f displacement = mCamera.Rotation() * forwardVector;
-			mCamera.SetPosition(mCamera.Position() + displacement);
-		}
-
+		const glm::vec2 currentMousePosition{ Input::MouseX(), Input::MouseY() };
+		mMouseDelta = currentMousePosition - mMousePreviousPosition;
 		mMousePreviousPosition = currentMousePosition;
+
+		if (mCameraMode == ECameraMode::Flycam)
+		{
+			glm::vec3 displacement{ 0.0f };
+			auto accumulateDisplacement = [this, &displacement, inDeltaTime](const glm::vec3& inVector)
+			{
+				displacement += mRotation * inVector * inDeltaTime * mCameraSettings.FlycamSpeed;
+			};
+
+			if (Input::IsKeyPressed(EKeyCode::W)) { accumulateDisplacement({ 0.0f,  0.0f, -1.0f }); }
+			if (Input::IsKeyPressed(EKeyCode::S)) { accumulateDisplacement({ 0.0f,  0.0f,  1.0f }); }
+			if (Input::IsKeyPressed(EKeyCode::D)) { accumulateDisplacement({ 1.0f,  0.0f,  0.0f }); }
+			if (Input::IsKeyPressed(EKeyCode::A)) { accumulateDisplacement({-1.0f,  0.0f,  0.0f }); }
+			if (Input::IsKeyPressed(EKeyCode::E)) { accumulateDisplacement({ 0.0f,  1.0f,  0.0f }); }
+			if (Input::IsKeyPressed(EKeyCode::Q)) { accumulateDisplacement({ 0.0f, -1.0f,  0.0f }); }
+
+			mPosition += displacement;
+			mTarget += displacement;
+			UpdateView();
+		}
+
+		if (mCameraMode == ECameraMode::None)
+		{
+			Application::Instance().MainWindow().SetCursorMode(ECursorMode::Normal);
+		}
 	}
+
+	void EditorCameraController::Zoom(f32 inDistance)
+	{
+		mRadius -= inDistance;
+
+		if (mRadius <= 0.0f)
+		{
+			mRadius = 30.0f;
+			auto look = mRotation * glm::vec3{ 0.0f, 0.0f, 1.0f };
+			mTarget = mTarget - look * 30.0f;
+		}
+	}
+
+	void EditorCameraController::Rotate(f32 inDeltaYaw, f32 inDeltaPitch)
+	{
+		mYaw += inDeltaYaw;
+		mPitch += inDeltaPitch;
+
+		const glm::quat rotationX = glm::angleAxis(mPitch, glm::vec3{1.0f, 0.0f, 0.0f});
+		const glm::quat rotationY = glm::angleAxis(mYaw, glm::vec3{ 0.0f, 1.0f, 0.0f });
+
+		mRotation = glm::normalize(rotationY * rotationX);
+	}
+
+	void EditorCameraController::Pan(f32 inDeltaX, f32 inDeltaY)
+	{
+		const glm::vec3 right = mRotation * glm::vec3{ -1.0f, 0.0f, 0.0f };
+		const glm::vec3 up = mRotation * glm::vec3{ 0.0f, 1.0f, 0.0f };
+
+		mTarget += (right * inDeltaX) + (up * inDeltaY);
+	}
+
+	void EditorCameraController::MouseMoved(f32 inMouseX, f32 inMouseY)
+	{
+		b8 shouldUpdate = false;
+		if (mCameraMode == ECameraMode::Trackball)
+		{
+			if (Input::IsMouseButtonPressed(EMouseButton::Left))
+			{
+				shouldUpdate = true;
+				const auto localDelta = -mMouseDelta * glm::radians(mCameraSettings.TrackballRotationSensitivity);
+				Rotate(localDelta.x, localDelta.y);
+			}
+			else if (Input::IsMouseButtonPressed(EMouseButton::Middle))
+			{
+				shouldUpdate = true;
+				const auto localDelta = mMouseDelta * mCameraSettings.TrackballPanSensitivity;
+				Pan(localDelta.x, localDelta.y);
+			}
+			else if (Input::IsMouseButtonPressed(EMouseButton::Right))
+			{
+				shouldUpdate = true;
+				const f32 zoomLevel = mMouseDelta.x - mMouseDelta.y;
+				Zoom(zoomLevel * mRadius * mCameraSettings.TrackballZoomSensitivity);
+			}
+		}
+		else if (mCameraMode == ECameraMode::Flycam)
+		{
+			Application::Instance().MainWindow().SetCursorMode(ECursorMode::Disabled);
+
+			const auto localDelta = -mMouseDelta * glm::radians(mCameraSettings.FlycamRotationSensitivity);
+			Rotate(localDelta.x, localDelta.y);
+
+			mTarget = mPosition - (mRotation * glm::vec3{ 0.0f, 0.0f, 1.0f } * mRadius);
+			shouldUpdate = true;
+		}
+
+		if (shouldUpdate)
+		{
+			if (mCameraMode == ECameraMode::Trackball) { mPosition = (mRotation * glm::vec3{ 0.0f, 0.0f, 1.0f } * mRadius) + mTarget; }
+			UpdateView();
+		}
+
+	}
+
+	void EditorCameraController::UpdateView()
+	{
+		auto mat = glm::translate(glm::identity<glm::mat4>(), mPosition) * glm::mat4_cast(mRotation);
+		mCamera.SetView(glm::inverse(mat));
+	}
+
+	void EditorCameraController::ResetView()
+	{
+		mTarget = glm::vec3{ 0.0f };
+
+		mPosition = glm::vec3{ 3.0f, 2.0f, 3.0f };
+		mRadius = glm::length(mPosition);
+
+		mRotation = glm::quatLookAt(glm::normalize(-mPosition), glm::vec3{ 0.0f, 1.0f, 0.0f });
+
+		glm::vec3 cameraForward = mRotation * glm::vec3(0.0f, 0.0f, 1.0f);
+		mYaw = glm::atan(cameraForward.z, cameraForward.x);
+		mPitch = -glm::asin(cameraForward.y);
+
+		UpdateView();
+	}
+
 }

@@ -28,3 +28,6 @@
 [submodule "Evoke/ThirdParty/MagicGet"]
 	path = Evoke/ThirdParty/MagicGet
 	url = https://github.com/apolukhin/magic_get
+[submodule "Evoke/ThirdParty/magic_enum"]
+	path = Evoke/ThirdParty/magic_enum
+	url = https://github.com/pramberg/magic_enum

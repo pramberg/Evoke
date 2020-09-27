@@ -16,6 +16,8 @@ namespace Evoke
 
 		void Begin();
 		void End();
+
+		MulticastDelegate<> OnRender;
 	private:
 		b8 mDockable;
 		std::vector<TUniquePtr<Widget>> mWidgets;

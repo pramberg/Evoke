@@ -39,5 +39,11 @@ namespace Evoke
 		auto [x, y] = MousePosition();
 		return y;
 	}
+
+	void Input::SetMousePosition(f32 inX, f32 inY)
+	{
+		auto window = static_cast<GLFWwindow*>(Application::Instance().MainWindow().NativeWindow());
+		glfwSetCursorPos(window, inX, inY);
+	}
 }
 

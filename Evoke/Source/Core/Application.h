@@ -6,6 +6,8 @@
 #include "Renderer\RenderTarget.h"
 #include "Renderer\EditorCameraController.h"
 
+#include "Debug/ImGuiLayer.h"
+
 namespace Evoke
 {
 	class Application
@@ -26,6 +28,7 @@ namespace Evoke
 		// #TEMP
 		TSharedPtr<EditorCameraController>& CameraController() { return mCameraController; }
 		TSharedPtr<RenderTarget2D>& RenderTarget() { return mAppRT; }
+		void AddOnImGuiRenderCallback(const std::function<void()>& inFunction) { if (mImGuiLayer) { mImGuiLayer->OnRender.Subscribe(inFunction); } }
 
 	public:
 		static Application& Instance() { return *sApplication; }
@@ -39,6 +42,9 @@ namespace Evoke
 		TUniquePtr<Window> mMainWindow;
 		b8 mIsRunning = true;
 		LayerStack mLayerStack;
+
+		ImGuiLayer* mImGuiLayer = nullptr;
+
 		f32 mLastFrameTime = 0.0f;
 		TUniquePtr<GraphicsContext> mContext;
 

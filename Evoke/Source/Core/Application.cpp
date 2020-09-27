@@ -41,7 +41,8 @@ namespace Evoke
 
 		mMainWindow->OnWindowClosed.Subscribe(EV_BIND(Application::OnWindowClose));
 		mMainWindow->OnWindowResized.Subscribe(EV_BIND(Application::OnWindowResized));
-		PushOverlay(new ImGuiLayer());
+		mImGuiLayer = new ImGuiLayer();
+		PushOverlay(mImGuiLayer);
 
 		mAppRT = RenderTarget2D::Create(1280, 720, { ETextureFormat::R8G8B8A8_UNORM, ETextureFormat::D24_UNORM_S8_UINT });
 		mCameraController = MakeShared<EditorCameraController>();
@@ -269,7 +270,7 @@ namespace Evoke
 		// Capture a frame and open RenderDoc
 		mMainWindow->OnKeyReleased.Subscribe([&](EKeyCode inKeyCode)
 		{
-			if (inKeyCode == EKeyCode::Enter)
+			if (inKeyCode == EKeyCode::Home)
 			{
 				RenderDoc::TriggerCapture();
 				RenderDoc::LaunchUI();

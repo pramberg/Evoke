@@ -39,9 +39,9 @@ namespace Evoke
 
 	void Camera_DEPRECATED::RecalculateViewMatrix()
 	{
-		auto transform = glm::translate(glm::identity<glm::mat4>(), -mPosition) * glm::mat4_cast(mRotation);
+		auto transform = glm::translate(glm::identity<glm::mat4>(), mPosition) * glm::mat4_cast(mRotation);
 
-		mView = transform;// glm::inverse(transform);
+		mView = glm::inverse(transform);
 		mViewProjection = mProjection * mView;
 	}
 

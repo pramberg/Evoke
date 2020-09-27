@@ -21,6 +21,8 @@ namespace Evoke
 
 		virtual void* NativeWindow() const override { return mWindow; };
 	
+		virtual void SetCursorMode(ECursorMode inCursorMode) override;
+
 	private:
 		virtual void Init(const WindowProperties& inProperties);
 		virtual void Close();

@@ -11,5 +11,6 @@ namespace Evoke
 		static std::pair<f32, f32> MousePosition();
 		static f32 MouseX();
 		static f32 MouseY();
+		static void SetMousePosition(f32 inX, f32 inY);
 	};
 }

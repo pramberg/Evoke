@@ -38,6 +38,11 @@ namespace Evoke
 		mData.VSyncEnabled = inEnabled;
 	}
 
+	void WindowsWindow::SetCursorMode(ECursorMode inCursorMode)
+	{
+		glfwSetInputMode(mWindow, GLFW_CURSOR, (i32)inCursorMode);
+	}
+
 	void WindowsWindow::Init(const WindowProperties& inProperties)
 	{
 		mData.Title = inProperties.Title;

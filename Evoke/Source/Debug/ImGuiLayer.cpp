@@ -68,6 +68,8 @@ namespace Evoke
 		if (mShowDemoWindow)
 			ImGui::ShowDemoWindow(&mShowDemoWindow);
 
+		OnRender.Broadcast();
+		
 		End();
 	}
 

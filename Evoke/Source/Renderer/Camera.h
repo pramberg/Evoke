@@ -19,6 +19,7 @@ namespace Evoke
 
 		const glm::mat4& Projection() const { return mProjection; }
 		const glm::mat4& View() const { return mView; }
+		void SetView(const glm::mat4& inMatrix) { mView = inMatrix; mViewProjection = mProjection * mView; }
 		const glm::mat4& ViewProjection() const { return mViewProjection; }
 
 		void Resize(u32 inWidth, u32 inHeight);

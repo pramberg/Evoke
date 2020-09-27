@@ -14,6 +14,13 @@ namespace Evoke
 			: Title(inTitle), Width(inWidth), Height(inHeight) {}
 	};
 
+	enum class ECursorMode
+	{
+		Normal = 0x00034001,
+		Hidden = 0x00034002,
+		Disabled = 0x00034003
+	};
+
 	class Window
 	{
 	public:
@@ -26,6 +33,8 @@ namespace Evoke
 
 		virtual void SetVSync(b8 inEnabled) = 0;
 		virtual b8 VSyncEnabled() const = 0;
+
+		virtual void SetCursorMode(ECursorMode inCursorMode = ECursorMode::Normal) = 0;
 
 		inline virtual void* NativeWindow() const = 0;
 
@@ -88,5 +97,15 @@ namespace Evoke
 		 * @param 	inScrollY	How much was scrolled vertically.
 		 */
 		MulticastDelegate<f32, f32> OnMouseScrolled;
+	};
+}
+
+namespace magic_enum::customize
+{
+	template <>
+	struct enum_range<Evoke::ECursorMode>
+	{
+		static constexpr i32 min = 212993;
+		static constexpr i32 max = 212995;
 	};
 }

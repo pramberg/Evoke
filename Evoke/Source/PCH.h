@@ -27,6 +27,8 @@
 #include "Core/InputIDs.h"
 
 #include <glm/glm.hpp>
+#define MAGIC_ENUM_RANGE_TYPE std::int32_t
+#include <magic_enum.hpp>
 
 #ifdef EV_PLATFORM_WINDOWS
 #include <Windows.h>
