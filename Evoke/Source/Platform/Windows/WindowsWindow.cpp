@@ -66,6 +66,7 @@ namespace Evoke
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 		glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
+		glfwWindowHint(GLFW_MAXIMIZED, true);
 
 		mWindow = glfwCreateWindow(static_cast<i32>(mData.Width), static_cast<i32>(mData.Height), mData.Title.c_str(), nullptr, nullptr);
 		glfwMakeContextCurrent(mWindow);

@@ -32,10 +32,10 @@ namespace Evoke
 
 		struct WindowData
 		{
-			string Title;
-			u32 Width;
-			u32 Height;
-			b8 VSyncEnabled;
+			string Title = "Window";
+			u32 Width = 720;
+			u32 Height = 1280;
+			b8 VSyncEnabled = true;
 		} mData;
 	};
 }
