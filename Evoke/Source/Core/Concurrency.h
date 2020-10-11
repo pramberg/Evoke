@@ -22,7 +22,10 @@ namespace Evoke
 	class TOptionalConcurrency<TConcurrency, std::enable_if_t<TConcurrency == EConcurrency::Asynchronous>>
 	{
 	protected:
+		// #Q: This fixes VS static analysis warning, but I don't want annotations everywhere to satisfy it. What to do?
+		//_Acquires_lock_(mMutex)
 		void Lock() { mMutex.lock(); }
+		//_Releases_lock_(mMutex)
 		void Unlock() { mMutex.unlock(); }
 		std::mutex mMutex;
 	};
