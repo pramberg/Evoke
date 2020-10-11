@@ -12,7 +12,7 @@ end
 
 function GetDefaultConfig()
     language "C++"
-    cppdialect "C++17"
+    cppdialect "C++20"
     staticruntime "on"
     systemversion "latest"
 
@@ -20,11 +20,13 @@ function GetDefaultConfig()
 
     filter "configurations:Debug"
         defines "EV_DEBUG"
+        defines "EV_EDITOR"
         runtime "Debug"
         symbols "on"
 
     filter "configurations:Release"
         defines "EV_RELEASE"
+        defines "EV_EDITOR"
         runtime "Release"
         optimize "on"
 
