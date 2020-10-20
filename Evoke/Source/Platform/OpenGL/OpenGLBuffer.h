@@ -1,8 +1,8 @@
 #pragma once
 #include "Core/Core.h"
 #include "Renderer/Buffer.h"
-#include <glad/glad.h>
 
+#include <glad/glad.h>
 #include <type_traits>
 #include "boost/pfr/precise/core.hpp"
 

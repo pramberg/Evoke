@@ -6,7 +6,12 @@
 #pragma warning(push, 0)
 #include "spdlog/spdlog.h"
 #include "spdlog/sinks/basic_file_sink.h"
+#include "spdlog/logger.h"
+#include "spdlog/sinks/stdout_color_sinks.h"
+#include "spdlog/sinks/base_sink.h"
+#include "spdlog/sinks/msvc_sink.h"
 #pragma warning(pop)
+
 
 namespace Evoke
 {
@@ -25,6 +30,16 @@ namespace Evoke
 		Critical = ::spdlog::level::critical,
 		Disabled = ::spdlog::level::off,
 		Count
+	};
+
+	class ConsoleSink : public ::spdlog::sinks::base_sink<std::mutex>
+	{
+	public:
+		ConsoleSink() = default;
+
+	protected:
+		void sink_it_(const ::spdlog::details::log_msg& msg) override;
+		void flush_() override {}
 	};
 }
 
@@ -52,7 +67,17 @@ namespace Evoke
  * @param 	inLoggerName  	The name of the logger. Note: all loggers should be prefixed with "Log".
  * @param 	inDefaultLevel	The default log level.
  */
-#define EV_ADD_LOGGER(inLoggerName, inDefaultLevel) { auto inLoggerName = ::spdlog::stdout_color_mt(#inLoggerName); inLoggerName->set_level((spdlog::level::level_enum)inDefaultLevel); }
+#define EV_ADD_LOGGER(inLoggerName, inDefaultLevel) {\
+auto inLoggerName = MakeShared<::spdlog::logger>(#inLoggerName,\
+::spdlog::sinks_init_list{\
+	MakeShared<::spdlog::sinks::stdout_color_sink_mt>(),\
+	MakeShared<::spdlog::sinks::msvc_sink_mt>(),\
+	MakeShared<::Evoke::ConsoleSink>(),\
+});\
+inLoggerName->set_level((::spdlog::level::level_enum)inDefaultLevel);\
+inLoggerName->set_pattern("%^[%T](%s:%#) %n: %v%$");\
+spdlog::register_logger(inLoggerName);\
+}
 
 /**
  * The main logging macro. Follows UE4 logging syntax.

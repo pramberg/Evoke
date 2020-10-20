@@ -6,12 +6,22 @@ namespace Evoke
 	class Filesystem
 	{
 	public:
+		static String Filename(StringView inFilepath);
+		static String Extension(StringView inFilepath);
+		static String Path(StringView inFilepath);
+		static void SplitPath(const String& inFilepath, String* outPath, String* outFilename, String* outExtension);
+		static b8 Exists(StringView inPath);
+
 		static String ReadFile(StringView inFilepath);
-		static String ExtractFilename(StringView inFilepath);
 		static String Absolute(StringView inFilepath);
+		static String Relative(StringView inFilepath, StringView inBasePath);
+
+		static std::filesystem::directory_iterator IterateDirectory(StringView inFilepath);
+		static std::filesystem::recursive_directory_iterator IterateDirectoryRecursive(StringView inFilepath);
 
 		/** Matches a string with a pattern that can have wildcards. */
 		static b8 MatchPattern(StringView inString, StringView inPattern);
+
 
 	public:
 		static constexpr c8 Separator = std::filesystem::path::preferred_separator;

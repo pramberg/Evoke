@@ -28,15 +28,21 @@ struct PixelInput
     float3 Normal : NORMAL;
 };
 
+cbuffer MaterialCB : register(b1)
+{
+    float4x4 Model;
+}
+
 PixelInput VSMain(VertexInput inData)
 {
     PixelInput outData;
-    outData.Position = mul(float4(inData.LocalPosition.xyz, 1.0f), ViewProjection);
-    outData.WorldPosition = inData.LocalPosition;
+    float4x4 mvp = mul(Model, ViewProjection);
+    outData.Position = mul(float4(inData.LocalPosition.xyz, 1.0f), mvp);
+    outData.WorldPosition = mul(float4(inData.LocalPosition, 1.0f), Model).xyz;
     outData.ViewPosition = mul(float4(inData.LocalPosition.xyz, 1.0f), View).xyz;
     outData.Color = inData.Color;
     outData.UV = inData.UV;
-    outData.Normal = inData.Normal;
+    outData.Normal = mul(float4(inData.Normal, 0.0f), Model).xyz;
     return outData;
 }
 

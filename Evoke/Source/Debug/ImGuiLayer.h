@@ -12,7 +12,7 @@ namespace Evoke
 
 		virtual void Attached() override;
 		virtual void Detached() override;
-		virtual void Update(f32 inDeltaTime) override;
+		virtual void Update(f32 inDeltaTime, GraphicsContext* inOutGraphicsContext) override;
 
 		void Begin();
 		void End();
@@ -22,5 +22,14 @@ namespace Evoke
 		b8 mDockable;
 		std::vector<TUniquePtr<Widget>> mWidgets;
 		b8 mShowDemoWindow = false;
+
+		struct Sel
+		{
+			Sel(StringView inName) : Name(inName) {}
+			String Name;
+			b8 Selected = false;
+		};
+
+		std::vector<Sel> names;
 	};
 }

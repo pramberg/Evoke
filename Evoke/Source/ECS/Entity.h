@@ -42,6 +42,8 @@ namespace Evoke
 			return mScene->mRegistry.remove<T>(mEntityHandle);
 		}
 
+		const entt::entity ID() const { return mEntityHandle; }
+
 	private:
 		entt::entity mEntityHandle{ entt::null };
 		Scene* mScene = nullptr;

@@ -9,6 +9,7 @@ namespace Evoke
 	{
 		f32 FlycamSpeed = 1.0f;
 		f32 FlycamRotationSensitivity = 0.2f;
+
 		f32 TrackballZoomSensitivity = 0.01f;
 		f32 TrackballPanSensitivity = 0.02f;
 		f32 TrackballRotationSensitivity = 0.2f;
@@ -45,13 +46,12 @@ namespace Evoke
 		glm::vec2 mMousePreviousPosition = glm::vec2(0.0f);
 		glm::vec2 mMouseDelta = glm::vec2(0.0f);
 
-		glm::quat mRotation = glm::identity<glm::quat>();
+		glm::quat mRotation{ glm::identity<glm::quat>() };
 		glm::vec3 mPosition{ 0.0f };
 		glm::vec3 mTarget{ 0.0f };
 
 		f32 mYaw = 0.0f;
 		f32 mPitch = 0.0f;
 		f32 mRadius = 5.0f;;
-
 	};
 }

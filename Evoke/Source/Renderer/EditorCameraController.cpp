@@ -9,7 +9,7 @@ namespace Evoke
 {
 	EditorCameraController::EditorCameraController()
 	{
-		auto& window = Application::Instance().MainWindow();
+		auto& window = Application::Get().MainWindow();
 		window.OnKeyPressed.Subscribe([&](EKeyCode inButton, i32 inRepeat)
 		{
 			if (inButton == EKeyCode::F)
@@ -54,7 +54,7 @@ namespace Evoke
 			}
 		});
 
-		Application::Instance().AddOnImGuiRenderCallback([this]()
+		Application::Get().AddOnImGuiRenderCallback([this]()
 		{
 			static b8 showEditorCameraSettings = true;
 			if (!showEditorCameraSettings)
@@ -62,6 +62,8 @@ namespace Evoke
 
 			ImGui::Begin("Editor Camera Settings", &showEditorCameraSettings);
 			ImGui::Text("Current camera mode: %s", magic_enum::enum_name(mCameraMode).data());
+			ImGui::Text("Pitch: %f", mPitch);
+			ImGui::Text("Yaw: %f", mYaw);
 
 			if (ImGui::CollapsingHeader("Flycam"))
 			{
@@ -109,7 +111,7 @@ namespace Evoke
 
 		if (mCameraMode == ECameraMode::None)
 		{
-			Application::Instance().MainWindow().SetCursorMode(ECursorMode::Normal);
+			Application::Get().MainWindow().SetCursorMode(ECursorMode::Normal);
 		}
 	}
 
@@ -127,8 +129,25 @@ namespace Evoke
 
 	void EditorCameraController::Rotate(f32 inDeltaYaw, f32 inDeltaPitch)
 	{
-		mYaw += inDeltaYaw;
 		mPitch += inDeltaPitch;
+
+		if (mPitch > Math::Pi<f32>)
+			mPitch -= Math::TwoPi<f32>;
+		else if (mPitch < -Math::Pi<f32>)
+			mPitch += Math::TwoPi<f32>;
+
+		/*if (glm::abs(mPitch) > Math::HalfPi)
+			mYaw -= inDeltaYaw;
+		else
+			mYaw += inDeltaYaw;*/
+
+		mYaw += inDeltaYaw;
+
+		//mYaw += inDeltaYaw * Math::Lerp(1.0f, -1.0f, glm::pow(glm::min(glm::abs(mPitch) / (f32)Math::HalfPi, 1.0f), 4));
+		if (mYaw > Math::Pi<f32>)
+			mYaw -= Math::TwoPi<f32>;
+		else if (mYaw < -Math::Pi<f32>)
+			mYaw += Math::TwoPi<f32>;
 
 		const glm::quat rotationX = glm::angleAxis(mPitch, glm::vec3{1.0f, 0.0f, 0.0f});
 		const glm::quat rotationY = glm::angleAxis(mYaw, glm::vec3{ 0.0f, 1.0f, 0.0f });
@@ -170,7 +189,7 @@ namespace Evoke
 		}
 		else if (mCameraMode == ECameraMode::Flycam)
 		{
-			Application::Instance().MainWindow().SetCursorMode(ECursorMode::Disabled);
+			Application::Get().MainWindow().SetCursorMode(ECursorMode::Disabled);
 
 			const auto localDelta = -mMouseDelta * glm::radians(mCameraSettings.FlycamRotationSensitivity);
 			Rotate(localDelta.x, localDelta.y);

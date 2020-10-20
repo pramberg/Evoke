@@ -2,19 +2,25 @@
 #include "Core.h"
 #include "Window.h"
 #include "LayerStack.h"
-#include "Renderer\GraphicsContext.h"
-#include "Renderer\RenderTarget.h"
-#include "Renderer\EditorCameraController.h"
-
 #include "Debug/ImGuiLayer.h"
 
 namespace Evoke
 {
+	class AssetRegistry;
+	class Scene;
+	class EditorCameraController;
+	class RenderTarget2D;
+	class GraphicsContext;
+
 	class Application
 	{
 	public:
 		Application();
+		Application(Application&) = delete;
+		Application(Application&&) = delete;
 		virtual ~Application();
+
+		Application& operator=(Application&) = delete;
 
 		void Run();
 		void Close() { mIsRunning = false; }
@@ -26,12 +32,15 @@ namespace Evoke
 		const Window& MainWindow() const { return *mMainWindow; }
 
 		// #TEMP
-		TSharedPtr<EditorCameraController>& CameraController() { return mCameraController; }
-		TSharedPtr<RenderTarget2D>& RenderTarget() { return mAppRT; }
-		void AddOnImGuiRenderCallback(const std::function<void()>& inFunction) { if (mImGuiLayer) { mImGuiLayer->OnRender.Subscribe(inFunction); } }
+		inline TSharedPtr<EditorCameraController>& CameraController() { return mCameraController; }
+		inline TSharedPtr<RenderTarget2D>& RenderTarget() { return mAppRT; }
+		inline void AddOnImGuiRenderCallback(const std::function<void()>& inFunction) { if (mImGuiLayer) { mImGuiLayer->OnRender.Subscribe(inFunction); } }
 
+		Scene* MainScene() { return mActiveScene.get(); }
+		AssetRegistry* GetAssetRegistry() { return mAssetRegistry.get(); }
+		void RenderScene(f32 inDeltaTime);
 	public:
-		static Application& Instance() { return *sApplication; }
+		static Application& Get() { return *sApplication; }
 
 	private:
 		void Update(f32 inDeltaTime);
@@ -40,17 +49,22 @@ namespace Evoke
 
 	private:
 		TUniquePtr<Window> mMainWindow;
-		b8 mIsRunning = true;
 		LayerStack mLayerStack;
 
 		ImGuiLayer* mImGuiLayer = nullptr;
 
-		f32 mLastFrameTime = 0.0f;
 		TUniquePtr<GraphicsContext> mContext;
 
 		TSharedPtr<EditorCameraController> mCameraController;
 		TSharedPtr<RenderTarget2D> mAppRT;
 
+		TUniquePtr<Scene> mActiveScene;
+		f32 mLastFrameTime = 0.0f;
+		b8 mIsRunning = true;
+
+		TUniquePtr<AssetRegistry> mAssetRegistry;
+
+		u8 mPadding[3];
 	private:
 		static Application* sApplication;
 	};

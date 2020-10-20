@@ -4,10 +4,10 @@
 
 namespace Evoke
 {
-	Camera_DEPRECATED::Camera_DEPRECATED() : mProjection(glm::perspectiveFov(mFieldOfView, (f32)Application::Instance().MainWindow().Width(), (f32)Application::Instance().MainWindow().Height(), mNearClip, mFarClip)),
+	Camera_DEPRECATED::Camera_DEPRECATED() : mProjection(glm::perspectiveFov(mFieldOfView, (f32)Application::Get().MainWindow().Width(), (f32)Application::Get().MainWindow().Height(), mNearClip, mFarClip)),
 		mViewProjection(mProjection * mView)
 	{
-		Application::Instance().MainWindow().OnWindowResized.Subscribe([this](u32 inWidth, u32 inHeight)
+		Application::Get().MainWindow().OnWindowResized.Subscribe([this](u32 inWidth, u32 inHeight)
 		{
 			Resize(inWidth, inHeight);
 		});
@@ -28,7 +28,7 @@ namespace Evoke
 	void Camera_DEPRECATED::SetFieldOfView(f32 inFoV)
 	{
 		mFieldOfView = inFoV;
-		mProjection = glm::perspectiveFov(mFieldOfView, (f32)Application::Instance().MainWindow().Width(), (f32)Application::Instance().MainWindow().Height(), mNearClip, mFarClip);
+		mProjection = glm::perspectiveFov(mFieldOfView, (f32)Application::Get().MainWindow().Width(), (f32)Application::Get().MainWindow().Height(), mNearClip, mFarClip);
 	}
 
 	void Camera_DEPRECATED::Resize(u32 inWidth, u32 inHeight)

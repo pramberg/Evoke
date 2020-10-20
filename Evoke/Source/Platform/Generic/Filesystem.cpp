@@ -13,15 +13,42 @@ namespace Evoke
 		return buffer.str();
 	}
 
-	String Filesystem::ExtractFilename(StringView inFilepath)
+	String Filesystem::Filename(StringView inFilepath)
 	{
 		fs::path path(inFilepath);
-		return path.filename().string();
+		return path.filename().replace_extension().string();
+	}
+
+	String Filesystem::Extension(StringView inFilepath)
+	{
+		fs::path path(inFilepath);
+		return path.extension().string();
+	}
+
+	String Filesystem::Path(StringView inFilepath)
+	{
+		fs::path path(inFilepath);
+		return path.has_filename() ? path.parent_path().string() : path.string();
 	}
 
 	String Filesystem::Absolute(StringView inFilepath)
 	{
 		return fs::absolute(inFilepath).string();
+	}
+
+	String Filesystem::Relative(StringView inFilepath, StringView inBasePath)
+	{
+		return fs::relative(inFilepath, inBasePath).string();
+	}
+
+	fs::directory_iterator Filesystem::IterateDirectory(StringView inFilepath)
+	{
+		return fs::directory_iterator(inFilepath);
+	}
+
+	std::filesystem::recursive_directory_iterator Filesystem::IterateDirectoryRecursive(StringView inFilepath)
+	{
+		return fs::recursive_directory_iterator(inFilepath);
 	}
 
 	b8 Filesystem::MatchPattern(StringView inString, StringView inPattern)
@@ -44,4 +71,10 @@ namespace Evoke
 			return MatchPatternImpl(inString, inPattern + 1) || MatchPatternImpl(inString + 1, inPattern);
 		return false;
 	}
+
+	b8 Filesystem::Exists(StringView inPath)
+	{
+		return fs::exists(inPath);
+	}
+
 }

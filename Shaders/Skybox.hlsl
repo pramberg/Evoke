@@ -1,10 +1,5 @@
 #include "Common.hlsli"
 
-cbuffer SkyboxCB : register(b1)
-{
-    float4x4 SkyboxViewProjection;
-}
-
 struct VertexInput
 {
     float3 LocalPosition : POSITION;
@@ -19,7 +14,9 @@ struct PixelInput
 PixelInput VSMain(VertexInput inData)
 {
     PixelInput outData;
-    outData.Position = mul(float4(inData.LocalPosition.xyz, 1.0f), SkyboxViewProjection).xyww;
+    const float4x4 skyboxView = float4x4((float3x4)View, float4(0.0f, 0.0f, 0.0f, 0.0f));
+    float4x4 skyboxProjection = mul(skyboxView, Projection);
+    outData.Position = mul(float4(inData.LocalPosition.xyz, 1.0f), skyboxProjection).xyww;
     outData.SampleVector = inData.LocalPosition.xyz;
     return outData;
 }
