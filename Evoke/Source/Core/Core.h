@@ -26,6 +26,9 @@ using StringView = std::string_view;
 
 using b8 = bool;
 
+#define EV_NODISCARD [[nodiscard]]
+#define EV_UNUSED [[maybe_unused]]
+
 #include <Debug/DebugBreak.h>
 #define EV_DEBUG_BREAK() psnip_trap()
 
