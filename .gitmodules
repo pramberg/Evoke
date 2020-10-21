@@ -2,32 +2,41 @@
     ignore = dirty
 	path = Evoke/ThirdParty/spdlog
 	url = https://github.com/gabime/spdlog
+    branch = v1.x
 [submodule "Evoke/ThirdParty/GLFW"]
     ignore = dirty
 	path = Evoke/ThirdParty/GLFW
 	url = https://github.com/glfw/glfw
+    branch = master
 [submodule "Evoke/ThirdParty/ImGui"]
     ignore = dirty
 	path = Evoke/ThirdParty/ImGui
 	url = https://github.com/ocornut/imgui
+    branch = docking
 [submodule "Evoke/ThirdParty/GLM"]
     ignore = dirty
 	path = Evoke/ThirdParty/GLM
 	url = https://github.com/g-truc/glm
+    branch = master
 [submodule "Evoke/ThirdParty/EFSW"]
     ignore = dirty
 	path = Evoke/ThirdParty/EFSW
 	url = https://github.com/SpartanJ/efsw
+    branch = master
 [submodule "Evoke/ThirdParty/PortableFileDialogs"]
     ignore = dirty
 	path = Evoke/ThirdParty/PortableFileDialogs
 	url = https://github.com/samhocevar/portable-file-dialogs
+    branch = master
 [submodule "Evoke/ThirdParty/RLL"]
 	path = Evoke/ThirdParty/RLL
 	url = https://github.com/MrZeusTheCoder/RLL
+    branch = master
 [submodule "Evoke/ThirdParty/MagicGet"]
 	path = Evoke/ThirdParty/MagicGet
 	url = https://github.com/apolukhin/magic_get
+    branch = master
 [submodule "Evoke/ThirdParty/magic_enum"]
 	path = Evoke/ThirdParty/magic_enum
 	url = https://github.com/pramberg/magic_enum
+    branch = master

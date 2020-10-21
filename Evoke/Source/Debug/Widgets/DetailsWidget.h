@@ -2,9 +2,10 @@
 #include "Core/Core.h"
 #include "Widget.h"
 #include "ECS/Scene.h"
-#include "boost/pfr/precise/core.hpp"
 #include "imgui.h"
 #include "misc/cpp/imgui_stdlib.h"
+
+#include <boost/pfr.hpp>
 
 namespace Evoke
 {
