@@ -19,6 +19,8 @@
 #include "imgui_internal.h"
 #include "Widgets/ConsoleWidget.h"
 
+#include "Debug/ImGuiExtensions.h"
+
 namespace Evoke
 {
 	ImGuiLayer::ImGuiLayer(b8 inDockable) : Layer("ImGuiLayer"), mDockable(inDockable)
