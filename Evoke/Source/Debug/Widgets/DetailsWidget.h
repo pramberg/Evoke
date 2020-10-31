@@ -58,8 +58,22 @@ namespace Evoke
 	template<typename T, b8... TArgs>
 	constexpr auto GetImGuiDrawFunction()
 	{
-		static_assert(false, "Found no valid ImGui Draw Function for type!");
-		return [](StringView inTitle, T& inValue) {};
+		if constexpr (std::is_aggregate_v<T>)
+		{
+			return [](StringView inTitle, T& inValue)
+			{
+				boost::pfr::for_each_field<T>(std::move(inValue), [inTitle](auto& inOutField, i64 inIndex)
+				{
+					using CurrentType = typename std::decay_t<decltype(inOutField)>;
+					GetImGuiDrawFunction<CurrentType>()(fmt::format("{} | {}", inTitle, inIndex), inOutField);
+				});
+			};
+		}
+		else
+		{
+			static_assert(false, "Found no valid ImGui Draw Function for type!");
+			return [](StringView inTitle, T& inValue) {};
+		}
 	}
 
 	template<> constexpr auto GetImGuiDrawFunction<f32>()       { return [](StringView inTitle, f32& inValue) { ImGui::DragFloat(inTitle.data(), &inValue); }; }
